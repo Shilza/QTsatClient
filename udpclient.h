@@ -8,7 +8,8 @@ class MyUDP : public QObject
 {
     Q_OBJECT
 private:
-    QUdpSocket *socket;
+    QUdpSocket *socketReceiver;
+    QUdpSocket *socketSender;
 
 public:
     explicit MyUDP(QObject *parent = 0);
