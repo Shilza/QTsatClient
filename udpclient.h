@@ -15,13 +15,13 @@ public:
     explicit MyUDP(QObject *parent = 0);
     void HelloUDP(QString msg);
     QByteArray buffer;
-
+    QByteArray sessionKey;
 signals:
      void updating();
 
 private slots:
     void reading();
-
+    void handshaker();
 };
 
 #endif // UDPCLIENT_H

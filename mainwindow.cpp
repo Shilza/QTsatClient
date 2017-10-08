@@ -34,6 +34,8 @@ void MainWindow::printMessages(){
         ui->listWidget->addItem(clientt->buffer);
         ui->listWidget->scrollToBottom();
     }
+    ui->listWidget->addItem(clientt->sessionKey);
+    ui->listWidget->scrollToBottom();
 }
 
 void MainWindow::on_sendButton_clicked()
