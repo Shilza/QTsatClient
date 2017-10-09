@@ -10,6 +10,7 @@ class MyUDP : public QObject
 private:
     QUdpSocket *socketReceiver;
     QUdpSocket *socketSender;
+    QHostAddress host;
 
 public:
     explicit MyUDP(QObject *parent = 0);
@@ -21,7 +22,7 @@ signals:
 
 private slots:
     void reading();
-    void handshaker();
+    void handshaking();
 };
 
 #endif // UDPCLIENT_H
