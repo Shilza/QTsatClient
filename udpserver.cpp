@@ -27,8 +27,5 @@ void UDPServer::readyRead()
     quint16 senderPort;
     socket->readDatagram(buffer.data(), buffer.size(), &peer, &senderPort);
 
-    qDebug() << "Message from: " << peer.toString();
-    qDebug() << "Message: " << buffer;
-
     emit forSay();
 }
