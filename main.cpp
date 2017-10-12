@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
     w.show();
 
     //MyUDP client;
-    //client.HelloUDP();
 
     return a.exec();
 }

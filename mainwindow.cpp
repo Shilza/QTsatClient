@@ -5,7 +5,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    clientt = new MyUDP;
+    client = new MyUDP("Shilza","0");
+    //client = new MyUDP;
 
     ui->setupUi(this);
     ui->listWidget->addScrollBarWidget(ui->verticalScrollBar, Qt::AlignRight);
@@ -21,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 "background: white;}");
 
     ui->textEdit->installEventFilter(this);
-    connect(clientt, SIGNAL(updating()), this, SLOT(printMessages()));
+    connect(client, SIGNAL(updating()), this, SLOT(printMessages()));
 }
 
 MainWindow::~MainWindow()
@@ -30,11 +31,11 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::printMessages(){
-    if(clientt->buffer.size()!=0){
-        ui->listWidget->addItem(clientt->buffer);
+    if(client->buffer.size()!=0){
+        ui->listWidget->addItem(client->buffer);
         ui->listWidget->scrollToBottom();
     }
-    ui->listWidget->addItem(clientt->sessionKey);
+    ui->listWidget->addItem(client->sessionKey);
     ui->listWidget->scrollToBottom();
 }
 
@@ -44,6 +45,6 @@ void MainWindow::on_sendButton_clicked()
 
     if(a!=NULL){
     ui->textEdit->clear();
-    clientt->HelloUDP(a);
+    client->HelloUDP(a);
     }
 }

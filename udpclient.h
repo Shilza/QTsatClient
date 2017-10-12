@@ -8,21 +8,21 @@ class MyUDP : public QObject
 {
     Q_OBJECT
 private:
-    QUdpSocket *socketReceiver;
-    QUdpSocket *socketSender;
+    QUdpSocket *socket;
+    QUdpSocket *systemSocket;
     QHostAddress host;
+    void handshaking(QString log, QString pass);
 
 public:
-    explicit MyUDP(QObject *parent = 0);
+    explicit MyUDP(QString log,QString pass,QObject *parent = 0);
+    //explicit MyUDP(QObject *parent = 0);
     void HelloUDP(QString msg);
     QByteArray buffer;
     QByteArray sessionKey;
 signals:
-     void updating();
-
+    void updating();
 private slots:
     void reading();
-    void handshaking();
 };
 
 #endif // UDPCLIENT_H
