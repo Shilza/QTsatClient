@@ -1,22 +1,26 @@
 #include "udpserver.h"
 #include <iostream>
-
+#include <QTime>
 UDPServer::UDPServer(QObject *parent) :
     QObject(parent)
 {
     socket = new QUdpSocket(this);
 
-    socket->bind(QHostAddress::LocalHost, 1337);
+    socket->bind(QHostAddress::Any, 49001);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(this, SIGNAL(forSay()),this,SLOT(SayHello()));
+    QTime time;
+    time.start();
+    while(time.elapsed()<10000){
+    }
 }
 
 void UDPServer::SayHello()
 {
     QByteArray Data;
     Data.append("Hello");
-    socket->writeDatagram(Data, peer, 1338);
+    socket->writeDatagram(Data, peer, 49000);
 }
 
 void UDPServer::readyRead()
@@ -26,6 +30,6 @@ void UDPServer::readyRead()
 
     quint16 senderPort;
     socket->readDatagram(buffer.data(), buffer.size(), &peer, &senderPort);
-
+    qDebug() << buffer;
     emit forSay();
 }
