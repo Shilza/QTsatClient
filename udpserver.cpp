@@ -10,10 +10,6 @@ UDPServer::UDPServer(QObject *parent) :
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(this, SIGNAL(forSay()),this,SLOT(SayHello()));
-    QTime time;
-    time.start();
-    while(time.elapsed()<10000){
-    }
 }
 
 void UDPServer::SayHello()
