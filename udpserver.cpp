@@ -32,20 +32,6 @@ UDPServer::UDPServer(QObject *parent) :
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
     connect(this, SIGNAL(isReceived()), this, SLOT(sendReceived()));
 
-    QStringList list;
-    list.push_back("Shilza");
-    list.push_back("5");
-    QSqlQuery query;
-    query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
-    query.bindValue(0, list.at(0));
-    query.bindValue(1, list.at(1));
-    query.exec();
-    QString id="";
-    while ( query.next() )
-        id = query.value(0).toString();
-
-    if(id!="")
-        qDebug() << "sas";
 }
 
 void UDPServer::sendReceived()
@@ -71,9 +57,22 @@ void UDPServer::handshake(){
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
     QStringList list = QString(buffer).split('|');
+
     if(list.at(0)!="handshake")
         return;
 
+    QSqlQuery query;
+    query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
+    query.bindValue(0, list.at(0));
+    query.bindValue(1, list.at(1));
+    query.exec();
+
+    QString id="";
+    while (query.next())
+        id = query.value(0).toString();
+
+    if(id == "")
+        return;
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
 }
