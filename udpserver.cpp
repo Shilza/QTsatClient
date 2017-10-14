@@ -49,7 +49,6 @@ void UDPServer::read()
 }
 
 void UDPServer::handshake(){
-    qDebug() << "handshake";
     QByteArray buffer;
     quint16 port;
     QHostAddress peer;
@@ -61,6 +60,8 @@ void UDPServer::handshake(){
 
     if(list.at(0)!="handshake")
         return;
+
+    qDebug() << "handshake";
 
     QSqlQuery query;
     query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
