@@ -12,7 +12,7 @@ public:
         this->nickname = nickname;
         this->IP = IP;
         time=QDateTime::currentDateTime().toTime_t();
-   //     sessionKey = QCryptographicHash::hash(nickname., QCryptographicHash::Md5).toHex();
+        sessionKey = QCryptographicHash::hash(nickname.toUtf8() + time, QCryptographicHash::Md5).toHex();
     }
 };
 
@@ -76,7 +76,7 @@ void UDPServer::handshake(){
         return;
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
-    qDebug() << sessions[0].get()->time;
+    qDebug() << sessions[0].get()->sessionKey;
 }
 
 
