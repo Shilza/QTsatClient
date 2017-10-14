@@ -26,7 +26,7 @@ UDPServer::UDPServer(QObject *parent) :
     systemSocket = new QUdpSocket(this);
 
     socket->bind(QHostAddress::Any, 49001);
-    systemSocket->bind(QHostAddress::Any, 49003);
+    systemSocket->bind(QHostAddress::Any, 49004);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
