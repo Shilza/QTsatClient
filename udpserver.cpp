@@ -34,9 +34,9 @@ UDPServer::UDPServer(QObject *parent) :
 
     QSqlQuery query;
     query.exec("SELECT ID FROM users WHERE Nickname=Shilza");
-    qint64 id;
+    QString id;
     while ( query.next() ) {
-        id = query.value(0).toLongLong();
+        id = query.value(0).toString();
     }
     qDebug() << id;
 }
