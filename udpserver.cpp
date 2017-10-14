@@ -71,12 +71,12 @@ void UDPServer::handshake(){
     QString id="";
     while (query.next())
         id = query.value(0).toString();
-    qDebug() << id;
+
     if(id == "")
         return;
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
-    qDebug() << sessions[0].get();
+    qDebug() << sessions[0].get()->time;
 }
 
 
