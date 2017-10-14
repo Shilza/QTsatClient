@@ -32,11 +32,6 @@ UDPServer::UDPServer(QObject *parent) :
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
     connect(this, SIGNAL(isReceived()), this, SLOT(sendReceived()));
 
-    QHostAddress a;
-    a.setAddress("176.113.237.191");
-    QByteArray sos("sas");
-    socket->writeDatagram(sos, a, 49000);
-
 }
 
 void UDPServer::sendReceived()
