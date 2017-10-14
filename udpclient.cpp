@@ -11,6 +11,7 @@ MyUDP::MyUDP(QString log,QString pass, QObject *parent) : QObject(parent){
     handshaking(log,pass);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(reading()));
+    connect(systemSocket, SIGNAL(readyRead()), this, SLOT(systemReading()));
 }
 
 void MyUDP::HelloUDP(QString msg){
@@ -24,10 +25,13 @@ void MyUDP::reading(){
     emit updating();
 }
 
-void MyUDP::handshaking(QString log, QString pass){
-    QByteArray par;
-    systemSocket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
+void MyUDP::systemReading(){
     sessionKey.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
     emit updating();
+}
+
+void MyUDP::handshaking(QString log, QString pass){
+    QByteArray par;
+    systemSocket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
 }

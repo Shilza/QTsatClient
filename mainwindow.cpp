@@ -30,7 +30,6 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::printMessages(){
-    client->buffer = "Sasss";
     if(client->buffer.size()!=0){
         ui->listWidget->addItem(client->buffer);
         ui->listWidget->scrollToBottom();

@@ -23,6 +23,7 @@ signals:
     void updating();
 private slots:
     void reading();
+    void systemReading();
 };
 
 #endif // UDPCLIENT_H
