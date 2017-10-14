@@ -15,10 +15,10 @@ class UDPServer : public QObject
       QByteArray buffer;
       QHostAddress peer;
   signals:
-      void forSay();
+      void isReceived();
   public slots:
-      void SayHello();
-      void readyRead();
+      void sendReceived();
+      void read();
 };
 
 #endif // UDPSERVER_H

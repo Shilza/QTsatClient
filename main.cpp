@@ -3,8 +3,8 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication application(argc, argv);
 
-    UDPServer serv;
-    return a.exec();
+    UDPServer server;
+    return application.exec();
 }
