@@ -26,7 +26,8 @@ void MyUDP::reading(){
 
 void MyUDP::handshaking(QString log, QString pass){
     QByteArray par;
+    systemSocket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
     sessionKey.resize(systemSocket->pendingDatagramSize());
-    systemSocket->writeDatagram(par.append(" handshake|"+log+"|"+pass), host, 49002);
-    systemSocket->readDatagram(sessionKey.data(), sessionKey.size());
+    systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
+    emit updating();
 }

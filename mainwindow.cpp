@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     client = new MyUDP("Shilza","0");
-    //client = new MyUDP;
 
     ui->setupUi(this);
     ui->listWidget->addScrollBarWidget(ui->verticalScrollBar, Qt::AlignRight);
@@ -31,6 +30,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::printMessages(){
+    client->buffer = "Sasss";
     if(client->buffer.size()!=0){
         ui->listWidget->addItem(client->buffer);
         ui->listWidget->scrollToBottom();
@@ -42,6 +42,9 @@ void MainWindow::printMessages(){
 void MainWindow::on_sendButton_clicked()
 {
     QString a = ui->textEdit->toPlainText();
+
+    ui->listWidget->addItem(client->sessionKey);
+    ui->listWidget->scrollToBottom();
 
     if(a!=NULL){
     ui->textEdit->clear();
