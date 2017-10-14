@@ -71,7 +71,7 @@ void UDPServer::handshake(){
     QString id="";
     while (query.next())
         id = query.value(0).toString();
-
+    qDebug() << id;
     if(id == "")
         return;
 
