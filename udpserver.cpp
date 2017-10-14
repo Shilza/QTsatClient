@@ -56,7 +56,7 @@ void UDPServer::handshake(){
     buffer.resize(socket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
-    qDebug() << buffer;
+    qDebug() << buffer.toStdString();
 
     QStringList list = QString(buffer).split('|');
 
