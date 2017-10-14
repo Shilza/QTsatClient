@@ -13,6 +13,13 @@ public:
         this->IP = IP;
         time=QDateTime::currentDateTime().toTime_t();
    //     sessionKey = QCryptographicHash::hash(nickname., QCryptographicHash::Md5).toHex();
+        QSqlQuery query;
+        query.exec("SELECT ID FROM users WHERE Nickname='Shilza'");
+        QString id;
+        while ( query.next() ) {
+            id = query.value(0).toString();
+        }
+        qDebug() << id;
     }
 };
 
@@ -77,14 +84,6 @@ int main(int argc, char *argv[])
     else
         qDebug() << "((\n";
 */
-
-    QSqlQuery query;
-    query.exec("SELECT id, name, salary FROM empl WHERE salary>=1000");
-    while ( query.next() ) {
-        qint64 id = query.value(0).toLongLong();
-        QString name = query.value(1).toString();
-        double salary = query.value(2).toDouble();
-       }
 
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
