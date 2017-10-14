@@ -76,7 +76,7 @@ void UDPServer::handshake(){
         return;
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
-    systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, 49002);
+    systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, 49003);
     qDebug() << port;
 }
 
