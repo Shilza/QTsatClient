@@ -56,17 +56,18 @@ void UDPServer::handshake(){
     buffer.resize(socket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
+    qDebug() << buffer;
+
     QStringList list = QString(buffer).split('|');
 
     if(list.at(0)!="handshake")
         return;
 
-    qDebug() << "handshake";
 
     QSqlQuery query;
     query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
-    query.bindValue(0, list.at(0));
-    query.bindValue(1, list.at(1));
+    query.bindValue(0, list.at(1));
+    query.bindValue(1, list.at(2));
     query.exec();
 
     QString id="";
