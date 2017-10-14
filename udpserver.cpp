@@ -32,8 +32,11 @@ UDPServer::UDPServer(QObject *parent) :
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
     connect(this, SIGNAL(isReceived()), this, SLOT(sendReceived()));
 
+    QStringList list;
+    list.push_back("Shilza");
+    list.push_back("0");
     QSqlQuery query;
-    query.exec("SELECT ID FROM users WHERE Nickname='Shilza'");
+    query.exec("SELECT ID FROM users WHERE Nickname=:list.at(0) AND Password=:list.at(1)");
     QString id="";
     while ( query.next() )
         id = query.value(0).toString();
