@@ -5,14 +5,14 @@ class UDPServer::Session{
 public:
     unsigned int time;
     QByteArray sessionKey;
-    QByteArray nickname;
+    QString nickname;
     QHostAddress IP;
 
-    Session(QByteArray nickname, QHostAddress IP){
+    Session(QString nickname, QHostAddress IP){
         this->nickname = nickname;
         this->IP = IP;
         time=QDateTime::currentDateTime().toTime_t();
-        sessionKey = QCryptographicHash::hash(time+nickname, QCryptographicHash::Md5).toHex();
+   //     sessionKey = QCryptographicHash::hash(nickname., QCryptographicHash::Md5).toHex();
     }
 };
 
@@ -31,7 +31,14 @@ UDPServer::UDPServer(QObject *parent) :
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
     connect(this, SIGNAL(isReceived()), this, SLOT(sendReceived()));
-    handshake();
+
+    QSqlQuery query;
+    query.exec("SELECT ID FROM users WHERE Nickname=Shilza");
+    qint64 id;
+    while ( query.next() ) {
+        id = query.value(0).toLongLong();
+    }
+    qDebug() << id;
 }
 
 void UDPServer::sendReceived()
@@ -50,14 +57,44 @@ void UDPServer::read()
 
 void UDPServer::handshake(){
     QByteArray buffer;
-    buffer.append("handshake|sdfsdf");
-//    buffer.resize(socket->pendingDatagramSize());
     quint16 port;
     QHostAddress peer;
-//    systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
+
+    buffer.resize(socket->pendingDatagramSize());
+    systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
+
     QStringList list = QString(buffer).split('|');
-    qDebug() << list.at(1);
-//    sessions.push_back(shared_ptr<Session>(new Session("Shilza", peer)));
+    if(list.at(0)!="handshake")
+        return;
+
+/*#include <QCoreApplication>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("localhost");
+    db.setDatabaseName("Tsat");
+    db.setUserName("shilza");
+    db.setPassword("192.168.39.26");
+
+    if(db.open())
+        qDebug() << "Ok\n";
+    else
+        qDebug() << "((\n";
+*/
+
+    QSqlQuery query;
+    query.exec("SELECT id, name, salary FROM empl WHERE salary>=1000");
+    while ( query.next() ) {
+        qint64 id = query.value(0).toLongLong();
+        QString name = query.value(1).toString();
+        double salary = query.value(2).toDouble();
+       }
+
+
+    sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
 }
 
 

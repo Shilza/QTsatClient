@@ -3,6 +3,8 @@
 
 #include <thread>
 #include <memory>
+#include <QtSql/QSql>
+#include <QtSql/QSqlQuery>
 #include <QVector>
 #include <QDateTime>
 #include <QUdpSocket>
