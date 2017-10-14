@@ -26,7 +26,7 @@ UDPServer::UDPServer(QObject *parent) :
     systemSocket = new QUdpSocket(this);
 
     socket->bind(QHostAddress::Any, 49001);
-    systemSocket->bind(QHostAddress::Any, 49004);
+    systemSocket->bind(QHostAddress::Any, 49003);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
@@ -53,7 +53,7 @@ void UDPServer::handshake(){
     quint16 port;
     QHostAddress peer;
 
-    buffer.resize(socket->pendingDatagramSize());
+    buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
     qDebug() << buffer;
