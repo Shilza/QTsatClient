@@ -49,6 +49,7 @@ void UDPServer::read()
 }
 
 void UDPServer::handshake(){
+    qDebug() << "handshake";
     QByteArray buffer;
     quint16 port;
     QHostAddress peer;
