@@ -30,7 +30,7 @@ UDPServer::UDPServer(QObject *parent) :
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
-    connect(this, SIGNAL(isReceived()), this, SLOT(sendReceived()));
+    connect(this, SIGNAL(isReceived(QByteArray message)), this, SLOT(sendReceived(QByteArray message)));
 
 }
 
