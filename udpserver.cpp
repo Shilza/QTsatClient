@@ -62,8 +62,10 @@ void UDPServer::sendReceived(QByteArray message){
 
         finalMessage.push_front(nickname+'|');
 
-        for(int i=0; i<sessions.size(); i++)
+        for(int i=0; i<sessions.size(); i++){
             socket->writeDatagram(finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
+            qDebug() << i;
+        }
 
 
     }
