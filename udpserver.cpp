@@ -92,7 +92,6 @@ void UDPServer::handshake(){
 
     for(int i=0; i<sessions.size(); i++)
         if(list.at(1) == sessions.at(i).get()->nickname){
-            qDebug() << "sos";
             systemSocket->writeDatagram(sessions[i].get()->sessionKey, peer, port);
             return;
         }
