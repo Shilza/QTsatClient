@@ -94,6 +94,10 @@ void UDPServer::handshake(){
     if(list.at(0)!="handshake")
         return;
 
+    for(int i=0; i<sessions.size(); i++)
+        if(list.at(1) == sessions.at(i).get()->nickname)
+            return;
+
     QSqlQuery query;
     query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
     query.bindValue(0, list.at(1));
