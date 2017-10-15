@@ -95,8 +95,10 @@ void UDPServer::handshake(){
         return;
 
     for(int i=0; i<sessions.size(); i++)
-        if(list.at(1) == sessions.at(i).get()->nickname)
+        if(list.at(1) == sessions.at(i).get()->nickname){
+            systemSocket->writeDatagram(sessions[i].get()->sessionKey, peer, port);
             return;
+        }
 
     QSqlQuery query;
     query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
@@ -112,6 +114,7 @@ void UDPServer::handshake(){
         return;
 
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
+
     systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
 }
 
