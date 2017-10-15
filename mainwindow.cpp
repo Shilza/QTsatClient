@@ -34,19 +34,14 @@ void MainWindow::printMessages(){
         ui->listWidget->addItem(client->buffer);
         ui->listWidget->scrollToBottom();
     }
-    ui->listWidget->addItem(client->sessionKey);
-    ui->listWidget->scrollToBottom();
 }
 
 void MainWindow::on_sendButton_clicked()
 {
     QString a = ui->textEdit->toPlainText();
 
-    ui->listWidget->addItem(client->sessionKey);
-    ui->listWidget->scrollToBottom();
-
     if(a!=NULL){
     ui->textEdit->clear();
-    client->HelloUDP(a);
+    client->sendMessage(client->sessionKey+'|'+a);
     }
 }

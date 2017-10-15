@@ -14,7 +14,7 @@ MyUDP::MyUDP(QString log,QString pass, QObject *parent) : QObject(parent){
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(systemReading()));
 }
 
-void MyUDP::HelloUDP(QString msg){
+void MyUDP::sendMessage(QString msg){
     QByteArray Data;
     socket->writeDatagram(Data.append(msg), host, 49001);
 }
@@ -28,7 +28,6 @@ void MyUDP::reading(){
 void MyUDP::systemReading(){
     sessionKey.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
-    emit updating();
 }
 
 void MyUDP::handshaking(QString log, QString pass){
