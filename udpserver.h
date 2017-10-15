@@ -21,12 +21,12 @@ class UDPServer : public QObject
   private:
     class Session;
     QUdpSocket *socket, *systemSocket;
-    QByteArray message;
     QVector<std::shared_ptr<Session>> sessions;
+    QString check(QByteArray sessionKey);
   signals:
-      void isReceived();
+      void isReceived(QByteArray message);
   public slots:
-      void sendReceived();
+      void sendReceived(QByteArray message);
       void read();
       void handshake();
 };

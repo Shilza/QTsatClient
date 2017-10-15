@@ -34,18 +34,49 @@ UDPServer::UDPServer(QObject *parent) :
 
 }
 
-void UDPServer::sendReceived()
-{
-    QByteArray Data;
-    Data.append("Hello");
-   // socket->writeDatagram(Data, , 49000);
+QString UDPServer::check(QByteArray sessionKey){
+    for(int i=0; i<sessions.size(); i++)
+        if(sessions[i].get()->sessionKey == sessionKey)
+            return sessions[i].get()->nickname;
+    return "";
+}
+
+void UDPServer::sendReceived(QByteArray message){
+    QStringList list = QString(message).split('|');
+    QString nickname = check((list.at(0)).toUtf8());
+    list.pop_front();
+
+    if(nickname != ""){
+        QString finalMessage;
+        while(list.size()){
+            finalMessage += list.front()+'|';
+            list.pop_front();
+        }
+
+        QSqlQuery query;
+        query.prepare("INSERT INTO messages (Sender, Text, Time) VALUES (:sender, :text, :time)");
+        query.bindValue(":sender", nickname);
+        query.bindValue(":text", finalMessage);
+        query.bindValue(":time", QDateTime::currentDateTime().toTime_t());
+        query.exec();
+
+        finalMessage.push_front(nickname+'|');
+
+        for(int i=0; i<sessions.size(); i++)
+            socket->writeDatagram(finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
+
+
+    }
+    else
+        return;
 }
 
 void UDPServer::read()
 {
+    QByteArray message;
     message.resize(socket->pendingDatagramSize());
     socket->readDatagram(message.data(), message.size());
-    emit isReceived();
+    emit isReceived(message);
 }
 
 void UDPServer::handshake(){
@@ -60,7 +91,6 @@ void UDPServer::handshake(){
 
     if(list.at(0)!="handshake")
         return;
-
 
     QSqlQuery query;
     query.prepare("SELECT ID FROM users WHERE Nickname=? AND Password=?");
