@@ -49,7 +49,7 @@ void UDPServer::sendReceived(QByteArray message){
     if(nickname != ""){
         QString finalMessage;
         while(list.size()){
-            finalMessage += list.front()+'|';
+            finalMessage += '|' + list.front();
             list.pop_front();
         }
 
@@ -60,7 +60,7 @@ void UDPServer::sendReceived(QByteArray message){
         query.bindValue(":time", QDateTime::currentDateTime().toTime_t());
         query.exec();
 
-        finalMessage.push_front(nickname+'|');
+        finalMessage.push_front(nickname);
 
         for(int i=0; i<sessions.size(); i++){
             socket->writeDatagram(finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
