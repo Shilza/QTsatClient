@@ -35,7 +35,7 @@ UDPServer::UDPServer(QObject *parent) :
 
  //   std::thread sessionsCheckerThread(sessionsChecker, this);
     std::thread sessionsCheckerThread([&](){
-        qDebug() << "THREAD";
+        qDebug() << "THREAD START";
         answers.clear();
         unsigned int time=QDateTime::currentDateTime().toTime_t();
 
