@@ -35,6 +35,7 @@ UDPServer::UDPServer(QObject *parent) :
 
  //   std::thread sessionsCheckerThread(sessionsChecker, this);
     std::thread sessionsCheckerThread([&](){
+        while(true){
         qDebug() << "THREAD START";
         answers.clear();
         unsigned int time=QDateTime::currentDateTime().toTime_t();
@@ -49,6 +50,7 @@ UDPServer::UDPServer(QObject *parent) :
                 sessions.erase(sessions.begin()+i);
         std::this_thread::sleep_for(std::chrono::seconds(10));
         qDebug() << "THREAD END";
+        }
     });
     sessionsCheckerThread.detach();
 }
