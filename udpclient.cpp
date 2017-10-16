@@ -26,8 +26,15 @@ void MyUDP::reading(){
 }
 
 void MyUDP::systemReading(){
+    if(systemSocket->pendingDatagramSize()>5){
     sessionKey.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
+    }
+    else{
+        index.resize(systemSocket->pendingDatagramSize());
+         systemSocket->readDatagram(index.data(),index.size());
+         emit updating();
+    }
 }
 
 void MyUDP::handshaking(QString log, QString pass){

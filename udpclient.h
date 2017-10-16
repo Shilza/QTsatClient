@@ -19,6 +19,7 @@ public:
     void sendMessage(QString msg);
     QByteArray buffer;
     QByteArray sessionKey;
+    QByteArray index;
 signals:
     void updating();
 private slots:
