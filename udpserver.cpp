@@ -48,6 +48,7 @@ UDPServer::UDPServer(QObject *parent) :
             if(!findInAnswers(i))
                 sessions.erase(sessions.begin()+i);
         std::this_thread::sleep_for(std::chrono::seconds(10));
+        qDebug() << "THREAD END";
     });
     sessionsCheckerThread.detach();
 }
@@ -79,6 +80,7 @@ QString UDPServer::check(QByteArray sessionKey){
 bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
+            qDebug() << "TRUE";
             answers.erase(answers.begin()+i);
             return true;
         }
