@@ -36,20 +36,18 @@ UDPServer::UDPServer(QObject *parent) :
  //   std::thread sessionsCheckerThread(sessionsChecker, this);
     std::thread sessionsCheckerThread([&](){
         while(true){
-        qDebug() << "THREAD START";
-        answers.clear();
-        unsigned int time=QDateTime::currentDateTime().toTime_t();
+            answers.clear();
+            unsigned int time=QDateTime::currentDateTime().toTime_t();
 
-        for(int i=0; i<sessions.size(); i++)
-            if(time > sessions[i].get()->time+10)
-                systemSocket->writeDatagram(QString(i).toUtf8(), sessions[i].get()->IP, 49002);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+            for(int i=0; i<sessions.size(); i++)
+                if(time > sessions[i].get()->time+10)
+                    systemSocket->writeDatagram(QString(i).toUtf8(), sessions[i].get()->IP, 49002);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
 
-        for(int i=0; i<sessions.size(); i++)
-            if(!findInAnswers(i))
-                sessions.erase(sessions.begin()+i);
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        qDebug() << "THREAD END";
+            for(int i=0; i<sessions.size(); i++)
+                if(!findInAnswers(i) && answers.size()>0)
+                    sessions.erase(sessions.begin()+i);
+            std::this_thread::sleep_for(std::chrono::seconds(10));
         }
     });
     sessionsCheckerThread.detach();
