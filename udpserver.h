@@ -25,7 +25,7 @@ class UDPServer : public QObject
     QVector<std::shared_ptr<Session>> sessions;
     QVector<short> answers;
     QString check(QByteArray sessionKey);
-    void sessionsChecker();
+//    void sessionsChecker();
     bool findInAnswers(int i);
   signals:
       void isReceived(QByteArray message);

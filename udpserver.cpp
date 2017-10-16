@@ -33,7 +33,21 @@ UDPServer::UDPServer(QObject *parent) :
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(answersChecker()));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
 
-    std::thread sessionsCheckerThread(sessionsChecker, this);
+ //   std::thread sessionsCheckerThread(sessionsChecker, this);
+    std::thread sessionsCheckerThread([&](){
+        answers.clear();
+        unsigned int time=QDateTime::currentDateTime().toTime_t();
+
+        for(int i=0; i<sessions.size(); i++)
+            if(time > sessions[i].get()->time+300)
+                systemSocket->writeDatagram(QString(i).toUtf8(), sessions[i].get()->IP, 49002);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+        for(int i=0; i<sessions.size(); i++)
+            if(!findInAnswers(i))
+                sessions.erase(sessions.begin()+i);
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+    });
     sessionsCheckerThread.detach();
 }
 
@@ -44,7 +58,7 @@ QString UDPServer::check(QByteArray sessionKey){
     return "";
 }
 
-void UDPServer::sessionsChecker(){
+/*void UDPServer::sessionsChecker(){
     while(1){
         answers.clear();
         unsigned int time=QDateTime::currentDateTime().toTime_t();
@@ -60,7 +74,7 @@ void UDPServer::sessionsChecker(){
         std::this_thread::sleep_for(std::chrono::seconds(10));
     }
 }
-
+*/
 bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
