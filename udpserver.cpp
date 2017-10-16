@@ -1,6 +1,6 @@
 #include "udpserver.h"
-
 using std::shared_ptr;
+
 class UDPServer::Session{
 public:
     unsigned int time;
@@ -30,8 +30,11 @@ UDPServer::UDPServer(QObject *parent) :
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
+    connect(systemSocket, SIGNAL(readyRead()), this, SLOT(answersChecker()));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
 
+    std::thread sessionsCheckerThread(sessionsChecker, this);
+    sessionsCheckerThread.detach();
 }
 
 QString UDPServer::check(QByteArray sessionKey){
@@ -39,6 +42,32 @@ QString UDPServer::check(QByteArray sessionKey){
         if(sessions[i].get()->sessionKey == sessionKey)
             return sessions[i].get()->nickname;
     return "";
+}
+
+void UDPServer::sessionsChecker(){
+    while(1){
+        answers.clear();
+        unsigned int time=QDateTime::currentDateTime().toTime_t();
+
+        for(int i=0; i<sessions.size(); i++)
+            if(time > sessions[i].get()->time+300)
+                systemSocket->writeDatagram(QString(i).toUtf8(), sessions[i].get()->IP, 49002);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+        for(int i=0; i<sessions.size(); i++)
+            if(!findInAnswers(i))
+                sessions.erase(sessions.begin()+i);
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+    }
+}
+
+bool UDPServer::findInAnswers(int i){
+    for(int j=0; j<answers.size(); j++)
+        if(answers[j] == i){
+            answers.erase(answers.begin()+i);
+            return true;
+        }
+    return false;
 }
 
 void UDPServer::sendReceived(QByteArray message){
@@ -112,6 +141,16 @@ void UDPServer::handshake(){
     sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
 
     systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
+}
+
+void UDPServer::answersChecker(){
+    QByteArray buffer;
+    if(systemSocket->pendingDatagramSize()>3)
+        return;
+
+    buffer.resize(systemSocket->pendingDatagramSize());
+    systemSocket->readDatagram(buffer.data(), buffer.size());
+    answers.push_back(buffer.toShort());
 }
 
 

@@ -2,6 +2,7 @@
 #define UDPSERVER_H
 
 #include <thread>
+#include <chrono>
 #include <memory>
 #include <QtSql/QSql>
 #include <QtSql/QSqlQuery>
@@ -22,13 +23,17 @@ class UDPServer : public QObject
     class Session;
     QUdpSocket *socket, *systemSocket;
     QVector<std::shared_ptr<Session>> sessions;
+    QVector<short> answers;
     QString check(QByteArray sessionKey);
+    void sessionsChecker();
+    bool findInAnswers(int i);
   signals:
       void isReceived(QByteArray message);
   public slots:
       void sendReceived(QByteArray message);
       void read();
       void handshake();
+      void answersChecker();
 };
 
 #endif // UDPSERVER_H
