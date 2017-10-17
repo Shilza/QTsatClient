@@ -29,8 +29,9 @@ UDPServer::UDPServer(QObject *parent) :
     systemSocket->bind(QHostAddress::Any, 49003);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
-    connect(systemSocket, SIGNAL(readyRead()), this, SLOT(handshake()));
-    connect(systemSocket, SIGNAL(readyRead()), this, SLOT(answersChecker()));
+    connect(systemSocket, SIGNAL(readyRead()), this, SLOT(systemReading()));
+    connect(this, SIGNAL(systemReceived(QByteArray)), this, SLOT(answersChecker(QByteArray)));
+    connect(this, SIGNAL(systemReceived(QStringList, QHostAddress, quint16)), this, SLOT(handshake(QStringList,QHostAddress,quint16)));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
 
     std::thread sessionsCheckerThread([&](){
@@ -104,21 +105,7 @@ void UDPServer::read()
     emit isReceived(message);
 }
 
-void UDPServer::handshake(){
-    QByteArray buffer;
-    quint16 port;
-    QHostAddress peer;
-
-    buffer.resize(systemSocket->pendingDatagramSize());
-    if(buffer.size() < 3)
-        return;
-
-    systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
-
-    QStringList list = QString(buffer).split('|');
-
-
-
+void UDPServer::handshake(QStringList list, QHostAddress peer, quint16 port){
     for(int i=0; i<sessions.size(); i++)
         if(list.at(1) == sessions.at(i).get()->nickname){
             systemSocket->writeDatagram(sessions[i].get()->sessionKey, peer, port);
@@ -143,17 +130,21 @@ void UDPServer::handshake(){
     systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
 }
 
-void UDPServer::answersChecker(){
-    QByteArray buffer;
-    if(systemSocket->pendingDatagramSize()>3)
-        return;
-
-    buffer.resize(systemSocket->pendingDatagramSize());
-    systemSocket->readDatagram(buffer.data(), buffer.size());
-    qDebug() << "This is buffer: " << buffer;
-    answers.push_back(buffer.toShort());
+void UDPServer::answersChecker(QByteArray index){
+    answers.push_back(index.toShort());
 }
 
+void UDPServer::systemReading(){
+    QByteArray buffer;
+    quint16 port;
+    QHostAddress peer;
 
+    buffer.resize(systemSocket->pendingDatagramSize());
+    systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
-
+    QStringList list = QString(buffer).split('|');
+    if(list.at(0) == "handshake")
+        emit systemReceived(list, peer, port);
+    else
+        emit systemReceived(buffer);
+}

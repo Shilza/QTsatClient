@@ -25,15 +25,17 @@ class UDPServer : public QObject
     QVector<std::shared_ptr<Session>> sessions;
     QVector<short> answers;
     QString check(QByteArray sessionKey);
-//    void sessionsChecker();
     bool findInAnswers(int i);
   signals:
       void isReceived(QByteArray message);
+      void systemReceived(QStringList list, QHostAddress ip, quint16 port);
+      void systemReceived(QByteArray index);
   public slots:
       void sendReceived(QByteArray message);
       void read();
-      void handshake();
-      void answersChecker();
+      void handshake(QStringList list, QHostAddress peer, quint16 port);
+      void answersChecker(QByteArray index);
+      void systemReading();
 };
 
 #endif // UDPSERVER_H
