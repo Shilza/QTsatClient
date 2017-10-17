@@ -34,7 +34,6 @@ void MyUDP::systemReading(){
         index.resize(systemSocket->pendingDatagramSize());
         systemSocket->readDatagram(index.data(),index.size());
         systemSocket->writeDatagram(index, host, 49003);
-        emit updating();
     }
 }
 

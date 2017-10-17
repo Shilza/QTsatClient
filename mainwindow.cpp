@@ -30,15 +30,9 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::printMessages(){
-    if(client->buffer.size()!=0){
         ui->listWidget->addItem(client->buffer);
         ui->listWidget->scrollToBottom();
         client->buffer=0;
-    }
-    if(client->index.size()!=0){
-        ui->listWidget->addItem(client->index);
-        ui->listWidget->scrollToBottom();
-    }
 }
 
 void MainWindow::on_sendButton_clicked()
