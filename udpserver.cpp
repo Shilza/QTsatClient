@@ -64,7 +64,7 @@ bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
             qDebug() << "I FOUND";
-            answers.erase(answers.begin()+i);
+            answers.erase(answers.begin()+j);
             return true;
         }
     return false;
