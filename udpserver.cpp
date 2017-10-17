@@ -43,7 +43,7 @@ UDPServer::UDPServer(QObject *parent) :
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
             for(int i=0; i<sessions.size(); i++)
-                if(!findInAnswers(i) && answers.size()>0)
+                if(!findInAnswers(i))
                     sessions.erase(sessions.begin()+i);
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
