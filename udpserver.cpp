@@ -44,7 +44,7 @@ UDPServer::UDPServer(QObject *parent) :
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
             for(int i=0; i<sessions.size(); i++)
-                if(!findInAnswers(i) && answers.size()>0)
+                if(!findInAnswers(i))
                     sessions.erase(sessions.begin()+i);
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
@@ -59,23 +59,6 @@ QString UDPServer::check(QByteArray sessionKey){
     return "";
 }
 
-/*void UDPServer::sessionsChecker(){
-    while(1){
-        answers.clear();
-        unsigned int time=QDateTime::currentDateTime().toTime_t();
-
-        for(int i=0; i<sessions.size(); i++)
-            if(time > sessions[i].get()->time+300)
-                systemSocket->writeDatagram(QString(i).toUtf8(), sessions[i].get()->IP, 49002);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-
-        for(int i=0; i<sessions.size(); i++)
-            if(!findInAnswers(i))
-                sessions.erase(sessions.begin()+i);
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-    }
-}
-*/
 bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
