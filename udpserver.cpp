@@ -148,6 +148,7 @@ void UDPServer::answersChecker(){
 
     buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size());
+    qDebug() << buffer;
     answers.push_back(buffer.toShort());
 }
 
