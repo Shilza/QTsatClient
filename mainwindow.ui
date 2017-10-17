@@ -17,7 +17,7 @@
    <set>Qt::ImhNone</set>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="TextEdit" name="textEdit">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -307,6 +307,13 @@ border-radius: 2px;
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>TextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">textedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -1,0 +1,6 @@
+#include "TextEdit"
+
+TextEdit::TextEdit() :
+{
+
+}
