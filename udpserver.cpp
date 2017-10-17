@@ -44,7 +44,6 @@ UDPServer::UDPServer(QObject *parent) :
                 }
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
-            time=QDateTime::currentDateTime().toTime_t();
             for(int i=0; i<sessions.size(); i++)
                 if(!findInAnswers(i) && time > sessions[i].get()->time+10)
                     sessions.erase(sessions.begin()+i);
