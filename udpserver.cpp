@@ -38,11 +38,9 @@ UDPServer::UDPServer(QObject *parent) :
         while(true){
             answers.clear();
             unsigned int time=QDateTime::currentDateTime().toTime_t();
-            QByteArray a;
-            a.append("0");
             for(int i=0; i<sessions.size(); i++)
                 if(time > sessions[i].get()->time+10)
-                    systemSocket->writeDatagram(a, sessions[i].get()->IP, 49002);
+                    systemSocket->writeDatagram(QByteArray::number(i), sessions[i].get()->IP, 49002);
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
             for(int i=0; i<sessions.size(); i++)
