@@ -39,8 +39,10 @@ UDPServer::UDPServer(QObject *parent) :
             answers.clear();
             unsigned int time=QDateTime::currentDateTime().toTime_t();
             for(int i=0; i<sessions.size(); i++)
-                if(time > sessions[i].get()->time+10)
+                if(time > sessions[i].get()->time+10){
                     systemSocket->writeDatagram(QByteArray::number(i), sessions[i].get()->IP, 49002);
+                    qDebug() << QByteArray::number(i) << sessions[i].get()->IP;
+                }
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
             for(int i=0; i<sessions.size(); i++)
@@ -62,7 +64,7 @@ QString UDPServer::check(QByteArray sessionKey){
 bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
-            qDebug() << "TRUE";
+            qDebug() << "I FOUND";
             answers.erase(answers.begin()+i);
             return true;
         }
@@ -142,6 +144,7 @@ void UDPServer::systemReading(){
     buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
+    qDebug() << "Buffer: " << buffer;
     QStringList list = QString(buffer).split('|');
     if(list.at(0) == "handshake")
         emit systemReceived(list, peer, port);
