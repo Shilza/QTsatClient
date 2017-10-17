@@ -110,12 +110,14 @@ void UDPServer::handshake(){
     QHostAddress peer;
 
     buffer.resize(systemSocket->pendingDatagramSize());
+    if(buffer.size() < 3)
+        return;
+
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
     QStringList list = QString(buffer).split('|');
 
-    if(list.at(0)!="handshake")
-        return;
+
 
     for(int i=0; i<sessions.size(); i++)
         if(list.at(1) == sessions.at(i).get()->nickname){
@@ -148,7 +150,7 @@ void UDPServer::answersChecker(){
 
     buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size());
-    qDebug() << buffer;
+    qDebug() << "This is buffer: " << buffer;
     answers.push_back(buffer.toShort());
 }
 
