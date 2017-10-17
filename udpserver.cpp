@@ -33,7 +33,6 @@ UDPServer::UDPServer(QObject *parent) :
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(answersChecker()));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
 
- //   std::thread sessionsCheckerThread(sessionsChecker, this);
     std::thread sessionsCheckerThread([&](){
         while(true){
             answers.clear();
@@ -44,7 +43,7 @@ UDPServer::UDPServer(QObject *parent) :
             std::this_thread::sleep_for(std::chrono::seconds(2));
 
             for(int i=0; i<sessions.size(); i++)
-                if(!findInAnswers(i))
+                if(!findInAnswers(i) && answers.size()>0)
                     sessions.erase(sessions.begin()+i);
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
