@@ -27,13 +27,14 @@ void MyUDP::reading(){
 
 void MyUDP::systemReading(){
     if(systemSocket->pendingDatagramSize()>5){
-    sessionKey.resize(systemSocket->pendingDatagramSize());
-    systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
+        sessionKey.resize(systemSocket->pendingDatagramSize());
+        systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
     }
     else{
         index.resize(systemSocket->pendingDatagramSize());
-         systemSocket->readDatagram(index.data(),index.size());
-         emit updating();
+        systemSocket->readDatagram(index.data(),index.size());
+        systemSocket->writeDatagram(index, host, 49003);
+        emit updating();
     }
 }
 
