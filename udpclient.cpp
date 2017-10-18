@@ -22,6 +22,16 @@ void MyUDP::sendMessage(QString msg){
 void MyUDP::reading(){
     buffer.resize(socket->pendingDatagramSize());
     socket->readDatagram(buffer.data(), buffer.size());
+
+    QList<QByteArray> tempList = buffer.split('|');
+    nickname = tempList.at(0);
+
+    tempList.pop_front();
+    buffer.clear();
+
+    for(int i=0; i<tempList.size(); i++)
+        buffer.push_back(tempList.at(i));
+
     emit updating();
 }
 

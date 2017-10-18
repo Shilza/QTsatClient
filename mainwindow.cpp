@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->textEdit->installEventFilter(this);
     connect(client, SIGNAL(updating()), this, SLOT(printMessages()));
+    connect(ui->textEdit, SIGNAL(enter()), this, SLOT(on_sendButton_clicked()));
 }
 
 MainWindow::~MainWindow()
@@ -30,7 +31,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::printMessages(){
-        ui->listWidget->addItem(client->buffer);
+        ui->listWidget->addItem(client->nickname + ": " + client->buffer);
         ui->listWidget->scrollToBottom();
         client->buffer=0;
 }

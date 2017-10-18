@@ -19,6 +19,7 @@ public:
     //explicit MyUDP(QObject *parent = 0);
     void sendMessage(QString msg);
     QByteArray buffer;
+    QString nickname;
     QByteArray sessionKey;
     QByteArray index;
 signals:
