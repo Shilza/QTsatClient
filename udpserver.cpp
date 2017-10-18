@@ -81,6 +81,7 @@ void UDPServer::sendReceived(QByteArray message){
             finalMessage += '|' + list.front();
             list.pop_front();
         }
+        finalMessage.remove(0,1);
 
         QSqlQuery query;
         query.prepare("INSERT INTO messages (Sender, Text, Time) VALUES (:sender, :text, :time)");
