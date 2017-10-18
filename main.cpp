@@ -11,7 +11,5 @@ int main(int argc, char *argv[])
     w.setContentsMargins(0,0,0,-20);
     w.show();
 
-    //MyUDP client;
-
     return a.exec();
 }

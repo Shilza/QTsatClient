@@ -33,7 +33,7 @@ MainWindow::~MainWindow()
 void MainWindow::printMessages(){
         ui->listWidget->addItem(client->nickname + ": " + client->buffer);
         ui->listWidget->scrollToBottom();
-        client->buffer=0;
+        client->buffer.clear();
 }
 
 void MainWindow::on_sendButton_clicked()
