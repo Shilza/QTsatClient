@@ -81,19 +81,17 @@ void UDPServer::sendReceived(QByteArray message){
             finalMessage += '|' + list.front();
             list.pop_front();
         }
-        finalMessage.remove(0,1);
 
+        for(int i=0; i<sessions.size(); i++)
+            socket->writeDatagram(nickname.toUtf8() + finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
+
+        finalMessage.remove(0,1);
         QSqlQuery query;
         query.prepare("INSERT INTO messages (Sender, Text, Time) VALUES (:sender, :text, :time)");
         query.bindValue(":sender", nickname);
         query.bindValue(":text", finalMessage);
         query.bindValue(":time", QDateTime::currentDateTime().toTime_t());
         query.exec();
-
-        finalMessage.push_front(nickname);
-
-        for(int i=0; i<sessions.size(); i++)
-            socket->writeDatagram(finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
     }
     else
         return;
