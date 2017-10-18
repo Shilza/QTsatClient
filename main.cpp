@@ -1,6 +1,7 @@
+#include <QtSql/QSqlDatabase>
 #include <QCoreApplication>
 #include "udpserver.h"
-#include <QtSql/QSqlDatabase>
+#include "def.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,8 +10,8 @@ int main(int argc, char *argv[])
 
     db.setHostName("localhost");
     db.setDatabaseName("Tsat");
-    db.setUserName("shilza");
-    db.setPassword("192.168.39.26");
+    db.setUserName(DATABASE_USER);
+    db.setPassword(DATABASE_PASSWORD);
     if(!db.open())
         return 1;
 

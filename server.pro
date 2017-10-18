@@ -20,4 +20,5 @@ SOURCES += main.cpp \
     udpserver.cpp
 
 HEADERS += \
-    udpserver.h
+    udpserver.h \
+    def.h
