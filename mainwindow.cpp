@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    client = new MyUDP("Shilza","0");
+    client = new MyUDP(CHAT_USER,CHAT_PASSWORD);
 
     ui->setupUi(this);
     ui->listWidget->addScrollBarWidget(ui->verticalScrollBar, Qt::AlignRight);

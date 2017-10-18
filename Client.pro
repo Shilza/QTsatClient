@@ -34,7 +34,8 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     udpclient.h \
-    textedit.h
+    textedit.h \
+    def.h
 
 FORMS += \
         mainwindow.ui

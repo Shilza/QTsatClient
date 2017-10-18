@@ -7,7 +7,7 @@ MyUDP::MyUDP(QString log,QString pass, QObject *parent) : QObject(parent){
 
     socket->bind(49000);
     systemSocket->bind(49002);
-    host.setAddress("31.131.27.154");
+    host.setAddress(HOST_IP);
     handshaking(log,pass);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(reading()));

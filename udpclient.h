@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUdpSocket>
+#include "def.h"
 
 class MyUDP : public QObject
 {
