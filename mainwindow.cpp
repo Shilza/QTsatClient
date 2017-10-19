@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     client = new MyUDP(CHAT_USER,CHAT_PASSWORD);
 
     ui->setupUi(this);
-    ui->listWidget->addScrollBarWidget(ui->verticalScrollBar, Qt::AlignRight);
+    /*
+    ui->listWidget->addScrollBarWidget(new QScrollBar, Qt::AlignRight);
     //ui->listWidget->verticalScrollBar()->setFixedWidth(8);
     ui->listWidget->verticalScrollBar()->setStyleSheet(
                 "QScrollBar:ver"
@@ -19,8 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
                 "QScrollBar::handle:vertical {"
                 "border-radius: 8px;"
                 "background: white;}");
+     */
 
-    ui->textEdit->installEventFilter(this);
+    ui->listWidget->setWordWrap(true);
     connect(client, SIGNAL(updating()), this, SLOT(printMessages()));
     connect(ui->textEdit, SIGNAL(enter()), this, SLOT(on_sendButton_clicked()));
 }
@@ -45,3 +47,10 @@ void MainWindow::on_sendButton_clicked()
     client->sendMessage(client->sessionKey+'|'+a);
     }
 }
+
+/*
+ *  QModelIndexList selectedList = ui->listWidget->selectionModel()->selectedIndexes();
+    std::sort(selectedList.begin(),selectedList.end(),[](const QModelIndex& a, const QModelIndex& b)->bool{return a.row()>b.row();});
+    for(const QModelIndex& singleIndex : selectedList)
+    ui->listWidget->model()->removeRow(singleIndex.row());
+*/

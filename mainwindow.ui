@@ -245,7 +245,10 @@ border-radius: 2px;
      <number>1</number>
     </property>
     <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAsNeeded</enum>
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
     <property name="autoScroll">
      <bool>true</bool>
@@ -267,22 +270,6 @@ border-radius: 2px;
     </property>
     <property name="isWrapping" stdset="0">
      <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QScrollBar" name="verticalScrollBar">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>0</y>
-      <width>8</width>
-      <height>211</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
     </property>
    </widget>
   </widget>
