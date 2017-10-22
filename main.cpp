@@ -16,5 +16,6 @@ int main(int argc, char *argv[])
         return 1;
 
     UDPServer server;
+    server.start();
     return application.exec();
 }

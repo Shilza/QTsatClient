@@ -33,7 +33,9 @@ UDPServer::UDPServer(QObject *parent) :
     connect(this, SIGNAL(systemReceived(QByteArray)), this, SLOT(answersChecker(QByteArray)));
     connect(this, SIGNAL(systemReceived(QStringList, QHostAddress, quint16)), this, SLOT(handshake(QStringList,QHostAddress,quint16)));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
+}
 
+void UDPServer::start(){
     std::thread sessionsCheckerThread([&](){
         while(true){
             answers.clear();

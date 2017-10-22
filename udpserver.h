@@ -18,6 +18,7 @@ class UDPServer : public QObject
 
   public:
       explicit UDPServer(QObject *parent = 0);
+    void start();
 
   private:
     class Session;
