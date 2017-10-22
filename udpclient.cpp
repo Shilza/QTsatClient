@@ -1,6 +1,6 @@
 #include "udpclient.h"
 
-MyUDP::MyUDP(QString log,QString pass, QObject *parent) : QObject(parent){
+MyUDP::MyUDP(QObject *parent) : QObject(parent){
 
     socket = new QUdpSocket(this);
     systemSocket = new QUdpSocket(this);
@@ -8,7 +8,6 @@ MyUDP::MyUDP(QString log,QString pass, QObject *parent) : QObject(parent){
     socket->bind(49000);
     systemSocket->bind(49002);
     host.setAddress(HOST_IP);
-    handshaking(log,pass);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(reading()));
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(systemReading()));
@@ -36,18 +35,8 @@ void MyUDP::reading(){
 }
 
 void MyUDP::systemReading(){
-    if(systemSocket->pendingDatagramSize()>5){
-        sessionKey.resize(systemSocket->pendingDatagramSize());
-        systemSocket->readDatagram(sessionKey.data(),sessionKey.size());
-    }
-    else{
         index.resize(systemSocket->pendingDatagramSize());
         systemSocket->readDatagram(index.data(),index.size());
         systemSocket->writeDatagram(index, host, 49003);
-    }
 }
 
-void MyUDP::handshaking(QString log, QString pass){
-    QByteArray par;
-    systemSocket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
-}

@@ -12,11 +12,9 @@ private:
     QUdpSocket *socket;
     QUdpSocket *systemSocket;
     QHostAddress host;
-    void handshaking(QString log, QString pass);
 
 public:
-    explicit MyUDP(QString log,QString pass,QObject *parent = 0);
-    //explicit MyUDP(QObject *parent = 0);
+    explicit MyUDP(QObject *parent = 0);
     void sendMessage(QString msg);
     QByteArray buffer;
     QString nickname;
