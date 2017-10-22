@@ -127,7 +127,7 @@ void UDPServer::handshake(QStringList list, QHostAddress peer, quint16 port){
     if(id == "")
         return;
 
-    sessions.push_back(shared_ptr<Session>(new Session(list.at(1), peer)));
+    sessions.push_back(std::make_shared<Session>(new Session(list.at(1), peer)));
 
     systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
 }
