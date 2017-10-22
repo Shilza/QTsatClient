@@ -63,7 +63,6 @@ QString UDPServer::check(QByteArray sessionKey){
 bool UDPServer::findInAnswers(int i){
     for(int j=0; j<answers.size(); j++)
         if(answers[j] == i){
-            qDebug() << "I FOUND";
             answers.erase(answers.begin()+j);
             return true;
         }
@@ -82,10 +81,8 @@ void UDPServer::sendReceived(QByteArray message){
             list.pop_front();
         }
 
-        for(int i=0; i<sessions.size(); i++){
-            qDebug() << sessions[i].get()->IP;
+        for(int i=0; i<sessions.size(); i++)
             socket->writeDatagram(nickname.toUtf8() + finalMessage.toUtf8(), sessions[i].get()->IP, 49000);
-        }
 
         finalMessage.remove(0,1);
         QSqlQuery query;
@@ -127,7 +124,7 @@ void UDPServer::handshake(QStringList list, QHostAddress peer, quint16 port){
     if(id == "")
         return;
 
-    sessions.push_back(std::make_shared<Session>(new Session(list.at(1), peer)));
+    sessions.push_back(std::make_shared<Session>(Session(list.at(1), peer)));
 
     systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
 }
