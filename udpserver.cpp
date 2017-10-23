@@ -94,8 +94,6 @@ void UDPServer::sendReceived(QByteArray message){
         query.bindValue(":time", QDateTime::currentDateTime().toTime_t());
         query.exec();
     }
-    else
-        return;
 }
 
 void UDPServer::read()
@@ -123,12 +121,12 @@ void UDPServer::handshake(QStringList list, QHostAddress peer, quint16 port){
     while (query.next())
         id = query.value(0).toString();
 
-    if(id == "")
-        return;
-
-    sessions.push_back(std::make_shared<Session>(Session(list.at(1), peer)));
-
-    systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
+    if(id != ""){
+        sessions.push_back(std::make_shared<Session>(Session(list.at(1), peer)));
+        systemSocket->writeDatagram(sessions[sessions.size()-1].get()->sessionKey, peer, port);
+    }
+    else
+        systemSocket->writeDatagram("ERROR_AUTH", peer, port);
 }
 
 void UDPServer::answersChecker(QByteArray index){
