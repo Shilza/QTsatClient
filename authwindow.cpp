@@ -84,3 +84,26 @@ void AuthWindow::signIn_released(){
 
     handshaking(log,pass);
 }
+
+void AuthWindow::mousePressEvent(QMouseEvent *event)
+{
+    // Запоминаем позицию при нажатии кнопки мыши
+    mpos = event->pos();
+}
+
+void AuthWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (mpos.x() >= 0 && event->buttons() && Qt::LeftButton)
+    {
+        QPoint diff = event->pos() - mpos;
+        QPoint newpos = this->pos() + diff;
+
+        this->move(newpos);
+    }
+}
+
+
+void AuthWindow::mouseReleaseEvent(QMouseEvent *)
+{
+    mpos = QPoint(-1, -1);
+}

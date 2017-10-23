@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QUdpSocket>
 #include <iostream>
+#include <QMouseEvent>
 #include <QPropertyAnimation>
 #include "def.h"
 
@@ -32,9 +33,17 @@ private:
     QUdpSocket *socket;
     QHostAddress host;
 
+    QPoint mpos;
+
     void handshaking(QString log, QString pass);
+
 public:
     explicit AuthWindow(QWidget *parent = 0);
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
+
     ~AuthWindow();
 signals:
     void sessionKeyReceived();
