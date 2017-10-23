@@ -5,9 +5,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    client = new MyUDP();
+    client = new UDPClient();
 
     ui->setupUi(this);
+
+    this->setFixedSize(360,260);
+    this->setContentsMargins(0,0,0,-20);
+
     /*
     ui->listWidget->addScrollBarWidget(new QScrollBar, Qt::AlignRight);
     //ui->listWidget->verticalScrollBar()->setFixedWidth(8);

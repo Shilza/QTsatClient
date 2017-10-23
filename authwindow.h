@@ -2,12 +2,11 @@
 #define AUTHWINDOW_H
 
 #include <QMainWindow>
-#include <QWidget>
 #include <QLabel>
+#include <QWidget>
 #include <QLineEdit>
-#include <QPushButton>
 #include <QUdpSocket>
-#include <iostream>
+#include <QPushButton>
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 #include "def.h"

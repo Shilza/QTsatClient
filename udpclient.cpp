@@ -1,6 +1,6 @@
 #include "udpclient.h"
 
-MyUDP::MyUDP(QObject *parent) : QObject(parent){
+UDPClient::UDPClient(QObject *parent) : QObject(parent){
 
     socket = new QUdpSocket(this);
     systemSocket = new QUdpSocket(this);
@@ -13,12 +13,12 @@ MyUDP::MyUDP(QObject *parent) : QObject(parent){
     connect(systemSocket, SIGNAL(readyRead()), this, SLOT(systemReading()));
 }
 
-void MyUDP::sendMessage(QString msg){
+void UDPClient::sendMessage(QString msg){
     QByteArray Data;
     socket->writeDatagram(Data.append(msg), host, 49001);
 }
 
-void MyUDP::reading(){
+void UDPClient::reading(){
     buffer.resize(socket->pendingDatagramSize());
     socket->readDatagram(buffer.data(), buffer.size());
 
@@ -34,7 +34,7 @@ void MyUDP::reading(){
     emit updating();
 }
 
-void MyUDP::systemReading(){
+void UDPClient::systemReading(){
         index.resize(systemSocket->pendingDatagramSize());
         systemSocket->readDatagram(index.data(),index.size());
         systemSocket->writeDatagram(index, host, 49003);

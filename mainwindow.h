@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 
 private:
     Ui::MainWindow *ui;
-    MyUDP *client;
+    UDPClient *client;
 
 public:
     explicit MainWindow(QWidget *parent = 0);

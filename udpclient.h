@@ -5,7 +5,7 @@
 #include <QUdpSocket>
 #include "def.h"
 
-class MyUDP : public QObject
+class UDPClient : public QObject
 {
     Q_OBJECT
 private:
@@ -14,7 +14,7 @@ private:
     QHostAddress host;
 
 public:
-    explicit MyUDP(QObject *parent = 0);
+    explicit UDPClient(QObject *parent = 0);
     void sendMessage(QString msg);
     QByteArray buffer;
     QString nickname;

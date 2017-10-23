@@ -12,6 +12,11 @@ AuthWindow::AuthWindow(QWidget *parent) :
     socket->bind(49002);
     host.setAddress(HOST_IP);
 
+    this->setAttribute(Qt::WA_TranslucentBackground);
+    this->setWindowFlags(Qt::FramelessWindowHint);
+    this->setFixedSize(260,260);
+    this->setStyleSheet("background: #C8A4E5;");
+
     log = new QLineEdit(this);
     pass = new QLineEdit(this);
     signIn = new QPushButton(this);
@@ -87,7 +92,6 @@ void AuthWindow::signIn_released(){
 
 void AuthWindow::mousePressEvent(QMouseEvent *event)
 {
-    // Запоминаем позицию при нажатии кнопки мыши
     mpos = event->pos();
 }
 
