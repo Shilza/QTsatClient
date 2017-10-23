@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
 
     authWindow->setAttribute(Qt::WA_TranslucentBackground);
     authWindow->setWindowFlags(Qt::FramelessWindowHint);
-    authWindow->setGeometry(500,300,260,260);
-    authWindow->setStyleSheet("background: magenta;");
+    authWindow->setGeometry(500,310,260,260);
+    authWindow->setStyleSheet("background: #C8A4E5;");
     authWindow->show();
 
     MainWindow *w=new MainWindow;

@@ -3,9 +3,12 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QUdpSocket>
+#include <iostream>
+#include <QPropertyAnimation>
 #include "def.h"
 
 namespace Ui {
@@ -22,6 +25,9 @@ private:
     QLineEdit *log;
     QLineEdit *pass;
     QPushButton *signIn;
+    QLabel *errorLabel;
+
+    QPushButton *closeButton;
 
     QUdpSocket *socket;
     QHostAddress host;

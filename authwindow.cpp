@@ -1,6 +1,5 @@
 #include "authwindow.h"
 #include "ui_authwindow.h"
-#include <iostream>
 
 AuthWindow::AuthWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,21 +15,27 @@ AuthWindow::AuthWindow(QWidget *parent) :
     log = new QLineEdit(this);
     pass = new QLineEdit(this);
     signIn = new QPushButton(this);
+    errorLabel = new QLabel(this);
+    closeButton = new QPushButton(this);
 
-    log->setGeometry(60,70,140,20);
-    pass->setGeometry(60,100,140,20);
-    signIn->setGeometry(90,130,75,25);
+    log->setGeometry(60,80,140,20);
+    pass->setGeometry(60,110,140,20);
+    signIn->setGeometry(90,140,75,25);
+    errorLabel->setGeometry(70,140,140,20);
+    closeButton->setGeometry(236,0,24,16);
 
     log->setPlaceholderText("Login");
     pass->setPlaceholderText("Password");
     signIn->setText("Log in");
+    closeButton->setText("X");
 
-    log->show();
-    pass->show();
-    signIn->show();
+    closeButton->setStyleSheet("color: red;");
+    errorLabel->setStyleSheet("color: #E94954;");
+    errorLabel->close();
 
     connect(signIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
+    connect(closeButton, SIGNAL(released()), this, SLOT(close()));
 }
 
 AuthWindow::~AuthWindow()
@@ -49,12 +54,33 @@ void AuthWindow::socketReading()
     QByteArray sessionKey;
     sessionKey.resize(socket->pendingDatagramSize());
     socket->readDatagram(sessionKey.data(),sessionKey.size());
-    emit sessionKeyReceived(sessionKey);
-    emit sessionKeyReceived();
+    if(sessionKey=="ERROR_AUTH"){
+        errorLabel->setText("Wrong login or password");
+
+        QPropertyAnimation *animation = new QPropertyAnimation(signIn, "pos");
+        animation->setDuration(300);
+        animation->setEndValue(QPoint(90,164));
+        animation->start();
+
+        errorLabel->show();
+    }
+    else{
+        emit sessionKeyReceived(sessionKey);
+        emit sessionKeyReceived();
+    }
 }
 
 void AuthWindow::signIn_released(){
     QString log = this->log->text();
     QString pass = this->pass->text();
+
+    if(log=="")
+        return;
+    else if(pass==""){
+        this->pass->setStyleSheet("border: 1px solid red;");
+        return;
+    }
+    this->pass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+
     handshaking(log,pass);
 }
