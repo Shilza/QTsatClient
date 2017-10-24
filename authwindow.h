@@ -15,6 +15,18 @@ namespace Ui {
 class AuthWindow;
 }
 
+class ClickableLabel : public QLabel
+{
+Q_OBJECT
+public:
+    explicit ClickableLabel( QWidget* parent=0 );
+    ~ClickableLabel();
+signals:
+    void clicked();
+protected:
+    void mouseReleaseEvent(QMouseEvent* event);
+};
+
 class AuthWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,12 +34,17 @@ class AuthWindow : public QMainWindow
 private:
     Ui::AuthWindow *ui;
 
+    const int sizeX=260;
+    const int sizeY=260;
+
     QLineEdit *log;
     QLineEdit *pass;
     QPushButton *signIn;
     QLabel *errorLabel;
 
     QPushButton *closeButton;
+    ClickableLabel *forgotPass;
+    ClickableLabel *signUp;
 
     QUdpSocket *socket;
     QHostAddress host;
@@ -35,13 +52,11 @@ private:
     QPoint mpos;
 
     void handshaking(QString log, QString pass);
-
-public:
-    explicit AuthWindow(QWidget *parent = 0);
-
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
+public:
+    explicit AuthWindow(QWidget *parent = 0);
 
     ~AuthWindow();
 signals:
@@ -50,6 +65,8 @@ signals:
 private slots:
     void socketReading();
     void signIn_released();
+    void forgotPass_released();
+    void signUp_released();
 };
 
 #endif // AUTHWINDOW_H

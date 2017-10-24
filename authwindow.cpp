@@ -14,28 +14,45 @@ AuthWindow::AuthWindow(QWidget *parent) :
 
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowFlags(Qt::FramelessWindowHint);
-    this->setFixedSize(260,260);
-    this->setStyleSheet("background: #C8A4E5;");
+    this->setFixedSize(sizeX,sizeY);
+    //this->setStyleSheet("background: #C8A4E5;");
+    this->setStyleSheet("background-image: url(:fon/fon.png);");
 
     log = new QLineEdit(this);
     pass = new QLineEdit(this);
     signIn = new QPushButton(this);
     errorLabel = new QLabel(this);
     closeButton = new QPushButton(this);
+    forgotPass = new ClickableLabel(this);
+    signUp = new ClickableLabel(this);
 
-    log->setGeometry(60,80,140,20);
-    pass->setGeometry(60,110,140,20);
+    log->setGeometry((sizeX-((sizeX/13)*7))/2,(sizeY/13)*4,(sizeX/13)*7,sizeY/13);
+    pass->setGeometry((sizeX-((sizeX/13)*7))/2,((sizeY/13)*4)+(sizeY/13)+(sizeY/26),(sizeX/13)*7,sizeY/13);
     signIn->setGeometry(90,140,75,25);
     errorLabel->setGeometry(70,140,140,20);
     closeButton->setGeometry(236,0,24,16);
+    forgotPass->setGeometry(60,170,90,20);
+    signUp->setGeometry(160,170,70,20);
 
     log->setPlaceholderText("Login");
     pass->setPlaceholderText("Password");
     signIn->setText("Log in");
     closeButton->setText("X");
+    forgotPass->setText("Forgot password?");
+    signUp->setText("Sign up");
 
-    closeButton->setStyleSheet("color: red;");
-    errorLabel->setStyleSheet("color: #E94954;");
+    signIn->setStyleSheet("border-radius: 6px;"
+                          "border: 1px solid black;"
+                          "background: #ACE6A8;");
+    closeButton->setStyleSheet("QPushButton{font-weight:bold; background: transparent;}"
+                "QPushButton:hover{background: red; color: white; border: 0px;}");
+    errorLabel->setStyleSheet("background: transparent;"
+                              "color: #E94954;");
+    forgotPass->setStyleSheet("background: transparent;"
+                              "color: #B5EBEE;");
+    signUp->setStyleSheet("background: transparent;"
+                          "color: #B5EBEE;");
+
     errorLabel->close();
 
     connect(signIn, SIGNAL(released()), this, SLOT(signIn_released()));
@@ -43,10 +60,9 @@ AuthWindow::AuthWindow(QWidget *parent) :
     connect(closeButton, SIGNAL(released()), this, SLOT(close()));
 }
 
-AuthWindow::~AuthWindow()
-{
-    delete ui;
-}
+ClickableLabel::ClickableLabel(QWidget* parent)
+    : QLabel(parent)
+{}
 
 void AuthWindow::handshaking(QString log, QString pass)
 {
@@ -63,9 +79,20 @@ void AuthWindow::socketReading()
         errorLabel->setText("Wrong login or password");
 
         QPropertyAnimation *animation = new QPropertyAnimation(signIn, "pos");
+        QPropertyAnimation *animation1 = new QPropertyAnimation(forgotPass, "pos");
+        QPropertyAnimation *animation2 = new QPropertyAnimation(signUp, "pos");
+
         animation->setDuration(300);
         animation->setEndValue(QPoint(90,164));
         animation->start();
+
+        animation1->setDuration(300);
+        animation1->setEndValue(QPoint(60,194));
+        animation1->start();
+
+        animation2->setDuration(300);
+        animation2->setEndValue(QPoint(160,194));
+        animation2->start();
 
         errorLabel->show();
     }
@@ -90,6 +117,14 @@ void AuthWindow::signIn_released(){
     handshaking(log,pass);
 }
 
+void AuthWindow::forgotPass_released(){
+
+}
+
+void AuthWindow::signUp_released(){
+
+}
+
 void AuthWindow::mousePressEvent(QMouseEvent *event)
 {
     mpos = event->pos();
@@ -106,8 +141,21 @@ void AuthWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-
 void AuthWindow::mouseReleaseEvent(QMouseEvent *)
 {
     mpos = QPoint(-1, -1);
+}
+
+void ClickableLabel::mouseReleaseEvent(QMouseEvent *)
+{
+    emit clicked();
+}
+
+AuthWindow::~AuthWindow()
+{
+    delete ui;
+}
+
+ClickableLabel::~ClickableLabel(){
+
 }

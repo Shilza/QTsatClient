@@ -43,3 +43,6 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     authwindow.ui
+
+RESOURCES += \
+    resources.qrc
