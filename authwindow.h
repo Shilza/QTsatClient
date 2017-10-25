@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QLabel>
-#include <QWidget>
 #include <QLineEdit>
 #include <QUdpSocket>
 #include <QPushButton>
@@ -22,7 +21,7 @@ public:
     explicit ClickableLabel( QWidget* parent=0 );
     ~ClickableLabel();
 signals:
-    void clicked();
+    void released();
 protected:
     void mouseReleaseEvent(QMouseEvent* event);
 };
@@ -43,6 +42,7 @@ private:
     QLabel *errorLabel;
 
     QPushButton *closeButton;
+    QPushButton *eye;
     ClickableLabel *forgotPass;
     ClickableLabel *signUp;
 
@@ -56,7 +56,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
 public:
-    explicit AuthWindow(QWidget *parent = 0);
+    explicit AuthWindow(QMainWindow *parent = 0);
 
     ~AuthWindow();
 signals:
@@ -67,6 +67,7 @@ private slots:
     void signIn_released();
     void forgotPass_released();
     void signUp_released();
+    void eye_released();
 };
 
 #endif // AUTHWINDOW_H
