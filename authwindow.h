@@ -35,21 +35,28 @@ private:
 
     const int sizeX=260;
     const int sizeY=260;
+    const int DURATION = 300;
 
     QLineEdit *log;
     QLineEdit *pass;
-    QPushButton *signIn;
+    QLineEdit *confirmPass;
+    QLineEdit *email;
+    QPushButton *signInButton;
+    QPushButton *signUpButton;
+    QPushButton *passRecovery;
     QLabel *errorLabel;
 
     QPushButton *closeButton;
     QPushButton *eye;
     ClickableLabel *forgotPass;
-    ClickableLabel *signUp;
+    ClickableLabel *signUpLabel;
+    ClickableLabel *signInLabel;
 
     QUdpSocket *socket;
     QHostAddress host;
 
     QPoint mpos;
+    bool inRecovery=false;
 
     void handshaking(QString log, QString pass);
     void mousePressEvent(QMouseEvent *event);
@@ -66,7 +73,9 @@ private slots:
     void socketReading();
     void signIn_released();
     void forgotPass_released();
-    void signUp_released();
+    void signUpLabel_released();
+    void signInLabel_released();
+    void passRecovery_released();
     void eye_released();
 };
 
