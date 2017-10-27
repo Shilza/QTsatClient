@@ -30,11 +30,13 @@ class UDPServer : public QObject
   signals:
       void isReceived(QByteArray message);
       void systemReceived(QStringList list, QHostAddress ip, quint16 port);
+      void systemReceived(QString nickname, QHostAddress ip, quint16 port);
       void systemReceived(QByteArray index);
   public slots:
       void sendReceived(QByteArray message);
       void read();
       void handshake(QStringList list, QHostAddress peer, quint16 port);
+      void checkingNickname(QString nickname, QHostAddress peer, quint16 port);
       void answersChecker(QByteArray index);
       void systemReading();
 };

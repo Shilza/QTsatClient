@@ -129,6 +129,23 @@ void UDPServer::handshake(QStringList list, QHostAddress peer, quint16 port){
         systemSocket->writeDatagram("ERROR_AUTH", peer, port);
 }
 
+void UDPServer::checkingNickname(QString nickname, QHostAddress peer, quint16 port){
+    QSqlQuery query;
+    query.prepare("SELECT ID FROM users WHERE Nickname=?");
+    query.bindValue(0, nickname);
+
+    query.exec();
+
+    QString id="";
+    while (query.next())
+        id = query.value(0).toString();
+
+    if(id != "")
+        systemSocket->writeDatagram("EXIST", peer, port);
+    else
+        systemSocket->writeDatagram("NEXIST", peer, port);
+}
+
 void UDPServer::answersChecker(QByteArray index){
     answers.push_back(index.toShort());
 }
@@ -144,6 +161,8 @@ void UDPServer::systemReading(){
     QStringList list = QString(buffer).split('|');
     if(list.at(0) == "handshake")
         emit systemReceived(list, peer, port);
+    else if(list.at(0) == "DoesExNick")
+        emit systemReceived(list.at(1), peer, port);
     else
         emit systemReceived(buffer);
 }
