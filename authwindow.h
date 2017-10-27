@@ -82,8 +82,9 @@ private slots:
     void signUpLabel_released();
     void signInLabel_released();
     void passRecovery_released();
-    void checkingConfirming(QString text);
     void checkingNickname();
+    void checkingConfirming(QString text);
+    void logChange(QString text);
     void eye_released();
 };
 

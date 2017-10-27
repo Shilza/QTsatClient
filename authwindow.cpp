@@ -101,6 +101,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(forgotPass, SIGNAL(released()), this,SLOT(forgotPass_released()));
     connect(passRecovery, SIGNAL(released()), this, SLOT(passRecovery_released()));
     connect(confirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
+    connect(log, SIGNAL(textChanged(QString)), this, SLOT(logChange(QString)));
     connect(log, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
     connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
     connect(closeButton, SIGNAL(released()), this, SLOT(close()));
@@ -121,6 +122,7 @@ void AuthWindow::socketReading()
     QByteArray serverAnswer;
     serverAnswer.resize(socket->pendingDatagramSize());
     socket->readDatagram(serverAnswer.data(),serverAnswer.size());
+
     if(serverAnswer=="ERROR_AUTH"){
         errorLabel->setText("Wrong login or password");
 
@@ -170,13 +172,13 @@ void AuthWindow::signIn_released(){
 }
 
 void AuthWindow::eye_released(){
-    if(this->pass->echoMode()==QLineEdit::Password){
-        this->pass->setEchoMode(QLineEdit::Normal);
-        this->confirmPass->setEchoMode(QLineEdit::Normal);
+    if(pass->echoMode()==QLineEdit::Password){
+        pass->setEchoMode(QLineEdit::Normal);
+        confirmPass->setEchoMode(QLineEdit::Normal);
     }
     else{
-        this->pass->setEchoMode(QLineEdit::Password);
-        this->confirmPass->setEchoMode(QLineEdit::Password);
+        pass->setEchoMode(QLineEdit::Password);
+        confirmPass->setEchoMode(QLineEdit::Password);
     }
 }
 
@@ -344,6 +346,12 @@ void AuthWindow::checkingConfirming(QString text)
         confirmPass->setStyleSheet("border: 1px solid red;");
     else
         confirmPass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+}
+
+void AuthWindow::logChange(QString text)
+{
+    if(text =="" && location==LOC_SIGNUP)
+        log->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
 }
 
 void AuthWindow::checkingNickname()
