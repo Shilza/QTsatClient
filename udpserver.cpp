@@ -158,6 +158,8 @@ void UDPServer::systemReading(){
     buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
 
+    qDebug() << buffer;
+
     QStringList list = QString(buffer).split('|');
     if(list.at(0) == "handshake")
         emit systemReceived(list, peer, port);
