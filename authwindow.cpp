@@ -46,6 +46,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     eye->setGeometry(120,0,20,20);
     eye->setCursor(Qt::ArrowCursor);
 
+    email->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
+    log->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
+    pass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
+
     pass->setEchoMode(QLineEdit::Password);
     confirmPass->setEchoMode(QLineEdit::Password);
     signInLabel->close();
@@ -96,6 +100,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(signInLabel, SIGNAL(released()),this, SLOT(signInLabel_released()));
     connect(forgotPass, SIGNAL(released()), this,SLOT(forgotPass_released()));
     connect(passRecovery, SIGNAL(released()), this, SLOT(passRecovery_released()));
+    connect(confirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
+    connect(log, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
     connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
     connect(closeButton, SIGNAL(released()), this, SLOT(close()));
 }
@@ -112,10 +118,10 @@ void AuthWindow::handshaking(QString log, QString pass)
 
 void AuthWindow::socketReading()
 {
-    QByteArray sessionKey;
-    sessionKey.resize(socket->pendingDatagramSize());
-    socket->readDatagram(sessionKey.data(),sessionKey.size());
-    if(sessionKey=="ERROR_AUTH"){
+    QByteArray serverAnswer;
+    serverAnswer.resize(socket->pendingDatagramSize());
+    socket->readDatagram(serverAnswer.data(),serverAnswer.size());
+    if(serverAnswer=="ERROR_AUTH"){
         errorLabel->setText("Wrong login or password");
 
         QPropertyAnimation *animations[3];
@@ -134,17 +140,22 @@ void AuthWindow::socketReading()
 
         errorLabel->show();
     }
+    else if(serverAnswer=="EXIST" || serverAnswer=="NEXIST"){
+        if(serverAnswer=="EXIST")
+            log->setStyleSheet("border: 1px solid red;");
+        else
+            log->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+    }
     else{
-        emit sessionKeyReceived(sessionKey);
+        emit sessionKeyReceived(serverAnswer);
         emit sessionKeyReceived();
     }
 }
 
 void AuthWindow::signIn_released(){
+
     QString log = this->log->text();
     QString pass = this->pass->text();
-
-    this->pass->setEchoMode(QLineEdit::Normal);
 
     if(log=="")
         return;
@@ -170,9 +181,10 @@ void AuthWindow::eye_released(){
 }
 
 void AuthWindow::forgotPass_released(){
+    location=LOC_RECOVERY;
+
     signInLabel->setProperty("pos", QPoint(60, 260));
     signInLabel->show();
-    inRecovery = true;
 
     QPropertyAnimation *animations[5];
 
@@ -199,7 +211,11 @@ void AuthWindow::forgotPass_released(){
 }
 
 void AuthWindow::signUpLabel_released(){
+    log->clear();
+    pass->clear();
+
     log->setPlaceholderText("Nickname");
+    log->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[_]){2,12}$")));
 
     QPropertyAnimation *animations[5];
 
@@ -214,8 +230,7 @@ void AuthWindow::signUpLabel_released(){
     animations[3]->setEndValue(QPoint(60,50));
     animations[4]->setEndValue(QPoint(160,200));
 
-    if(inRecovery){
-        inRecovery=false;
+    if(location==LOC_RECOVERY){
         signUpButton->close();
         signInLabel->close();
 
@@ -250,12 +265,19 @@ void AuthWindow::signUpLabel_released(){
         animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
     }
 
+    location=LOC_SIGNUP;
     signInLabel->setProperty("pos",QPoint(160,200));
     connect(animations[4],SIGNAL(finished()), signUpLabel, SLOT(close()));
     connect(animations[4],SIGNAL(finished()), signInLabel, SLOT(show()));
 }
 
 void AuthWindow::signInLabel_released(){
+    log->clear();
+    pass->clear();
+    email->clear();
+    confirmPass->clear();
+
+    log->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
     signInButton->setProperty("pos",QPoint(-140,140));
     signInButton->show();
 
@@ -275,8 +297,8 @@ void AuthWindow::signInLabel_released(){
     animations[4]->setEndValue(QPoint(260, 170));
     animations[5]->setEndValue(QPoint(160,170));
 
-    if(inRecovery){
-        inRecovery = false;
+    if(location==LOC_RECOVERY){
+
         QPropertyAnimation *localAnimations[3];
         localAnimations[0] = new QPropertyAnimation(passRecovery,"pos");
         localAnimations[1] = new QPropertyAnimation(pass,"pos");
@@ -308,12 +330,28 @@ void AuthWindow::signInLabel_released(){
         animations[i]->setDuration(DURATION);
         animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
     }
+    location = LOC_SIGNIN;
 
 }
 
-void AuthWindow::passRecovery_released()
-{
+void AuthWindow::passRecovery_released(){}
 
+void AuthWindow::checkingConfirming(QString text)
+{
+    if(text=="")
+        confirmPass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+    else if(text!=this->pass->text())
+        confirmPass->setStyleSheet("border: 1px solid red;");
+    else
+        confirmPass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+}
+
+void AuthWindow::checkingNickname()
+{
+    if(location==LOC_SIGNUP && log->text()!=""){
+        QByteArray par;
+        socket->writeDatagram(par.append("DoesExNick|"+log->text()), host, 49003);
+    }
 }
 
 void AuthWindow::mousePressEvent(QMouseEvent *event)

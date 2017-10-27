@@ -7,8 +7,17 @@
 #include <QUdpSocket>
 #include <QPushButton>
 #include <QMouseEvent>
+#include <QRegExp>
+#include <QRegExpValidator>
 #include <QPropertyAnimation>
 #include "def.h"
+
+#define sizeX 260
+#define sizeY 260
+#define DURATION 300
+#define LOC_SIGNIN 1
+#define LOC_SIGNUP 2
+#define LOC_RECOVERY 3
 
 namespace Ui {
 class AuthWindow;
@@ -33,9 +42,7 @@ class AuthWindow : public QMainWindow
 private:
     Ui::AuthWindow *ui;
 
-    const int sizeX=260;
-    const int sizeY=260;
-    const int DURATION = 300;
+    quint8 location=LOC_SIGNIN;
 
     QLineEdit *log;
     QLineEdit *pass;
@@ -56,7 +63,6 @@ private:
     QHostAddress host;
 
     QPoint mpos;
-    bool inRecovery=false;
 
     void handshaking(QString log, QString pass);
     void mousePressEvent(QMouseEvent *event);
@@ -76,6 +82,8 @@ private slots:
     void signUpLabel_released();
     void signInLabel_released();
     void passRecovery_released();
+    void checkingConfirming(QString text);
+    void checkingNickname();
     void eye_released();
 };
 
