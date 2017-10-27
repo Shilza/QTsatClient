@@ -33,6 +33,7 @@ UDPServer::UDPServer(QObject *parent) :
     connect(this, SIGNAL(systemReceived(QByteArray)), this, SLOT(answersChecker(QByteArray)));
     connect(this, SIGNAL(systemReceived(QStringList, QHostAddress, quint16)), this, SLOT(handshake(QStringList,QHostAddress,quint16)));
     connect(this, SIGNAL(isReceived(QByteArray)), this, SLOT(sendReceived(QByteArray)));
+    connect(this, SIGNAL(systemReceived(QString,QHostAddress,quint16)), this, SLOT(checkingNickname(QString,QHostAddress,quint16)));
 }
 
 void UDPServer::start(){
@@ -157,8 +158,6 @@ void UDPServer::systemReading(){
 
     buffer.resize(systemSocket->pendingDatagramSize());
     systemSocket->readDatagram(buffer.data(), buffer.size(), &peer, &port);
-
-    qDebug() << buffer;
 
     QStringList list = QString(buffer).split('|');
     if(list.at(0) == "handshake")
