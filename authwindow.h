@@ -10,6 +10,7 @@
 #include <QRegExp>
 #include <QRegExpValidator>
 #include <QPropertyAnimation>
+#include <QDesktopWidget>
 #include "def.h"
 
 #define sizeX 260
@@ -44,30 +45,31 @@ private:
 
     quint8 location=LOC_SIGNIN;
 
-    QLineEdit *log;
-    QLineEdit *pass;
-    QLineEdit *confirmPass;
-    QLineEdit *email;
+    QLineEdit *lineLog;
+    QLineEdit *linePass;
+    QLineEdit *lineConfirmPass;
+    QLineEdit *lineEmail;
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
-    QPushButton *buttonPassRecovery;
-    QLabel *errorLabel;
+    QPushButton *buttonOk;
+    QLabel *labelError;
 
     QPushButton *buttonClose;
     QPushButton *buttonEye;
-    ClickableLabel *forgotPass;
-    ClickableLabel *signUpLabel;
-    ClickableLabel *signInLabel;
+    ClickableLabel *labelForgotPass;
+    ClickableLabel *labelSignUp;
+    ClickableLabel *labelSignIn;
 
     QUdpSocket *socket;
     QHostAddress host;
 
     QPoint mpos;
 
-    void handshaking(QString log, QString pass);
+    void handshaking(QString lineLog, QString linePass);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
+    void resizeAll();
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
 
