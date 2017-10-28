@@ -48,13 +48,13 @@ private:
     QLineEdit *pass;
     QLineEdit *confirmPass;
     QLineEdit *email;
-    QPushButton *signInButton;
-    QPushButton *signUpButton;
-    QPushButton *passRecovery;
+    QPushButton *buttonSignIn;
+    QPushButton *buttonSignUp;
+    QPushButton *buttonPassRecovery;
     QLabel *errorLabel;
 
-    QPushButton *closeButton;
-    QPushButton *eye;
+    QPushButton *buttonClose;
+    QPushButton *buttonEye;
     ClickableLabel *forgotPass;
     ClickableLabel *signUpLabel;
     ClickableLabel *signInLabel;
