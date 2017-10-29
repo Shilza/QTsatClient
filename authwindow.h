@@ -13,6 +13,7 @@
 #include <QDesktopWidget>
 #include "def.h"
 
+
 #define sizeX 260
 #define sizeY 260
 #define DURATION 300
@@ -74,7 +75,7 @@ private:
     void resizeAll();
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
-
+    bool eventFilter(QObject *watched, QEvent *event);
     ~AuthWindow();
 signals:
     void sessionKeyReceived();

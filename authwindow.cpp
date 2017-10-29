@@ -13,7 +13,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowFlags(Qt::FramelessWindowHint);
-    this->setFixedSize(sizeX,sizeY);
+    //    this->setFixedSize(sizeX,sizeY);
     //this->setStyleSheet("background: #C8A4E5;");
     this->setStyleSheet("background-image: url(:fon/fon.png);");
 
@@ -32,6 +32,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
 
+    buttonClose->installEventFilter(this);
+    buttonMinimize->installEventFilter(this);
 
     buttonEye->setCursor(Qt::ArrowCursor);
     buttonSignIn->setCursor(Qt::PointingHandCursor);
@@ -56,8 +58,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonSignIn->setText("Sign in");
     buttonSignUp->setText("Sign Up");
     buttonOk->setText("Ok");
-    buttonClose->setText("X");
-    buttonMinimize->setText("_");
     labelForgotPass->setText("Forgot password?");
     labelForgotPass->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     labelSignUp->setText("Sign up");
@@ -74,10 +74,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                             "border: 1px solid black;"
                             "background: #ACE6A8;");
 
-    buttonClose->setStyleSheet("QPushButton{font-weight:bold; background: transparent;}"
-                               "QPushButton:hover{background: red; color: white; border: 0px;}");
-    buttonMinimize->setStyleSheet("QPushButton{font-weight:bold; background: transparent;}"
-                               "QPushButton:hover{background: red; color: white; border: 0px;}");
     labelError->setStyleSheet("background: transparent;"
                               "color: #E94954;");
     labelForgotPass->setStyleSheet("background: transparent;"
@@ -99,7 +95,25 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineEmail->close();
 
     resizeAll();
-    buttonEye->setIconSize(QSize(buttonEye->width(),buttonEye->height()));
+    buttonClose->setStyleSheet("QPushButton {"
+                               "qproperty-icon: url(:/fon/close1.png);"
+                               "border: 0px;"
+                               "background: transparent;"
+                               "}"
+                               "QPushButton:hover{"
+                               "background: #fd3755;"
+                               "border: 0px;"
+                               "}");
+
+    buttonMinimize->setStyleSheet("QPushButton {"
+                               "qproperty-icon: url(:/fon/min1.png);"
+                               "border: 0px;"
+                               "background: transparent;"
+                               "}"
+                               "QPushButton:hover{"
+                               "background: #939494;"
+                               "border: 0px;"
+                               "}");
 
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
@@ -120,8 +134,9 @@ void AuthWindow::resizeAll()
 {
     //  quint16 windowSize = (QApplication::desktop()->width()/100)*20;
 
-    quint16 windowSize = (2000/100)*20;
+    quint16 windowSize = (1366/100)*20;
     this->setFixedSize(windowSize, windowSize);
+
     quint16 buttonCloseW = windowSize/10;
     quint16 buttonCloseH = windowSize/16;
     quint16 buttonCloseX = windowSize - buttonCloseW;
@@ -484,7 +499,7 @@ void AuthWindow::changeEvent(QEvent* e){
             this->showNormal();
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
-   /*     else if(event->oldState() == Qt::WindowNoState && this->windowState() == Qt::WindowMaximized){
+        /*     else if(event->oldState() == Qt::WindowNoState && this->windowState() == Qt::WindowMaximized){
             qDebug() << "Window Maximized!";
         }*/
     }
@@ -519,4 +534,24 @@ ClickableLabel::ClickableLabel(QWidget* parent) : QLabel(parent){}
 
 ClickableLabel::~ClickableLabel(){
 
+}
+
+
+
+bool AuthWindow::eventFilter(QObject *target, QEvent *event){
+    if (target == buttonClose){
+        if (event->type() == QEvent::HoverEnter){
+            buttonClose->setIcon(QIcon(":fon/close2.png"));
+        }
+        else if(event->type() == QEvent::HoverLeave)
+            buttonClose->setIcon(QIcon(":fon/close1.png"));
+    }
+    else if(target == buttonMinimize){
+        if (event->type() == QEvent::HoverEnter)
+            buttonMinimize->setIcon(QIcon(":fon/min2.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonMinimize->setIcon(QIcon(":fon/min1.png"));
+    }
+
+    return QMainWindow::eventFilter(target, event);
 }
