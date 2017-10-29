@@ -3,5 +3,7 @@
         <file>fon.png</file>
         <file>eye.png</file>
         <file>eye1.png</file>
+        <file>test1.png</file>
+        <file>test2.png</file>
     </qresource>
 </RCC>

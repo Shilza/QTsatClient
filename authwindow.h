@@ -56,6 +56,7 @@ private:
 
     QPushButton *buttonClose;
     QPushButton *buttonEye;
+    QPushButton *buttonMinimize;
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
@@ -69,6 +70,7 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
+    void changeEvent(QEvent* e);
     void resizeAll();
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
@@ -88,6 +90,7 @@ private slots:
     void checkingConfirming(QString text);
     void logChange(QString text);
     void eye_released();
+    void buttonMinimize_released();
 };
 
 #endif // AUTHWINDOW_H
