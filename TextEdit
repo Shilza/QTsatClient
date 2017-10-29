@@ -1,6 +1,0 @@
-#include "TextEdit"
-
-TextEdit::TextEdit() :
-{
-
-}
