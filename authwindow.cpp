@@ -68,6 +68,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelUncorrectNickname->setText("Nickname already exists");
     labelUncorrectNickname->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
 
+    setMouseTracking(true);
+    lineLog->setMouseTracking(true);
 
     resizeAll();
 
@@ -87,8 +89,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                               "border: 1px solid #63E3E9;"
                               "background: rgba(172,230,168,220);"
                               "}";
-
-    int defaultFontSize = (width()/260)*11;
+    defaultFontSize = (width()/260)*11;
     buttonSignIn->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonOk->setStyleSheet(strButtonStyle.arg(defaultFontSize));
@@ -123,7 +124,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                    "font-size: %1px;"
                                    "background: transparent;"
                                    "color: #B5EBEE;").arg(defaultFontSize));
-    labelUncorrectNickname->setStyleSheet(QString("font-family: Century Gothic;"
+    labelUncorrectNickname->setStyleSheet(QString("background: transparent;"
+                                                  "font-family: Century Gothic;"
                                                   "font-size: %1px;").arg((defaultFontSize/11)*9));
 
     lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
@@ -307,9 +309,17 @@ void AuthWindow::socketReading()
     }
     else if(serverAnswer=="EXIST" || serverAnswer=="NEXIST"){
         if(serverAnswer=="EXIST")
-            lineLog->setStyleSheet("border: 1px solid red;");
+            //CHECK
+            lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                           "font-size: %1px;"
+                                           "background: transparent;"
+                                           "border: 1px solid red;"
+                                           "color: #B5EBEE;").arg(defaultFontSize));
         else
-            lineLog->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+            lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                           "font-size: %1px;"
+                                           "background: transparent;"
+                                           "color: #B5EBEE;").arg(defaultFontSize));
     }
     else{
         emit sessionKeyReceived(serverAnswer);
@@ -324,11 +334,18 @@ void AuthWindow::signIn_released(){
     if(log=="")
         return;
     else if(pass==""){
-        this->linePass->setStyleSheet("border: 1px solid red;");
+        this->linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                              "font-size: %1px;"
+                                              "background: transparent;"
+                                              "border: 1px solid red;"
+                                              "color: #B5EBEE;").arg(defaultFontSize));
         return;
     }
 
-    this->linePass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+    this->linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                          "font-size: %1px;"
+                                          "background: transparent;"
+                                          "color: #B5EBEE;").arg(defaultFontSize));
 
     handshaking(log,pass);
 }
@@ -525,7 +542,10 @@ void AuthWindow::checkingConfirming(QString text){
 
 void AuthWindow::logChange(QString text){
     if(text =="" && location==LOC_SIGNUP)
-        lineLog->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                      "font-size: %1px;"
+                                      "background: transparent;"
+                                      "color: #B5EBEE;").arg(defaultFontSize));
 }
 
 void AuthWindow::checkingNickname(){
@@ -541,6 +561,11 @@ void AuthWindow::buttonMinimize_released(){
     animation->setDuration(200);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     connect(animation, SIGNAL(finished()), this, SLOT(showMinimized()));
+}
+
+void AuthWindow::uncorrectNicknameSlot(int x, int y){
+    qDebug() << "s";
+    labelUncorrectNickname->move(x, y);
 }
 
 void AuthWindow::changeEvent(QEvent* e){
@@ -582,6 +607,7 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
 }
 
 bool AuthWindow::eventFilter(QObject *target, QEvent *event){
+    static bool inHover;
     if (target == buttonClose){
         if (event->type() == QEvent::HoverEnter)
             buttonClose->setIcon(QIcon(":fon/close2.png"));
@@ -596,10 +622,16 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     }
     else if(target == lineLog){
         if(event->type() == QEvent::HoverEnter){
-            qDebug() << "sos";
+            labelUncorrectNickname->show();
+            inHover = true;
         }
         else if(event->type() == QEvent::HoverLeave){
-            qDebug() << "sas";
+            labelUncorrectNickname->close();
+            inHover = false;
+        }
+        else if(event->type() == QEvent::MouseMove && inHover){
+            QPoint mousePos = QCursor::pos();
+            labelUncorrectNickname->move(mousePos.x()-x(), mousePos.y()-y());
         }
     }
 

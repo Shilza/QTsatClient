@@ -29,29 +29,32 @@ class AuthWindow;
 
 class LineEdit : public QLineEdit{
     Q_OBJECT
-   public:
-       LineEdit(QWidget *parent=0) : QLineEdit(parent){ init(); }
-       LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
+public:
+    LineEdit(QWidget *parent=0) : QLineEdit(parent){ init(); }
+    LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
 
-   private:
-       void init();
+private:
+    void keyPressEvent(QKeyEvent *event);
+    void init();
 
-   protected:
-       void keyPressEvent(QKeyEvent *event);
+signals:
+    void hoverEnter();
+    void hoverLeave();
 
-   private slots:
-       void showMenu(QPoint position){}
+
+private slots:
+    void showMenu(QPoint position){}
 };
 
 class ClickableLabel : public QLabel
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     explicit ClickableLabel( QWidget* parent=0 );
     ~ClickableLabel();
 signals:
     void released();
-protected:
+private:
     void mouseReleaseEvent(QMouseEvent* event);
     void enterEvent(QEvent* event);
     void leaveEvent(QEvent* event);
@@ -62,6 +65,7 @@ class AuthWindow : public QMainWindow
     Q_OBJECT
 
 private:
+    int defaultFontSize;
     Ui::AuthWindow *ui;
 
     quint8 location=LOC_SIGNIN;
@@ -113,6 +117,7 @@ private slots:
     void logChange(QString text);
     void eye_released();
     void buttonMinimize_released();
+    void uncorrectNicknameSlot(int x, int y);
 };
 
 #endif // AUTHWINDOW_H
