@@ -11,6 +11,7 @@
 #include <QRegExpValidator>
 #include <QPropertyAnimation>
 #include <QDesktopWidget>
+#include <QKeyEvent>
 #include "def.h"
 
 
@@ -25,6 +26,30 @@ namespace Ui {
 class AuthWindow;
 }
 
+class LineEdit : public QLineEdit{
+    Q_OBJECT
+   public:
+       LineEdit(QWidget *parent=0) : QLineEdit(parent){ init(); }
+       LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
+
+   private:
+       void init(){
+           setAcceptDrops(false);
+           setContextMenuPolicy(Qt::CustomContextMenu);
+           connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
+       }
+
+   protected:
+       void keyPressEvent(QKeyEvent *event){
+           if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
+               event->ignore();
+           else return QLineEdit::keyPressEvent(event);
+       }
+
+   private slots:
+       void showMenu(QPoint position){}
+};
+
 class ClickableLabel : public QLabel
 {
 Q_OBJECT
@@ -35,6 +60,8 @@ signals:
     void released();
 protected:
     void mouseReleaseEvent(QMouseEvent* event);
+    void enterEvent(QEvent* event);
+    void leaveEvent(QEvent* event);
 };
 
 class AuthWindow : public QMainWindow
@@ -46,14 +73,15 @@ private:
 
     quint8 location=LOC_SIGNIN;
 
-    QLineEdit *lineLog;
-    QLineEdit *linePass;
-    QLineEdit *lineConfirmPass;
-    QLineEdit *lineEmail;
+    LineEdit *lineLog;
+    LineEdit *linePass;
+    LineEdit *lineConfirmPass;
+    LineEdit *lineEmail;
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
     QPushButton *buttonOk;
     QLabel *labelError;
+    QLabel *labelUncorrectNickname;
 
     QPushButton *buttonClose;
     QPushButton *buttonEye;

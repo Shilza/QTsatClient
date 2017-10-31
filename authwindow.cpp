@@ -17,10 +17,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     //this->setStyleSheet("background: #C8A4E5;");
     this->setStyleSheet("background-image: url(:fon/fon.png);");
 
-    lineLog = new QLineEdit(this);
-    linePass = new QLineEdit(this);
-    lineConfirmPass = new QLineEdit(this);
-    lineEmail = new QLineEdit(this);
+    lineLog = new LineEdit(this);
+    linePass = new LineEdit(this);
+    lineConfirmPass = new LineEdit(this);
+    lineEmail = new LineEdit(this);
     buttonSignIn = new QPushButton(this);
     buttonSignUp = new QPushButton(this);
     buttonOk = new QPushButton(this);
@@ -31,9 +31,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelForgotPass = new ClickableLabel(this);
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
+    labelUncorrectNickname = new QLabel(this);
 
     buttonClose->installEventFilter(this);
     buttonMinimize->installEventFilter(this);
+    lineLog->installEventFilter(this);
 
     buttonEye->setCursor(Qt::ArrowCursor);
     buttonSignIn->setCursor(Qt::PointingHandCursor);
@@ -63,27 +65,61 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp->setText("Sign up");
     labelSignUp->setAlignment(Qt::AlignRight | Qt::AlignTop);
     labelSignIn->setText("Sign in");
+    labelUncorrectNickname->setText("This nickname already exists");
+    labelUncorrectNickname->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
-    buttonSignIn->setStyleSheet("border-radius: 6px;"
+
+    buttonSignIn->setStyleSheet("QPushButton{"
+                                "border-radius: 6px;"
                                 "border: 1px solid black;"
-                                "background: #ACE6A8;");
-    buttonSignUp->setStyleSheet("border-radius: 6px;"
+                                "background: rgba(172,230,168,245);"
+                                "}"
+                                "QPushButton:focus:pressed{"
+                                "border: 2px solid #63E3E9;"
+                                "background: rgba(172,230,168,210);"
+                                "}"
+                                "QPushButton:hover{"
+                                "border-radius: 6px;"
+                                "border: 1px solid #63E3E9;"
+                                "background: rgba(172,230,168,220);"
+                                "}");
+    buttonSignUp->setStyleSheet("QPushButton{"
+                                "border-radius: 6px;"
                                 "border: 1px solid black;"
-                                "background: #ACE6A8;");
-    buttonOk->setStyleSheet("border-radius: 6px;"
+                                "background: rgba(172,230,168,245);"
+                                "}"
+                                "QPushButton:focus:pressed{"
+                                "border: 2px solid #63E3E9;"
+                                "background: rgba(172,230,168,210);"
+                                "}"
+                                "QPushButton:hover{"
+                                "border-radius: 6px;"
+                                "border: 1px solid #63E3E9;"
+                                "background: rgba(172,230,168,220);"
+                                "}");
+    buttonOk->setStyleSheet("QPushButton{"
+                            "border-radius: 6px;"
                             "border: 1px solid black;"
-                            "background: #ACE6A8;");
+                            "background: rgba(172,230,168,245);"
+                            "}"
+                            "QPushButton:focus:pressed{"
+                            "border: 2px solid #63E3E9;"
+                            "background: rgba(172,230,168,210);"
+                            "}"
+                            "QPushButton:hover{"
+                            "border-radius: 6px;"
+                            "border: 1px solid #63E3E9;"
+                            "background: rgba(172,230,168,220);"
+                            "}");
 
     labelError->setStyleSheet("background: transparent;"
                               "color: #E94954;");
+
     labelForgotPass->setStyleSheet("background: transparent;"
                                    "color: #B5EBEE;");
     labelSignUp->setStyleSheet("background: transparent;"
                                "color: #B5EBEE;");
-    labelSignIn->setStyleSheet("background: transparent;"
-                               "color: #B5EBEE;");
-
-    buttonEye->setStyleSheet("QPushButton{background: transparent;}"
+   buttonEye->setStyleSheet("QPushButton{background: transparent;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
     buttonEye->setIcon(QIcon(":fon/eye.png"));
 
@@ -95,6 +131,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineEmail->close();
 
     resizeAll();
+
     buttonClose->setStyleSheet("QPushButton {"
                                "qproperty-icon: url(:/fon/close1.png);"
                                "border: 0px;"
@@ -134,7 +171,7 @@ void AuthWindow::resizeAll()
 {
     //  quint16 windowSize = (QApplication::desktop()->width()/100)*20;
 
-    quint16 windowSize = (1366/100)*20;
+    quint16 windowSize = (3000/100)*20;
     this->setFixedSize(windowSize, windowSize);
 
     quint16 buttonCloseW = windowSize/10;
@@ -262,7 +299,6 @@ void AuthWindow::socketReading()
 }
 
 void AuthWindow::signIn_released(){
-
     QString log = this->lineLog->text();
     QString pass = this->linePass->text();
 
@@ -536,8 +572,6 @@ ClickableLabel::~ClickableLabel(){
 
 }
 
-
-
 bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     if (target == buttonClose){
         if (event->type() == QEvent::HoverEnter){
@@ -552,6 +586,29 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
         else if(event->type() == QEvent::HoverLeave)
             buttonMinimize->setIcon(QIcon(":fon/min1.png"));
     }
+    else if(target == lineLog){
+        if(event->type() == QEvent::HoverEnter){
+            qDebug() << "sos";
+        }
+        else if(event->type() == QEvent::HoverLeave){
+            qDebug() << "sas";
+        }
+    }
 
     return QMainWindow::eventFilter(target, event);
+}
+
+
+void ClickableLabel::enterEvent(QEvent* event)
+{
+    QFont f = font();
+    f.setUnderline(true);
+    setFont(f);
+}
+
+void ClickableLabel::leaveEvent(QEvent* event)
+{
+    QFont f = font();
+    f.setUnderline(false);
+    setFont(f);
 }
