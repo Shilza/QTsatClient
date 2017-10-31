@@ -65,72 +65,75 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp->setText("Sign up");
     labelSignUp->setAlignment(Qt::AlignRight | Qt::AlignTop);
     labelSignIn->setText("Sign in");
-    labelUncorrectNickname->setText("This nickname already exists");
-    labelUncorrectNickname->setAlignment(Qt::AlignRight | Qt::AlignBottom);
+    labelUncorrectNickname->setText("Nickname already exists");
+    labelUncorrectNickname->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
 
 
-    buttonSignIn->setStyleSheet("QPushButton{"
-                                "border-radius: 6px;"
-                                "border: 1px solid black;"
-                                "background: rgba(172,230,168,245);"
-                                "}"
-                                "QPushButton:focus:pressed{"
-                                "border: 2px solid #63E3E9;"
-                                "background: rgba(172,230,168,210);"
-                                "}"
-                                "QPushButton:hover{"
-                                "border-radius: 6px;"
-                                "border: 1px solid #63E3E9;"
-                                "background: rgba(172,230,168,220);"
-                                "}");
-    buttonSignUp->setStyleSheet("QPushButton{"
-                                "border-radius: 6px;"
-                                "border: 1px solid black;"
-                                "background: rgba(172,230,168,245);"
-                                "}"
-                                "QPushButton:focus:pressed{"
-                                "border: 2px solid #63E3E9;"
-                                "background: rgba(172,230,168,210);"
-                                "}"
-                                "QPushButton:hover{"
-                                "border-radius: 6px;"
-                                "border: 1px solid #63E3E9;"
-                                "background: rgba(172,230,168,220);"
-                                "}");
-    buttonOk->setStyleSheet("QPushButton{"
-                            "border-radius: 6px;"
-                            "border: 1px solid black;"
-                            "background: rgba(172,230,168,245);"
-                            "}"
-                            "QPushButton:focus:pressed{"
-                            "border: 2px solid #63E3E9;"
-                            "background: rgba(172,230,168,210);"
-                            "}"
-                            "QPushButton:hover{"
-                            "border-radius: 6px;"
-                            "border: 1px solid #63E3E9;"
-                            "background: rgba(172,230,168,220);"
-                            "}");
+    resizeAll();
 
-    labelError->setStyleSheet("background: transparent;"
-                              "color: #E94954;");
+    QString strButtonStyle =  "QPushButton{"
+                              "font-family: Century Gothic;"
+                              "font-size: %1px;"
+                              "border-radius: 6px;"
+                              "border: 1px solid black;"
+                              "background: rgba(172,230,168,245);"
+                              "}"
+                              "QPushButton:focus:pressed{"
+                              "border: 2px solid #63E3E9;"
+                              "background: rgba(172,230,168,210);"
+                              "}"
+                              "QPushButton:hover{"
+                              "border-radius: 6px;"
+                              "border: 1px solid #63E3E9;"
+                              "background: rgba(172,230,168,220);"
+                              "}";
 
-    labelForgotPass->setStyleSheet("background: transparent;"
-                                   "color: #B5EBEE;");
-    labelSignUp->setStyleSheet("background: transparent;"
-                               "color: #B5EBEE;");
-   buttonEye->setStyleSheet("QPushButton{background: transparent;}"
+    int defaultFontSize = (width()/260)*11;
+    buttonSignIn->setStyleSheet(strButtonStyle.arg(defaultFontSize));
+    buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
+    buttonOk->setStyleSheet(strButtonStyle.arg(defaultFontSize));
+
+    labelError->setStyleSheet(QString("font-family: Century Gothic;"
+                                      "font-size: %1px;"
+                                      "background: transparent;"
+                                      "color: #E94954;").arg(defaultFontSize));
+
+    labelForgotPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                           "font-size: %1px;"
+                                           "background: transparent;"
+                                           "color: #B5EBEE;").arg(defaultFontSize));
+    labelSignUp->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+    labelSignIn->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+
+    buttonEye->setStyleSheet("QPushButton{background: transparent;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
     buttonEye->setIcon(QIcon(":fon/eye.png"));
 
-    labelError->close();
-    labelSignIn->close();
-    buttonOk->close();
-    buttonSignUp->close();
-    lineConfirmPass->close();
-    lineEmail->close();
+    lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
+                                     "font-size: %1px;"
+                                     "background: transparent;"
+                                     "color: #B5EBEE;").arg(defaultFontSize));
+    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                   "font-size: %1px;"
+                                   "background: transparent;"
+                                   "color: #B5EBEE;").arg(defaultFontSize));
+    labelUncorrectNickname->setStyleSheet(QString("font-family: Century Gothic;"
+                                                  "font-size: %1px;").arg((defaultFontSize/11)*9));
 
-    resizeAll();
+    lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                           "font-size: %1px;"
+                                           "background: transparent;"
+                                           "color: #B5EBEE;").arg(defaultFontSize));
+    linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                    "font-size: %1px;"
+                                    "background: transparent;"
+                                    "color: #B5EBEE;").arg(defaultFontSize));
 
     buttonClose->setStyleSheet("QPushButton {"
                                "qproperty-icon: url(:/fon/close1.png);"
@@ -143,14 +146,26 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                "}");
 
     buttonMinimize->setStyleSheet("QPushButton {"
-                               "qproperty-icon: url(:/fon/min1.png);"
-                               "border: 0px;"
-                               "background: transparent;"
-                               "}"
-                               "QPushButton:hover{"
-                               "background: #939494;"
-                               "border: 0px;"
-                               "}");
+                                  "qproperty-icon: url(:/fon/min1.png);"
+                                  "border: 0px;"
+                                  "background: transparent;"
+                                  "}"
+                                  "QPushButton:hover{"
+                                  "background: #939494;"
+                                  "border: 0px;"
+                                  "}");
+
+    QFontMetrics *tempFontSize = new QFontMetrics(labelUncorrectNickname->font());
+    labelUncorrectNickname->setProperty("size", QSize(a->width(labelUncorrectNickname->text()), a->height()));
+    delete tempFontSize;
+
+    labelError->close();
+    labelSignIn->close();
+    buttonOk->close();
+    buttonSignUp->close();
+    lineConfirmPass->close();
+    lineEmail->close();
+    labelUncorrectNickname->close();
 
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
@@ -171,7 +186,7 @@ void AuthWindow::resizeAll()
 {
     //  quint16 windowSize = (QApplication::desktop()->width()/100)*20;
 
-    quint16 windowSize = (3000/100)*20;
+    quint16 windowSize = (1366/100)*20;
     this->setFixedSize(windowSize, windowSize);
 
     quint16 buttonCloseW = windowSize/10;
@@ -237,6 +252,9 @@ void AuthWindow::resizeAll()
     quint16 labelSignInX_inSIGNUP = labelSignUpX_inSIGNIN;
     quint16 labelSignInY_inSIGNUP = buttonSignUpY + buttonSignUpH + windowSize/26;
 
+    quint16 labelUncorrectNicknameX = lineLogX;
+    quint16 labelUncorrectNicknameY = lineLogY - windowSize/26 - labelUncorrectNickname->height();
+
     lineLog->setGeometry(lineLogX, lineLogY, lineLogW, lineLogH);
     linePass->setGeometry(linePassX, linePassY, linePassW, linePassH);
     lineConfirmPass->resize(lineConfirmPassW, lineConfirmPassH);
@@ -253,6 +271,7 @@ void AuthWindow::resizeAll()
     labelForgotPass->setGeometry(labelForgotPassX, labelForgotPassY, labelForgotPassW, labelForgotPassH);
     labelSignUp->setGeometry(labelSignUpX_inSIGNIN, labelSignUpY_inSIGNIN, labelSignUpW,labelSignUpH);
     labelSignIn->setGeometry(labelSignInX_inSIGNUP, labelSignInY_inSIGNUP, labelSignInW, labelSignInH);
+    labelUncorrectNickname->setProperty("pos", QPoint(labelUncorrectNicknameX, labelUncorrectNicknameY));
 }
 
 void AuthWindow::handshaking(QString log, QString pass)
@@ -598,7 +617,6 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     return QMainWindow::eventFilter(target, event);
 }
 
-
 void ClickableLabel::enterEvent(QEvent* event)
 {
     QFont f = font();
@@ -611,4 +629,16 @@ void ClickableLabel::leaveEvent(QEvent* event)
     QFont f = font();
     f.setUnderline(false);
     setFont(f);
+}
+
+void LineEdit::init(){
+    setAcceptDrops(false);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
+}
+
+void LineEdit::keyPressEvent(QKeyEvent *event){
+    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
+        event->ignore();
+    else return QLineEdit::keyPressEvent(event);
 }

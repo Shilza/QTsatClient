@@ -12,6 +12,7 @@
 #include <QPropertyAnimation>
 #include <QDesktopWidget>
 #include <QKeyEvent>
+#include <QFontMetrics>
 #include "def.h"
 
 
@@ -33,18 +34,10 @@ class LineEdit : public QLineEdit{
        LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
 
    private:
-       void init(){
-           setAcceptDrops(false);
-           setContextMenuPolicy(Qt::CustomContextMenu);
-           connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
-       }
+       void init();
 
    protected:
-       void keyPressEvent(QKeyEvent *event){
-           if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
-               event->ignore();
-           else return QLineEdit::keyPressEvent(event);
-       }
+       void keyPressEvent(QKeyEvent *event);
 
    private slots:
        void showMenu(QPoint position){}
