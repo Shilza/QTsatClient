@@ -13,7 +13,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowFlags(Qt::FramelessWindowHint);
-    //    this->setFixedSize(sizeX,sizeY);
+    //this->setFixedSize(sizeX,sizeY);
     //this->setStyleSheet("background: #C8A4E5;");
     this->setStyleSheet("background-image: url(:fon/fon.png);");
 
@@ -156,7 +156,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "}");
 
     QFontMetrics *tempFontSize = new QFontMetrics(labelUncorrectNickname->font());
-    labelUncorrectNickname->setProperty("size", QSize(a->width(labelUncorrectNickname->text()), a->height()));
+    labelUncorrectNickname->setProperty("size", QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
     delete tempFontSize;
 
     labelError->close();
@@ -581,21 +581,10 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
     emit released();
 }
 
-AuthWindow::~AuthWindow(){
-    delete ui;
-}
-
-ClickableLabel::ClickableLabel(QWidget* parent) : QLabel(parent){}
-
-ClickableLabel::~ClickableLabel(){
-
-}
-
 bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     if (target == buttonClose){
-        if (event->type() == QEvent::HoverEnter){
+        if (event->type() == QEvent::HoverEnter)
             buttonClose->setIcon(QIcon(":fon/close2.png"));
-        }
         else if(event->type() == QEvent::HoverLeave)
             buttonClose->setIcon(QIcon(":fon/close1.png"));
     }
@@ -642,3 +631,11 @@ void LineEdit::keyPressEvent(QKeyEvent *event){
         event->ignore();
     else return QLineEdit::keyPressEvent(event);
 }
+
+AuthWindow::~AuthWindow(){
+    delete ui;
+}
+
+ClickableLabel::ClickableLabel(QWidget* parent) : QLabel(parent){}
+
+ClickableLabel::~ClickableLabel(){}
