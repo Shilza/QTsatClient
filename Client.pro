@@ -7,6 +7,7 @@
 QT       += core gui
 QT       += core
 QT       += network
+QT += svg
 //CONFIG   += c++11 console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

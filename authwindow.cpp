@@ -13,7 +13,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->setWindowFlags(Qt::FramelessWindowHint);
-    //this->setFixedSize(sizeX,sizeY);
     //this->setStyleSheet("background: #C8A4E5;");
     this->setStyleSheet("background-image: url(:fon/fon.png);");
 
@@ -32,6 +31,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
     labelUncorrectNickname = new QLabel(this);
+    preloader = new QSvgWidget(this);
 
     buttonClose->installEventFilter(this);
     buttonMinimize->installEventFilter(this);
@@ -66,10 +66,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp->setAlignment(Qt::AlignRight | Qt::AlignTop);
     labelSignIn->setText("Sign in");
     labelUncorrectNickname->setText("Nickname already exists");
-    labelUncorrectNickname->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
+    labelUncorrectNickname->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     setMouseTracking(true);
     lineLog->setMouseTracking(true);
+    preloader->load(QString(":fon/pre.svg"));
 
     resizeAll();
 
@@ -89,6 +90,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                               "border: 1px solid #63E3E9;"
                               "background: rgba(172,230,168,220);"
                               "}";
+
     defaultFontSize = (width()/260)*11;
     buttonSignIn->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
@@ -103,10 +105,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                            "font-size: %1px;"
                                            "background: transparent;"
                                            "color: #B5EBEE;").arg(defaultFontSize));
+
     labelSignUp->setStyleSheet(QString("font-family: Century Gothic;"
                                        "font-size: %1px;"
                                        "background: transparent;"
                                        "color: #B5EBEE;").arg(defaultFontSize));
+
     labelSignIn->setStyleSheet(QString("font-family: Century Gothic;"
                                        "font-size: %1px;"
                                        "background: transparent;"
@@ -114,19 +118,18 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     buttonEye->setStyleSheet("QPushButton{background: transparent;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
+
     buttonEye->setIcon(QIcon(":fon/eye.png"));
 
     lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
                                      "font-size: %1px;"
                                      "background: transparent;"
                                      "color: #B5EBEE;").arg(defaultFontSize));
+
     lineLog->setStyleSheet(QString("font-family: Century Gothic;"
                                    "font-size: %1px;"
                                    "background: transparent;"
                                    "color: #B5EBEE;").arg(defaultFontSize));
-    labelUncorrectNickname->setStyleSheet(QString("background: transparent;"
-                                                  "font-family: Century Gothic;"
-                                                  "font-size: %1px;").arg((defaultFontSize/11)*9));
 
     lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                            "font-size: %1px;"
@@ -156,9 +159,18 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "background: #939494;"
                                   "border: 0px;"
                                   "}");
+    preloader->setStyleSheet("background:transparent;");
+
+    QFont fontGothic("Century Gothic");
+    fontGothic.setBold(true);
+    fontGothic.setPointSize((defaultFontSize/11)*8);
+
+    labelUncorrectNickname->setStyleSheet("background: transparent;"
+                                          "color: red;");
+    labelUncorrectNickname->setFont(fontGothic);
 
     QFontMetrics *tempFontSize = new QFontMetrics(labelUncorrectNickname->font());
-    labelUncorrectNickname->setProperty("size", QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
+    labelUncorrectNickname->resize(QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
     delete tempFontSize;
 
     labelError->close();
@@ -168,13 +180,16 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineConfirmPass->close();
     lineEmail->close();
     labelUncorrectNickname->close();
+    preloader->close();
 
+    connect(this, SIGNAL(authWasStart()),this, SLOT(startPreloader()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
+    connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
+    connect(buttonOk, SIGNAL(released()), this, SLOT(passRecovery_released()));
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
     connect(labelSignUp, SIGNAL(released()),this, SLOT(signUpLabel_released()));
     connect(labelSignIn, SIGNAL(released()),this, SLOT(signInLabel_released()));
     connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPass_released()));
-    connect(buttonOk, SIGNAL(released()), this, SLOT(passRecovery_released()));
     connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
     connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logChange(QString)));
     connect(lineLog, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
@@ -183,12 +198,15 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(buttonMinimize, SIGNAL(released()), this, SLOT(buttonMinimize_released()));
 }
 
-
 void AuthWindow::resizeAll()
 {
-    //  quint16 windowSize = (QApplication::desktop()->width()/100)*20;
+    //  quint16 windowSize = (QApplication::desktop()->width()/100)*25;
 
-    quint16 windowSize = (1366/100)*20;
+    quint16 windowSize = (1366/100)*25;
+
+    if(QApplication::desktop()->width()<1366)
+        windowSize=(1366/100)*25;
+
     this->setFixedSize(windowSize, windowSize);
 
     quint16 buttonCloseW = windowSize/10;
@@ -257,10 +275,14 @@ void AuthWindow::resizeAll()
     quint16 labelUncorrectNicknameX = lineLogX;
     quint16 labelUncorrectNicknameY = lineLogY - windowSize/26 - labelUncorrectNickname->height();
 
+    quint16 preloaderH = buttonSignInH;
+    quint16 preloaderW = preloaderH;
+
     lineLog->setGeometry(lineLogX, lineLogY, lineLogW, lineLogH);
     linePass->setGeometry(linePassX, linePassY, linePassW, linePassH);
     lineConfirmPass->resize(lineConfirmPassW, lineConfirmPassH);
     lineEmail->resize(lineEmailW, lineEmailH);
+    preloader->resize(preloaderW, preloaderH);
 
     buttonSignIn->setGeometry(buttonSignInX, buttonSignInY, buttonSignInW,buttonSignInH);
     buttonSignUp->setGeometry(buttonSignUpX, buttonSignUpY, buttonSignUpW, buttonSignUpH);
@@ -268,6 +290,7 @@ void AuthWindow::resizeAll()
     buttonClose->setGeometry(buttonCloseX, 0, buttonCloseW, buttonCloseH);
     buttonMinimize->setGeometry(buttonMinimizeX, 0, buttonMinimizeW, buttonMinimizeH);
     buttonEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
+    buttonEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
 
     labelError->setGeometry(labelErrorX, labelErrorY, labelErrorW, labelErrorH);
     labelForgotPass->setGeometry(labelForgotPassX, labelForgotPassY, labelForgotPassW, labelForgotPassH);
@@ -308,18 +331,22 @@ void AuthWindow::socketReading()
         labelError->show();
     }
     else if(serverAnswer=="EXIST" || serverAnswer=="NEXIST"){
-        if(serverAnswer=="EXIST")
+        if(serverAnswer=="EXIST"){
             //CHECK
+            nicknameExists = true;
             lineLog->setStyleSheet(QString("font-family: Century Gothic;"
                                            "font-size: %1px;"
                                            "background: transparent;"
                                            "border: 1px solid red;"
                                            "color: #B5EBEE;").arg(defaultFontSize));
-        else
+        }
+        else{
+            nicknameExists = false;
             lineLog->setStyleSheet(QString("font-family: Century Gothic;"
                                            "font-size: %1px;"
                                            "background: transparent;"
                                            "color: #B5EBEE;").arg(defaultFontSize));
+        }
     }
     else{
         emit sessionKeyReceived(serverAnswer);
@@ -347,7 +374,13 @@ void AuthWindow::signIn_released(){
                                           "background: transparent;"
                                           "color: #B5EBEE;").arg(defaultFontSize));
 
+    emit authWasStart();
     handshaking(log,pass);
+}
+
+void AuthWindow::signUp_released()
+{
+    emit authWasStart();
 }
 
 void AuthWindow::eye_released(){
@@ -515,6 +548,7 @@ void AuthWindow::signInLabel_released(){
         connect(localAnimations[0], SIGNAL(finished()), buttonOk, SLOT(close()));
     }
     else{
+        nicknameExists=false;
         lineLog->setPlaceholderText("Login or email");
         labelSignUp->setProperty("pos",QPoint(labelSignIn->x(), buttonSignUp->y()));
         connect(animations[5],SIGNAL(finished()), labelSignIn, SLOT(close()));
@@ -529,15 +563,27 @@ void AuthWindow::signInLabel_released(){
     location = LOC_SIGNIN;
 }
 
-void AuthWindow::passRecovery_released(){}
+void AuthWindow::passRecovery_released(){
+    emit authWasStart();
+}
 
 void AuthWindow::checkingConfirming(QString text){
     if(text=="")
-        lineConfirmPass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                               "font-size: %1px;"
+                                               "background: transparent;"
+                                               "color: #B5EBEE;").arg(defaultFontSize));
     else if(text!=this->linePass->text())
-        lineConfirmPass->setStyleSheet("border: 1px solid red;");
+        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                               "font-size: %1px;"
+                                               "background: transparent;"
+                                               "border: 1px solid red;"
+                                               "color: #B5EBEE;").arg(defaultFontSize));
     else
-        lineConfirmPass->setStyleSheet("QLineEdit:hover{ border: 2px solid grey;}");
+        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                               "font-size: %1px;"
+                                               "background: transparent;"
+                                               "color: #B5EBEE;").arg(defaultFontSize));
 }
 
 void AuthWindow::logChange(QString text){
@@ -563,9 +609,60 @@ void AuthWindow::buttonMinimize_released(){
     connect(animation, SIGNAL(finished()), this, SLOT(showMinimized()));
 }
 
-void AuthWindow::uncorrectNicknameSlot(int x, int y){
-    qDebug() << "s";
-    labelUncorrectNickname->move(x, y);
+void AuthWindow::startPreloader()
+{
+    if(location == LOC_SIGNIN){
+        QPropertyAnimation *animations[2];
+
+        animations[0] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignUp->x(),this->height()));
+
+        animations[1] = new QPropertyAnimation(labelForgotPass, "pos");
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(QPoint(labelForgotPass->x(),this->height()));
+
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        preloader->move((width()-buttonSignIn->height())/2,buttonSignIn->y());
+        buttonSignIn->close();
+        lineLog->setDisabled(true);
+        linePass->setDisabled(true);
+    }
+    else if(location==LOC_SIGNUP){
+        QPropertyAnimation *animation = new QPropertyAnimation(labelSignIn, "pos");
+
+        animation->setDuration(DURATION);
+        animation->setEndValue(QPoint(labelSignIn->x(),this->height()));
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
+
+        preloader->move((width()-buttonSignUp->height())/2,buttonSignUp->y());
+        buttonSignUp->close();
+        lineEmail->setDisabled(true);
+        lineLog->setDisabled(true);
+        linePass->setDisabled(true);
+        lineConfirmPass->setDisabled(true);
+    }
+    else if(location==LOC_RECOVERY){
+        QPropertyAnimation *animations[2];
+
+        animations[0] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignUp->x(),this->height()));
+
+        animations[1] = new QPropertyAnimation(labelSignIn, "pos");
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(QPoint(labelSignIn->x(),this->height()));
+
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        preloader->move((width()-buttonOk->height())/2,buttonOk->y());
+        buttonOk->close();
+        lineLog->setDisabled(true);
+    }
+    preloader->show();
 }
 
 void AuthWindow::changeEvent(QEvent* e){
@@ -579,14 +676,7 @@ void AuthWindow::changeEvent(QEvent* e){
             this->showNormal();
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
-        /*     else if(event->oldState() == Qt::WindowNoState && this->windowState() == Qt::WindowMaximized){
-            qDebug() << "Window Maximized!";
-        }*/
     }
-}
-
-void AuthWindow::mousePressEvent(QMouseEvent *event){
-    mpos = event->pos();
 }
 
 void AuthWindow::mouseMoveEvent(QMouseEvent *event){
@@ -596,6 +686,10 @@ void AuthWindow::mouseMoveEvent(QMouseEvent *event){
 
         this->move(newpos);
     }
+}
+
+void AuthWindow::mousePressEvent(QMouseEvent *event){
+    mpos = event->pos();
 }
 
 void AuthWindow::mouseReleaseEvent(QMouseEvent *){
@@ -608,6 +702,7 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
 
 bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     static bool inHover;
+
     if (target == buttonClose){
         if (event->type() == QEvent::HoverEnter)
             buttonClose->setIcon(QIcon(":fon/close2.png"));
@@ -620,18 +715,23 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
         else if(event->type() == QEvent::HoverLeave)
             buttonMinimize->setIcon(QIcon(":fon/min1.png"));
     }
-    else if(target == lineLog){
-        if(event->type() == QEvent::HoverEnter){
+    else if(target == lineLog){ 
+        if(event->type() == QEvent::HoverEnter && location==LOC_SIGNUP && nicknameExists){
             labelUncorrectNickname->show();
             inHover = true;
         }
-        else if(event->type() == QEvent::HoverLeave){
+        else if(event->type() == QEvent::HoverLeave && location==LOC_SIGNUP && nicknameExists){
             labelUncorrectNickname->close();
             inHover = false;
         }
-        else if(event->type() == QEvent::MouseMove && inHover){
+        else if(event->type() == QEvent::MouseMove && inHover && location==LOC_SIGNUP && nicknameExists){
             QPoint mousePos = QCursor::pos();
-            labelUncorrectNickname->move(mousePos.x()-x(), mousePos.y()-y());
+
+            if(labelUncorrectNickname->width()+mousePos.x()-x()+(width()/26)*2 >= this->width())
+                labelUncorrectNickname->move(this->width()-labelUncorrectNickname->width()-width()/26, mousePos.y()-y()-labelUncorrectNickname->height()-this->height()/130);
+            else
+                labelUncorrectNickname->move(mousePos.x()-x()+width()/26, mousePos.y()-y()-labelUncorrectNickname->height()-this->height()/130);
+
         }
     }
 

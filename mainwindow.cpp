@@ -12,20 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(360,260);
     this->setContentsMargins(0,0,0,-20);
 
-    /*
-    ui->listWidget->addScrollBarWidget(new QScrollBar, Qt::AlignRight);
-    //ui->listWidget->verticalScrollBar()->setFixedWidth(8);
-    ui->listWidget->verticalScrollBar()->setStyleSheet(
-                "QScrollBar:ver"
-                "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {"
-                "border: 2px solid grey;"
-                "width: 3px;height: 3px;"
-                "background: white;}"
-                "QScrollBar::handle:vertical {"
-                "border-radius: 8px;"
-                "background: white;}");
-     */
-
     ui->listWidget->setWordWrap(true);
 
     connect(client, SIGNAL(updating()), this, SLOT(printMessages()));

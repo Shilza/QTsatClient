@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QtSvg/QSvgWidget>
 #include <QLineEdit>
 #include <QUdpSocket>
 #include <QPushButton>
@@ -65,8 +66,9 @@ class AuthWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    int defaultFontSize;
     Ui::AuthWindow *ui;
+    int defaultFontSize;
+    bool nicknameExists=false;
 
     quint8 location=LOC_SIGNIN;
 
@@ -90,6 +92,7 @@ private:
     QUdpSocket *socket;
     QHostAddress host;
 
+    QSvgWidget *preloader;
     QPoint mpos;
 
     void handshaking(QString lineLog, QString linePass);
@@ -105,9 +108,11 @@ public:
 signals:
     void sessionKeyReceived();
     void sessionKeyReceived(QByteArray sessionKey);
+    void authWasStart();
 private slots:
     void socketReading();
     void signIn_released();
+    void signUp_released();
     void forgotPass_released();
     void signUpLabel_released();
     void signInLabel_released();
@@ -117,7 +122,7 @@ private slots:
     void logChange(QString text);
     void eye_released();
     void buttonMinimize_released();
-    void uncorrectNicknameSlot(int x, int y);
+    void startPreloader();
 };
 
 #endif // AUTHWINDOW_H
