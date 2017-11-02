@@ -14,6 +14,5 @@ int main(int argc, char *argv[])
 
     QObject::connect(authWindow, SIGNAL(sessionKeyReceived(QByteArray)), w,SLOT(start(QByteArray)));
     QObject::connect(authWindow, SIGNAL(sessionKeyReceived()), authWindow,SLOT(close()));
-
     return a.exec();
 }

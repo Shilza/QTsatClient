@@ -16,6 +16,9 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     //this->setStyleSheet("background: #C8A4E5;");
     this->setStyleSheet("background-image: url(:fon/fon.png);");
 
+    QTime randTime(0,0,0);
+    qsrand(randTime.secsTo(QTime::currentTime()));
+
     lineLog = new LineEdit(this);
     linePass = new LineEdit(this);
     lineConfirmPass = new LineEdit(this);
@@ -32,6 +35,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignIn = new ClickableLabel(this);
     labelUncorrectNickname = new QLabel(this);
     preloader = new QSvgWidget(this);
+    opacity = new QGraphicsOpacityEffect;
 
     buttonClose->installEventFilter(this);
     buttonMinimize->installEventFilter(this);
@@ -182,6 +186,9 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelUncorrectNickname->close();
     preloader->close();
 
+    QPushButton *btn = new QPushButton(this);
+
+    connect(btn, SIGNAL(released()),this, SLOT(cancelPreloading()));
     connect(this, SIGNAL(authWasStart()),this, SLOT(startPreloader()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
@@ -196,6 +203,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
     connect(buttonClose, SIGNAL(released()), this, SLOT(close()));
     connect(buttonMinimize, SIGNAL(released()), this, SLOT(buttonMinimize_released()));
+    connect(this, SIGNAL(connectionFailed()), this, SLOT(cancelPreloading()));
 }
 
 void AuthWindow::resizeAll()
@@ -307,11 +315,13 @@ void AuthWindow::handshaking(QString log, QString pass)
 
 void AuthWindow::socketReading()
 {
+    answerState = SERVER_RESPONDED;
     QByteArray serverAnswer;
     serverAnswer.resize(socket->pendingDatagramSize());
     socket->readDatagram(serverAnswer.data(),serverAnswer.size());
 
     if(serverAnswer=="ERROR_AUTH"){
+        cancelPreloading();
         labelError->setText("Wrong login or password");
 
         QPropertyAnimation *animations[3];
@@ -375,6 +385,17 @@ void AuthWindow::signIn_released(){
                                           "color: #B5EBEE;").arg(defaultFontSize));
 
     emit authWasStart();
+
+    std::thread sas([&](){
+        quint32 waitingTime = QDateTime::currentDateTime().toTime_t()+10;
+        while(QDateTime::currentDateTime().toTime_t()<waitingTime){
+            if(answerState==SERVER_RESPONDED)
+                return;
+        }
+        emit connectionFailed();
+    });
+    sas.detach();
+
     handshaking(log,pass);
 }
 
@@ -612,7 +633,9 @@ void AuthWindow::buttonMinimize_released(){
 void AuthWindow::startPreloader()
 {
     if(location == LOC_SIGNIN){
-        QPropertyAnimation *animations[2];
+        buttonSignIn->setGraphicsEffect(opacity);
+
+        QPropertyAnimation *animations[3];
 
         animations[0] = new QPropertyAnimation(labelSignUp, "pos");
         animations[0]->setDuration(DURATION);
@@ -622,30 +645,48 @@ void AuthWindow::startPreloader()
         animations[1]->setDuration(DURATION);
         animations[1]->setEndValue(QPoint(labelForgotPass->x(),this->height()));
 
+        animations[2] = new QPropertyAnimation(opacity, "opacity");
+        animations[2]->setDuration(DURATION/2);
+        animations[2]->setEndValue(0.0);
+
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        preloader->move((width()-buttonSignIn->height())/2,buttonSignIn->y());
+
+        lineLog->setDisabled(true);
+        linePass->setDisabled(true);
+
+        connect(animations[2], SIGNAL(finished()), buttonSignIn, SLOT(close()));
+    }
+    else if(location==LOC_SIGNUP){
+        buttonSignUp->setGraphicsEffect(opacity);
+
+        QPropertyAnimation *animations[2];
+
+        animations[0] = new QPropertyAnimation(labelSignIn, "pos");
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignIn->x(),this->height()));
+
+        animations[1] = new QPropertyAnimation(opacity, "opacity");
+        animations[1]->setDuration(DURATION/2);
+        animations[1]->setEndValue(0.0);
+
         animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
 
-        preloader->move((width()-buttonSignIn->height())/2,buttonSignIn->y());
-        buttonSignIn->close();
-        lineLog->setDisabled(true);
-        linePass->setDisabled(true);
-    }
-    else if(location==LOC_SIGNUP){
-        QPropertyAnimation *animation = new QPropertyAnimation(labelSignIn, "pos");
-
-        animation->setDuration(DURATION);
-        animation->setEndValue(QPoint(labelSignIn->x(),this->height()));
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
-
         preloader->move((width()-buttonSignUp->height())/2,buttonSignUp->y());
-        buttonSignUp->close();
         lineEmail->setDisabled(true);
         lineLog->setDisabled(true);
         linePass->setDisabled(true);
         lineConfirmPass->setDisabled(true);
+
+        connect(animations[1], SIGNAL(finished()), buttonSignUp, SLOT(close()));
     }
     else if(location==LOC_RECOVERY){
-        QPropertyAnimation *animations[2];
+        buttonOk->setGraphicsEffect(opacity);
+        QPropertyAnimation *animations[3];
 
         animations[0] = new QPropertyAnimation(labelSignUp, "pos");
         animations[0]->setDuration(DURATION);
@@ -655,12 +696,18 @@ void AuthWindow::startPreloader()
         animations[1]->setDuration(DURATION);
         animations[1]->setEndValue(QPoint(labelSignIn->x(),this->height()));
 
+        animations[2] = new QPropertyAnimation(opacity, "opacity");
+        animations[2]->setDuration(DURATION/2);
+        animations[2]->setEndValue(0.0);
+
         animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
 
         preloader->move((width()-buttonOk->height())/2,buttonOk->y());
-        buttonOk->close();
         lineLog->setDisabled(true);
+
+        connect(animations[2], SIGNAL(), buttonOk, SLOT(close()));
     }
     preloader->show();
 }
@@ -676,6 +723,82 @@ void AuthWindow::changeEvent(QEvent* e){
             this->showNormal();
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
+    }
+}
+
+void AuthWindow::cancelPreloading(){
+    preloader->close();
+
+    if(location == LOC_SIGNIN){
+
+        buttonSignIn->show();
+        buttonSignIn->setGraphicsEffect(opacity);
+
+        QPropertyAnimation *animations[3];
+
+        animations[0] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignUp->x(),buttonSignIn->y()+buttonSignIn->height()+this->height()/26));
+
+        animations[1] = new QPropertyAnimation(labelForgotPass, "pos");
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(QPoint(labelForgotPass->x(),buttonSignIn->y()+buttonSignIn->height()+this->height()/26));
+
+        animations[2] = new QPropertyAnimation(opacity, "opacity");
+        animations[2]->setDuration(DURATION);
+        animations[2]->setEndValue(1);
+
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        lineLog->setEnabled(true);
+        linePass->setEnabled(true);
+    }
+    else if(location==LOC_SIGNUP){
+        buttonSignUp->show();
+        buttonSignUp->setGraphicsEffect(opacity);
+
+        QPropertyAnimation *animations[2];
+        animations[0] = new QPropertyAnimation(labelSignIn, "pos");
+
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignIn->x(),buttonSignUp->y()+buttonSignUp->height()+this->height()/26));
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        animations[1] = new QPropertyAnimation(opacity, "opacity");
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(1);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        lineEmail->setEnabled(true);
+        lineLog->setEnabled(true);
+        linePass->setEnabled(true);
+        lineConfirmPass->setEnabled(true);
+    }
+    else if(location==LOC_RECOVERY){
+        buttonOk->show();
+        buttonOk->setGraphicsEffect(opacity);
+
+        QPropertyAnimation *animations[3];
+
+        animations[0] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(labelSignUp->x(),buttonOk->y()+buttonOk->height()+this->height()/26));
+
+        animations[1] = new QPropertyAnimation(labelSignIn, "pos");
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(QPoint(labelSignIn->x(),buttonOk->y()+buttonOk->height()+this->height()/26));
+
+        animations[2] = new QPropertyAnimation(opacity, "opacity");
+        animations[2]->setDuration(DURATION);
+        animations[2]->setEndValue(1);
+
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        lineLog->setEnabled(true);
     }
 }
 
@@ -766,6 +889,29 @@ void LineEdit::keyPressEvent(QKeyEvent *event){
 
 AuthWindow::~AuthWindow(){
     delete ui;
+
+    delete lineLog;
+    delete linePass;
+    delete lineConfirmPass;
+    delete lineEmail;
+    delete buttonSignIn;
+    delete buttonSignUp;
+    delete buttonOk;
+    delete labelError;
+    delete labelUncorrectNickname;
+
+    delete buttonClose;
+    delete buttonEye;
+    delete buttonMinimize;
+    delete labelForgotPass;
+    delete labelSignUp;
+    delete labelSignIn;
+
+    socket->close();
+    delete socket;
+
+    delete preloader;
+    delete opacity;
 }
 
 ClickableLabel::ClickableLabel(QWidget* parent) : QLabel(parent){}

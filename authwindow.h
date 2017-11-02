@@ -14,6 +14,10 @@
 #include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QFontMetrics>
+#include <QGraphicsOpacityEffect>
+#include <QDateTime>
+#include <QTime>
+#include <thread>
 #include "def.h"
 
 
@@ -23,6 +27,9 @@
 #define LOC_SIGNIN 1
 #define LOC_SIGNUP 2
 #define LOC_RECOVERY 3
+#define RESPONSE_WAITING false
+#define SERVER_RESPONDED true
+
 
 namespace Ui {
 class AuthWindow;
@@ -69,6 +76,7 @@ private:
     Ui::AuthWindow *ui;
     int defaultFontSize;
     bool nicknameExists=false;
+    volatile bool answerState = RESPONSE_WAITING;
 
     quint8 location=LOC_SIGNIN;
 
@@ -93,6 +101,7 @@ private:
     QHostAddress host;
 
     QSvgWidget *preloader;
+    QGraphicsOpacityEffect *opacity;
     QPoint mpos;
 
     void handshaking(QString lineLog, QString linePass);
@@ -109,6 +118,7 @@ signals:
     void sessionKeyReceived();
     void sessionKeyReceived(QByteArray sessionKey);
     void authWasStart();
+    void connectionFailed();
 private slots:
     void socketReading();
     void signIn_released();
@@ -123,6 +133,7 @@ private slots:
     void eye_released();
     void buttonMinimize_released();
     void startPreloader();
+    void cancelPreloading();
 };
 
 #endif // AUTHWINDOW_H
