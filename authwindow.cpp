@@ -196,7 +196,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
     connect(labelSignUp, SIGNAL(released()),this, SLOT(signUpLabel_released()));
     connect(labelSignIn, SIGNAL(released()),this, SLOT(signInLabel_released()));
-    connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPass_released()));
+    connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPassLabel_released()));
     connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
     connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logChange(QString)));
     connect(lineLog, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
@@ -313,6 +313,19 @@ void AuthWindow::handshaking(QString log, QString pass)
     socket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
 }
 
+void AuthWindow::waitingAnswer(){
+    QNetworkConfigurationManager internetConnection;
+    quint32 waitingTime = QDateTime::currentDateTime().toTime_t()+10;
+    while(QDateTime::currentDateTime().toTime_t()<waitingTime){
+        if(answerState==SERVER_RESPONDED)
+            return;
+    }
+    if(internetConnection.isOnline())
+        qDebug() << "Online";
+
+    emit connectionFailed();
+}
+
 void AuthWindow::socketReading()
 {
     answerState = SERVER_RESPONDED;
@@ -386,15 +399,8 @@ void AuthWindow::signIn_released(){
 
     emit authWasStart();
 
-    std::thread sas([&](){
-        quint32 waitingTime = QDateTime::currentDateTime().toTime_t()+10;
-        while(QDateTime::currentDateTime().toTime_t()<waitingTime){
-            if(answerState==SERVER_RESPONDED)
-                return;
-        }
-        emit connectionFailed();
-    });
-    sas.detach();
+    std::thread threadWaitingAnswer(waitingAnswer, this);
+    threadWaitingAnswer.detach();
 
     handshaking(log,pass);
 }
@@ -402,6 +408,9 @@ void AuthWindow::signIn_released(){
 void AuthWindow::signUp_released()
 {
     emit authWasStart();
+
+    std::thread threadWaitingAnswer(waitingAnswer, this);
+    threadWaitingAnswer.detach();
 }
 
 void AuthWindow::eye_released(){
@@ -415,7 +424,7 @@ void AuthWindow::eye_released(){
     }
 }
 
-void AuthWindow::forgotPass_released(){
+void AuthWindow::forgotPassLabel_released(){
     location=LOC_RECOVERY;
 
     QPropertyAnimation *animations[5];
@@ -586,6 +595,9 @@ void AuthWindow::signInLabel_released(){
 
 void AuthWindow::passRecovery_released(){
     emit authWasStart();
+
+    std::thread threadWaitingAnswer(waitingAnswer, this);
+    threadWaitingAnswer.detach();
 }
 
 void AuthWindow::checkingConfirming(QString text){

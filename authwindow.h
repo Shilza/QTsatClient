@@ -18,6 +18,7 @@
 #include <QDateTime>
 #include <QTime>
 #include <thread>
+#include <QNetworkConfigurationManager>
 #include "def.h"
 
 
@@ -105,6 +106,7 @@ private:
     QPoint mpos;
 
     void handshaking(QString lineLog, QString linePass);
+    void waitingAnswer();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
@@ -123,10 +125,10 @@ private slots:
     void socketReading();
     void signIn_released();
     void signUp_released();
-    void forgotPass_released();
-    void signUpLabel_released();
-    void signInLabel_released();
     void passRecovery_released();
+    void signInLabel_released();
+    void signUpLabel_released();
+    void forgotPassLabel_released();
     void checkingNickname();
     void checkingConfirming(QString text);
     void logChange(QString text);
