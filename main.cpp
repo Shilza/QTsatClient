@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     authWindow->show();
 
     QObject::connect(authWindow, SIGNAL(sessionKeyReceived(QByteArray)), w,SLOT(start(QByteArray)));
-    QObject::connect(authWindow, SIGNAL(sessionKeyReceived()), authWindow,SLOT(close()));
+    QObject::connect(authWindow, SIGNAL(sessionKeyReceived(QByteArray)), authWindow,SLOT(close()));
 
     return a.exec();
 }

@@ -17,10 +17,9 @@
 #include <QGraphicsOpacityEffect>
 #include <QDateTime>
 #include <QTime>
-#include <thread>
+#include <QTimer>
 #include <QNetworkConfigurationManager>
 #include "def.h"
-
 
 #define sizeX 260
 #define sizeY 260
@@ -30,7 +29,6 @@
 #define LOC_RECOVERY 3
 #define RESPONSE_WAITING false
 #define SERVER_RESPONDED true
-
 
 namespace Ui {
 class AuthWindow;
@@ -97,6 +95,7 @@ private:
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
+    ClickableLabel *labelConnectionFailed;
 
     QUdpSocket *socket;
     QHostAddress host;
@@ -106,7 +105,6 @@ private:
     QPoint mpos;
 
     void handshaking(QString lineLog, QString linePass);
-    void waitingAnswer();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
@@ -117,7 +115,6 @@ public:
     bool eventFilter(QObject *watched, QEvent *event);
     ~AuthWindow();
 signals:
-    void sessionKeyReceived();
     void sessionKeyReceived(QByteArray sessionKey);
     void authWasStart();
     void connectionFailed();
@@ -129,6 +126,7 @@ private slots:
     void signInLabel_released();
     void signUpLabel_released();
     void forgotPassLabel_released();
+    void waitingAnswer();
     void checkingNickname();
     void checkingConfirming(QString text);
     void logChange(QString text);

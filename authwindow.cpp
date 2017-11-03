@@ -34,6 +34,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
     labelUncorrectNickname = new QLabel(this);
+    labelConnectionFailed = new ClickableLabel(this);
     preloader = new QSvgWidget(this);
     opacity = new QGraphicsOpacityEffect;
 
@@ -188,6 +189,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     QPushButton *btn = new QPushButton(this);
 
+    labelConnectionFailed->setText("SAS");
+    labelConnectionFailed->setStyleSheet("background: transparent;color: red;");
+    labelConnectionFailed->move(100,100);
+    labelConnectionFailed->close();
+
     connect(btn, SIGNAL(released()),this, SLOT(cancelPreloading()));
     connect(this, SIGNAL(authWasStart()),this, SLOT(startPreloader()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
@@ -315,11 +321,10 @@ void AuthWindow::handshaking(QString log, QString pass)
 
 void AuthWindow::waitingAnswer(){
     QNetworkConfigurationManager internetConnection;
-    quint32 waitingTime = QDateTime::currentDateTime().toTime_t()+10;
-    while(QDateTime::currentDateTime().toTime_t()<waitingTime){
-        if(answerState==SERVER_RESPONDED)
-            return;
-    }
+
+    if(answerState==SERVER_RESPONDED)
+        return;
+
     if(internetConnection.isOnline())
         qDebug() << "Online";
 
@@ -373,7 +378,6 @@ void AuthWindow::socketReading()
     }
     else{
         emit sessionKeyReceived(serverAnswer);
-        emit sessionKeyReceived();
     }
 }
 
@@ -399,8 +403,8 @@ void AuthWindow::signIn_released(){
 
     emit authWasStart();
 
-    std::thread threadWaitingAnswer(waitingAnswer, this);
-    threadWaitingAnswer.detach();
+
+    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
 
     handshaking(log,pass);
 }
@@ -409,8 +413,7 @@ void AuthWindow::signUp_released()
 {
     emit authWasStart();
 
-    std::thread threadWaitingAnswer(waitingAnswer, this);
-    threadWaitingAnswer.detach();
+    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
 }
 
 void AuthWindow::eye_released(){
@@ -596,8 +599,7 @@ void AuthWindow::signInLabel_released(){
 void AuthWindow::passRecovery_released(){
     emit authWasStart();
 
-    std::thread threadWaitingAnswer(waitingAnswer, this);
-    threadWaitingAnswer.detach();
+    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
 }
 
 void AuthWindow::checkingConfirming(QString text){
