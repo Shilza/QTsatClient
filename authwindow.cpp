@@ -189,10 +189,14 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     QPushButton *btn = new QPushButton(this);
 
-    labelConnectionFailed->setText("SAS");
-    labelConnectionFailed->setStyleSheet("background: transparent;color: red;");
-    labelConnectionFailed->move(100,100);
-    labelConnectionFailed->close();
+    labelConnectionFailed->setStyleSheet(QString("font-family: Century Gothic;"
+                                                 "font-size: %1px;"
+                                                 "background: transparent;"
+                                                 "color: red;").arg(defaultFontSize/11*13));
+    labelConnectionFailed->setPixmap(QPixmap(":fon/gradient.png"));
+    labelConnectionFailed->setAlignment(Qt::AlignCenter|Qt::AlignTop);
+    labelConnectionFailed->setText("Wrong login or password");//server is not available, no Internet access, Wrong login or password
+
 
     connect(btn, SIGNAL(released()),this, SLOT(cancelPreloading()));
     connect(this, SIGNAL(authWasStart()),this, SLOT(startPreloader()));
@@ -220,6 +224,8 @@ void AuthWindow::resizeAll()
 
     if(QApplication::desktop()->width()<1366)
         windowSize=(1366/100)*25;
+    else if(QApplication::desktop()->width()>7680)
+        windowSize=(7680/100)*25;
 
     this->setFixedSize(windowSize, windowSize);
 
@@ -292,6 +298,12 @@ void AuthWindow::resizeAll()
     quint16 preloaderH = buttonSignInH;
     quint16 preloaderW = preloaderH;
 
+    quint16 labelConnectionFailedH = (windowSize/65)*6;
+    quint16 labelConnectionFailedW = windowSize;
+    //quint16 labelConnectionFailedX = 0-labelConnectionFailedW;
+    quint16 labelConnectionFailedX =0;
+    quint16 labelConnectionFailedY = windowSize - labelConnectionFailedH;
+
     lineLog->setGeometry(lineLogX, lineLogY, lineLogW, lineLogH);
     linePass->setGeometry(linePassX, linePassY, linePassW, linePassH);
     lineConfirmPass->resize(lineConfirmPassW, lineConfirmPassH);
@@ -310,7 +322,8 @@ void AuthWindow::resizeAll()
     labelForgotPass->setGeometry(labelForgotPassX, labelForgotPassY, labelForgotPassW, labelForgotPassH);
     labelSignUp->setGeometry(labelSignUpX_inSIGNIN, labelSignUpY_inSIGNIN, labelSignUpW,labelSignUpH);
     labelSignIn->setGeometry(labelSignInX_inSIGNUP, labelSignInY_inSIGNUP, labelSignInW, labelSignInH);
-    labelUncorrectNickname->setProperty("pos", QPoint(labelUncorrectNicknameX, labelUncorrectNicknameY));
+    labelUncorrectNickname->move(labelUncorrectNicknameX, labelUncorrectNicknameY);
+    labelConnectionFailed->setGeometry(labelConnectionFailedX, labelConnectionFailedY, labelConnectionFailedW, labelConnectionFailedH);
 }
 
 void AuthWindow::handshaking(QString log, QString pass)

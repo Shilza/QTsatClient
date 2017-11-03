@@ -19,6 +19,8 @@
 #include <QTime>
 #include <QTimer>
 #include <QNetworkConfigurationManager>
+#include <QPicture>
+#include <QPixmap>
 #include "def.h"
 
 #define sizeX 260
@@ -61,7 +63,7 @@ public:
     ~ClickableLabel();
 signals:
     void released();
-private:
+protected:
     void mouseReleaseEvent(QMouseEvent* event);
     void enterEvent(QEvent* event);
     void leaveEvent(QEvent* event);
