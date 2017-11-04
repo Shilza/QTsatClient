@@ -351,23 +351,33 @@ void AuthWindow::socketReading()
         labelConnectionFailedBackground->setText("Wrong login or password");
         emit connectionFailed();
     }
-    else if(serverAnswer=="EXIST" || serverAnswer=="NEXIST"){
-        if(serverAnswer=="EXIST"){
-            //CHECK
-            nicknameExists = true;
-            lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "border: 1px solid red;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-        }
-        else{
-            nicknameExists = false;
-            lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-        }
+    else if(serverAnswer=="NICKEXIST"){
+        //CHECK
+        nicknameExists = true;
+        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "border: 1px solid red;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+    }
+    else if(serverAnswer=="NICKNEXIST"){
+        nicknameExists = false;
+        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+    }
+    else if(serverAnswer=="EMAILEXIST"){
+        //DO
+    }
+    else if(serverAnswer=="EMAILNEXIST"){
+        //DO
+    }
+    else if(serverAnswer=="RECOVERYFOUND"){
+        //DO
+    }
+    else if(serverAnswer=="RECOVERYNFOUND"){
+        //DO
     }
     else
         emit sessionKeyReceived(serverAnswer);
