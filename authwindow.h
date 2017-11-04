@@ -59,11 +59,12 @@ class ClickableLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit ClickableLabel( QWidget* parent=0 );
+    explicit ClickableLabel(QWidget* parent=0, bool isUnderlined=true);
     ~ClickableLabel();
 signals:
     void released();
-protected:
+private:
+    bool isUnderlined;
     void mouseReleaseEvent(QMouseEvent* event);
     void enterEvent(QEvent* event);
     void leaveEvent(QEvent* event);
@@ -77,7 +78,7 @@ private:
     Ui::AuthWindow *ui;
     int defaultFontSize;
     bool nicknameExists=false;
-    volatile bool answerState = RESPONSE_WAITING;
+    bool answerState = RESPONSE_WAITING;
 
     quint8 location=LOC_SIGNIN;
 
@@ -88,7 +89,6 @@ private:
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
     QPushButton *buttonOk;
-    QLabel *labelError;
     QLabel *labelUncorrectNickname;
 
     QPushButton *buttonClose;
@@ -98,6 +98,7 @@ private:
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
     ClickableLabel *labelConnectionFailed;
+    ClickableLabel *labelConnectionFailedBackground;
 
     QUdpSocket *socket;
     QHostAddress host;
@@ -106,7 +107,6 @@ private:
     QGraphicsOpacityEffect *opacity;
     QPoint mpos;
 
-    void handshaking(QString lineLog, QString linePass);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
@@ -118,8 +118,9 @@ public:
     ~AuthWindow();
 signals:
     void sessionKeyReceived(QByteArray sessionKey);
-    void authWasStart();
+    void loadingWasStart();
     void connectionFailed();
+    void closingErrorLabel();
 private slots:
     void socketReading();
     void signIn_released();
@@ -130,12 +131,16 @@ private slots:
     void forgotPassLabel_released();
     void waitingAnswer();
     void checkingNickname();
+    void checkingEmail();
     void checkingConfirming(QString text);
-    void logChange(QString text);
+    void emailChange();
+    void logChange();
+    void passChange();
     void eye_released();
     void buttonMinimize_released();
     void startPreloader();
     void cancelPreloading();
+    void errorHide();
 };
 
 #endif // AUTHWINDOW_H

@@ -29,12 +29,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonMinimize = new QPushButton(this);
     buttonClose = new QPushButton(this);
     buttonEye = new QPushButton(linePass);
-    labelError = new QLabel(this);
     labelForgotPass = new ClickableLabel(this);
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
     labelUncorrectNickname = new QLabel(this);
-    labelConnectionFailed = new ClickableLabel(this);
+    labelConnectionFailedBackground = new ClickableLabel(this);
+    labelConnectionFailed = new ClickableLabel(labelConnectionFailedBackground, false);
     preloader = new QSvgWidget(this);
     opacity = new QGraphicsOpacityEffect;
 
@@ -72,6 +72,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSignIn->setText("Sign in");
     labelUncorrectNickname->setText("Nickname already exists");
     labelUncorrectNickname->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    labelConnectionFailed->setText("Wrong login or password");
+    labelConnectionFailed->setAlignment(Qt::AlignCenter|Qt::AlignTop);
 
     setMouseTracking(true);
     lineLog->setMouseTracking(true);
@@ -100,11 +102,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonSignIn->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonOk->setStyleSheet(strButtonStyle.arg(defaultFontSize));
-
-    labelError->setStyleSheet(QString("font-family: Century Gothic;"
-                                      "font-size: %1px;"
-                                      "background: transparent;"
-                                      "color: #E94954;").arg(defaultFontSize));
 
     labelForgotPass->setStyleSheet(QString("font-family: Century Gothic;"
                                            "font-size: %1px;"
@@ -164,7 +161,16 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "background: #939494;"
                                   "border: 0px;"
                                   "}");
+
+    labelConnectionFailed->setStyleSheet(QString("font-family: Century Gothic;"
+                                                 "font-size: %1px;"
+                                                 "background: transparent;"
+                                                 "color: red;").arg(defaultFontSize/11*13));
+
     preloader->setStyleSheet("background:transparent;");
+
+    labelConnectionFailedBackground->setStyleSheet("background:transparent;");
+    labelConnectionFailedBackground->setPixmap(QPixmap(":fon/gradient.png").scaled(width(),labelConnectionFailedBackground->height()));
 
     QFont fontGothic("Century Gothic");
     fontGothic.setBold(true);
@@ -178,7 +184,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelUncorrectNickname->resize(QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
     delete tempFontSize;
 
-    labelError->close();
     labelSignIn->close();
     buttonOk->close();
     buttonSignUp->close();
@@ -186,20 +191,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineEmail->close();
     labelUncorrectNickname->close();
     preloader->close();
+    labelConnectionFailedBackground->close();
 
     QPushButton *btn = new QPushButton(this);
 
-    labelConnectionFailed->setStyleSheet(QString("font-family: Century Gothic;"
-                                                 "font-size: %1px;"
-                                                 "background: transparent;"
-                                                 "color: red;").arg(defaultFontSize/11*13));
-    labelConnectionFailed->setPixmap(QPixmap(":fon/gradient.png"));
-    labelConnectionFailed->setAlignment(Qt::AlignCenter|Qt::AlignTop);
-    labelConnectionFailed->setText("Wrong login or password");//server is not available, no Internet access, Wrong login or password
-
-
     connect(btn, SIGNAL(released()),this, SLOT(cancelPreloading()));
-    connect(this, SIGNAL(authWasStart()),this, SLOT(startPreloader()));
+    connect(this, SIGNAL(loadingWasStart()),this, SLOT(startPreloader()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
     connect(buttonOk, SIGNAL(released()), this, SLOT(passRecovery_released()));
@@ -207,12 +204,20 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(labelSignUp, SIGNAL(released()),this, SLOT(signUpLabel_released()));
     connect(labelSignIn, SIGNAL(released()),this, SLOT(signInLabel_released()));
     connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPassLabel_released()));
-    connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
-    connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logChange(QString)));
+
+
+    connect(lineEmail, SIGNAL(textChanged(QString)), this, SLOT(emailChange()));
+    connect(lineEmail, SIGNAL(editingFinished()), this, SLOT(checkingEmail()));
+    connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logChange()));
     connect(lineLog, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
+    connect(linePass, SIGNAL(textChanged(QString)), this, SLOT(passChange()));
+    connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
+
     connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
     connect(buttonClose, SIGNAL(released()), this, SLOT(close()));
     connect(buttonMinimize, SIGNAL(released()), this, SLOT(buttonMinimize_released()));
+    connect(labelConnectionFailed, SIGNAL(released()),this,SLOT(errorHide()));
+    connect(this, SIGNAL(closingErrorLabel()),this,SLOT(errorHide()));
     connect(this, SIGNAL(connectionFailed()), this, SLOT(cancelPreloading()));
 }
 
@@ -282,11 +287,6 @@ void AuthWindow::resizeAll()
     quint16 buttonEyeW = buttonEyeH;
     quint16 buttonEyeX = linePassW - buttonEyeW;
 
-    quint16 labelErrorW = windowSize/26*7;
-    quint16 labelErrorH = windowSize/13*7;
-    quint16 labelErrorX = labelErrorH;
-    quint16 labelErrorY = windowSize/13;
-
     quint16 labelSignInW = labelSignUpW;
     quint16 labelSignInH = labelSignUpH;
     quint16 labelSignInX_inSIGNUP = labelSignUpX_inSIGNIN;
@@ -300,9 +300,11 @@ void AuthWindow::resizeAll()
 
     quint16 labelConnectionFailedH = (windowSize/65)*6;
     quint16 labelConnectionFailedW = windowSize;
-    //quint16 labelConnectionFailedX = 0-labelConnectionFailedW;
-    quint16 labelConnectionFailedX =0;
-    quint16 labelConnectionFailedY = windowSize - labelConnectionFailedH;
+
+    quint16 labelConnectionFailedBackgroundH = (windowSize/65)*6;
+    quint16 labelConnectionFailedBackgroundW = windowSize;
+    qint16 labelConnectionFailedBackgroundX = 0-labelConnectionFailedBackgroundW;
+    quint16 labelConnectionFailedBackgroundY = windowSize - labelConnectionFailedBackgroundH;
 
     lineLog->setGeometry(lineLogX, lineLogY, lineLogW, lineLogH);
     linePass->setGeometry(linePassX, linePassY, linePassW, linePassH);
@@ -318,28 +320,20 @@ void AuthWindow::resizeAll()
     buttonEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
     buttonEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
 
-    labelError->setGeometry(labelErrorX, labelErrorY, labelErrorW, labelErrorH);
     labelForgotPass->setGeometry(labelForgotPassX, labelForgotPassY, labelForgotPassW, labelForgotPassH);
     labelSignUp->setGeometry(labelSignUpX_inSIGNIN, labelSignUpY_inSIGNIN, labelSignUpW,labelSignUpH);
     labelSignIn->setGeometry(labelSignInX_inSIGNUP, labelSignInY_inSIGNUP, labelSignInW, labelSignInH);
     labelUncorrectNickname->move(labelUncorrectNicknameX, labelUncorrectNicknameY);
-    labelConnectionFailed->setGeometry(labelConnectionFailedX, labelConnectionFailedY, labelConnectionFailedW, labelConnectionFailedH);
-}
-
-void AuthWindow::handshaking(QString log, QString pass)
-{
-    QByteArray par;
-    socket->writeDatagram(par.append("handshake|"+log+"|"+pass), host, 49003);
+    labelConnectionFailedBackground->setGeometry(labelConnectionFailedBackgroundX, labelConnectionFailedBackgroundY,labelConnectionFailedBackgroundW, labelConnectionFailedBackgroundH);
+    labelConnectionFailed->setGeometry(0, 0, labelConnectionFailedW, labelConnectionFailedH);
 }
 
 void AuthWindow::waitingAnswer(){
-    QNetworkConfigurationManager internetConnection;
-
+    //CHECK
     if(answerState==SERVER_RESPONDED)
         return;
 
-    if(internetConnection.isOnline())
-        qDebug() << "Online";
+    labelConnectionFailed->setText("Server is not available");
 
     emit connectionFailed();
 }
@@ -352,24 +346,10 @@ void AuthWindow::socketReading()
     socket->readDatagram(serverAnswer.data(),serverAnswer.size());
 
     if(serverAnswer=="ERROR_AUTH"){
+        //CHECK
         cancelPreloading();
-        labelError->setText("Wrong login or password");
-
-        QPropertyAnimation *animations[3];
-        animations[0]=new QPropertyAnimation(buttonSignIn, "pos");
-        animations[1]=new QPropertyAnimation(labelForgotPass, "pos");
-        animations[2]=new QPropertyAnimation(labelSignUp, "pos");
-
-        animations[0]->setEndValue(QPoint(90,164));
-        animations[1]->setEndValue(QPoint(60,194));
-        animations[2]->setEndValue(QPoint(160,194));
-
-        for(int i=0;i<3;i++){
-            animations[i]->setDuration(DURATION);
-            animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-
-        labelError->show();
+        labelConnectionFailedBackground->setText("Wrong login or password");
+        emit connectionFailed();
     }
     else if(serverAnswer=="EXIST" || serverAnswer=="NEXIST"){
         if(serverAnswer=="EXIST"){
@@ -389,44 +369,122 @@ void AuthWindow::socketReading()
                                            "color: #B5EBEE;").arg(defaultFontSize));
         }
     }
-    else{
+    else
         emit sessionKeyReceived(serverAnswer);
-    }
 }
 
 void AuthWindow::signIn_released(){
     QString log = this->lineLog->text();
     QString pass = this->linePass->text();
+    bool isLineEmpty=false;
 
-    if(log=="")
-        return;
-    else if(pass==""){
+    if(log==""){
+        this->lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                              "font-size: %1px;"
+                                              "background: transparent;"
+                                              "border: 1px solid red;"
+                                              "color: #B5EBEE;").arg(defaultFontSize));
+        isLineEmpty=true;
+    }
+    if(pass==""){
         this->linePass->setStyleSheet(QString("font-family: Century Gothic;"
                                               "font-size: %1px;"
                                               "background: transparent;"
                                               "border: 1px solid red;"
                                               "color: #B5EBEE;").arg(defaultFontSize));
-        return;
+        isLineEmpty=true;
     }
 
-    this->linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                          "font-size: %1px;"
-                                          "background: transparent;"
-                                          "color: #B5EBEE;").arg(defaultFontSize));
+    if(!isLineEmpty){
 
-    emit authWasStart();
+        QNetworkConfigurationManager internetConnection;
+        if(internetConnection.isOnline()){
+            labelConnectionFailed->setText("No Internet access");
+            emit connectionFailed();
+        }
+        else{
+            emit loadingWasStart();
+            emit closingErrorLabel();
 
-
-    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
-
-    handshaking(log,pass);
+            QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
+            QByteArray query;
+            socket->writeDatagram(query.append("handshake|"+log+"|"+pass), host, 49003);
+        }
+    }
 }
 
 void AuthWindow::signUp_released()
 {
-    emit authWasStart();
+    QString email = this->lineEmail->text();
+    QString log = this->lineLog->text();
+    QString pass = this->linePass->text();
+    QString confirmPass = this->lineConfirmPass->text();
+    QString style = "font-family: Century Gothic;"
+                            "font-size: %1px;"
+                            "background: transparent;"
+                            "border: 1px solid red;"
+                            "color: #B5EBEE;";
+    bool isLineEmpty=false;
 
-    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
+    if(email==""){
+        isLineEmpty=true;
+        lineEmail->setStyleSheet(style.arg(defaultFontSize));
+    }
+    if(log==""){
+        isLineEmpty=true;
+        lineLog->setStyleSheet(style.arg(defaultFontSize));
+    }
+    if(pass==""){
+        isLineEmpty=true;
+        linePass->setStyleSheet(style.arg(defaultFontSize));
+    }
+    if(confirmPass==""){
+        isLineEmpty=true;
+        lineConfirmPass->setStyleSheet(style.arg(defaultFontSize));
+    }
+    if(!isLineEmpty && pass==confirmPass){
+
+        QNetworkConfigurationManager internetConnection;
+        if(internetConnection.isOnline()){
+            labelConnectionFailed->setText("No Internet access");
+            emit connectionFailed();
+        }
+        else{
+            emit loadingWasStart();
+            emit closingErrorLabel();
+
+            QByteArray query;
+            socket->writeDatagram(query.append("registration|"+email+"|"+log+"|"+pass), host, 49003);
+            QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
+        }
+    }
+}
+
+void AuthWindow::passRecovery_released(){
+    if(lineLog->text()==""){
+        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "border: 1px solid red;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+    }
+    else{
+
+        QNetworkConfigurationManager internetConnection;
+        if(internetConnection.isOnline()){
+            labelConnectionFailed->setText("No Internet access");
+            emit connectionFailed();
+        }
+        else{
+            emit loadingWasStart();
+            emit closingErrorLabel();
+
+            QByteArray query;
+            socket->writeDatagram(query.append("recovery|"+lineLog->text()), host, 49003);
+            QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
+        }
+
+    }
 }
 
 void AuthWindow::eye_released(){
@@ -495,7 +553,7 @@ void AuthWindow::signUpLabel_released(){
     animations[3]->setStartValue(QPoint(0-lineEmail->width(), lineLog->y() - lineConfirmPass->height() - height()/26));
     animations[3]->setEndValue(QPoint(lineLog->x(), lineLog->y() - lineConfirmPass->height() - height()/26));
     animations[4]->setEndValue(QPoint(labelSignUp->x(), buttonSignUp->y() + buttonSignUp->height() + height()/26));
-    labelSignIn->setProperty("pos",QPoint(labelSignUp->x(), buttonSignUp->y() + buttonSignUp->height() + height()/26));
+    labelSignIn->move(labelSignUp->x(), buttonSignUp->y() + buttonSignUp->height() + height()/26);
 
     if(location==LOC_RECOVERY){
         labelSignIn->close();
@@ -514,7 +572,7 @@ void AuthWindow::signUpLabel_released(){
 
         animations[1]->setEndValue(QPoint(width(), lineConfirmPass->y()));
 
-        buttonSignUp->setProperty("pos", QPoint(buttonOk->x(), labelSignUp->y() + labelSignUp->height() + height()/26));
+        buttonSignUp->move(buttonOk->x(), labelSignUp->y() + labelSignUp->height() + height()/26);
         connect(localAnimations[1], SIGNAL(finished()), buttonOk, SLOT(close()));
         connect(localAnimations[1], SIGNAL(finished()), buttonSignUp, SLOT(show()));
     }
@@ -609,19 +667,13 @@ void AuthWindow::signInLabel_released(){
     location = LOC_SIGNIN;
 }
 
-void AuthWindow::passRecovery_released(){
-    emit authWasStart();
-
-    QTimer::singleShot(10000, this, SLOT(waitingAnswer()));
-}
-
 void AuthWindow::checkingConfirming(QString text){
     if(text=="")
         lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                                "font-size: %1px;"
                                                "background: transparent;"
                                                "color: #B5EBEE;").arg(defaultFontSize));
-    else if(text!=this->linePass->text())
+    else if(text!=linePass->text())
         lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                                "font-size: %1px;"
                                                "background: transparent;"
@@ -634,18 +686,41 @@ void AuthWindow::checkingConfirming(QString text){
                                                "color: #B5EBEE;").arg(defaultFontSize));
 }
 
-void AuthWindow::logChange(QString text){
-    if(text =="" && location==LOC_SIGNUP)
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                      "font-size: %1px;"
-                                      "background: transparent;"
-                                      "color: #B5EBEE;").arg(defaultFontSize));
+void AuthWindow::emailChange()
+{
+    lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
+                                  "font-size: %1px;"
+                                  "background: transparent;"
+                                   "color: #B5EBEE;").arg(defaultFontSize));
+}
+
+void AuthWindow::logChange(){
+    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
+                                  "font-size: %1px;"
+                                  "background: transparent;"
+                                   "color: #B5EBEE;").arg(defaultFontSize));
+}
+
+void AuthWindow::passChange()
+{
+    linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                  "font-size: %1px;"
+                                  "background: transparent;"
+                                   "color: #B5EBEE;").arg(defaultFontSize));
 }
 
 void AuthWindow::checkingNickname(){
     if(location==LOC_SIGNUP && lineLog->text()!=""){
         QByteArray par;
         socket->writeDatagram(par.append("DoesExNick|"+lineLog->text()), host, 49003);
+    }
+}
+
+void AuthWindow::checkingEmail()
+{
+    if(lineLog->text()!=""){
+        QByteArray par;
+        socket->writeDatagram(par.append("DoesExEmail|"+lineEmail->text()), host, 49003);
     }
 }
 
@@ -734,7 +809,7 @@ void AuthWindow::startPreloader()
         preloader->move((width()-buttonOk->height())/2,buttonOk->y());
         lineLog->setDisabled(true);
 
-        connect(animations[2], SIGNAL(), buttonOk, SLOT(close()));
+        connect(animations[2], SIGNAL(finished()), buttonOk, SLOT(close()));
     }
     preloader->show();
 }
@@ -811,11 +886,11 @@ void AuthWindow::cancelPreloading(){
 
         animations[0] = new QPropertyAnimation(labelSignUp, "pos");
         animations[0]->setDuration(DURATION);
-        animations[0]->setEndValue(QPoint(labelSignUp->x(),buttonOk->y()+buttonOk->height()+this->height()/26));
+        animations[0]->setEndValue(QPoint(labelSignUp->x(),linePass->y()+linePass->height()+this->height()/26));
 
         animations[1] = new QPropertyAnimation(labelSignIn, "pos");
         animations[1]->setDuration(DURATION);
-        animations[1]->setEndValue(QPoint(labelSignIn->x(),buttonOk->y()+buttonOk->height()+this->height()/26));
+        animations[1]->setEndValue(QPoint(labelSignIn->x(),linePass->y()+linePass->height()+this->height()/26));
 
         animations[2] = new QPropertyAnimation(opacity, "opacity");
         animations[2]->setDuration(DURATION);
@@ -827,6 +902,22 @@ void AuthWindow::cancelPreloading(){
 
         lineLog->setEnabled(true);
     }
+
+    labelConnectionFailedBackground->show();
+    QPropertyAnimation *animation = new QPropertyAnimation(labelConnectionFailedBackground, "pos");
+    animation->setDuration(DURATION*2);
+    animation->setEndValue(QPoint(0,labelConnectionFailedBackground->y()));
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    QTimer::singleShot(5000, this, SLOT(errorHide()));
+}
+
+void AuthWindow::errorHide()
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(labelConnectionFailedBackground, "pos");
+    animation->setDuration(DURATION*2);
+    animation->setEndValue(QPoint(0-labelConnectionFailedBackground->width(), labelConnectionFailedBackground->y()));
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
 }
 
 void AuthWindow::mouseMoveEvent(QMouseEvent *event){
@@ -890,16 +981,20 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
 
 void ClickableLabel::enterEvent(QEvent* event)
 {
-    QFont f = font();
-    f.setUnderline(true);
-    setFont(f);
+    if(isUnderlined){
+        QFont f = font();
+        f.setUnderline(true);
+        setFont(f);
+    }
 }
 
 void ClickableLabel::leaveEvent(QEvent* event)
 {
-    QFont f = font();
-    f.setUnderline(false);
-    setFont(f);
+    if(isUnderlined){
+        QFont f = font();
+        f.setUnderline(false);
+        setFont(f);
+    }
 }
 
 void LineEdit::init(){
@@ -924,7 +1019,6 @@ AuthWindow::~AuthWindow(){
     delete buttonSignIn;
     delete buttonSignUp;
     delete buttonOk;
-    delete labelError;
     delete labelUncorrectNickname;
 
     delete buttonClose;
@@ -941,6 +1035,8 @@ AuthWindow::~AuthWindow(){
     delete opacity;
 }
 
-ClickableLabel::ClickableLabel(QWidget* parent) : QLabel(parent){}
+ClickableLabel::ClickableLabel(QWidget* parent, bool isUnderlined) : QLabel(parent){
+    this->isUnderlined = isUnderlined;
+}
 
 ClickableLabel::~ClickableLabel(){}
