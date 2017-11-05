@@ -177,7 +177,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                                  "color: red;").arg(defaultFontSize/11*13));
     labelRegistrationSuccessful->setStyleSheet(QString("font-family: Century Gothic;"
                                                        "font-size: %1px;"
-                                                       "background: rgba(255,255,255,128);").arg(defaultFontSize/11*13));
+                                                       "background: rgba(255,255,255,200);").arg(defaultFontSize/11*13));
 
     preloader->setStyleSheet("background:transparent;");
 
@@ -209,7 +209,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     QPushButton *btn = new QPushButton(this);
 
-    connect(btn, SIGNAL(released()),this, SLOT(test()));
+    connect(btn, SIGNAL(released()), this, SLOT(test()));
     connect(this, SIGNAL(loadingWasStart()),this, SLOT(startPreloader()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
@@ -326,6 +326,11 @@ void AuthWindow::resizeAll()
     quint16 labelRegistrationSuccessfulX = 0;
     quint16 labelRegistrationSuccessfulY = windowSize/3;
 
+    quint16 lineConfirmCodeH = lineLogH;
+    quint16 lineConfirmCodeW = lineLogW;
+    quint16 lineConfirmCodeX = lineLogX;
+    quint16 lineConfirmCodeY = windowSize;
+
     lineLog->setGeometry(lineLogX, lineLogY, lineLogW, lineLogH);
     linePass->setGeometry(linePassX, linePassY, linePassW, linePassH);
     lineConfirmPass->resize(lineConfirmPassW, lineConfirmPassH);
@@ -347,6 +352,7 @@ void AuthWindow::resizeAll()
     labelConnectionFailedBackground->setGeometry(labelConnectionFailedBackgroundX, labelConnectionFailedBackgroundY,labelConnectionFailedBackgroundW, labelConnectionFailedBackgroundH);
     labelConnectionFailed->setGeometry(0, 0, labelConnectionFailedW, labelConnectionFailedH);
     labelRegistrationSuccessful->setGeometry(labelRegistrationSuccessfulX,labelRegistrationSuccessfulY,labelRegistrationSuccessfulW, labelRegistrationSuccessfulH);
+    lineConfirmCode->setGeometry(lineConfirmCodeX, lineConfirmCodeY, lineConfirmCodeW, lineConfirmCodeH);
 }
 
 void AuthWindow::waitingAnswer(){
@@ -398,7 +404,33 @@ void AuthWindow::socketReading()
         //DO
     }
     else if(serverAnswer=="RECOVERYNFOUND"){
-        //DO
+        preloader->close();
+
+        QPropertyAnimation *animations[4];
+        animations[0] = new QPropertyAnimation(lineConfirmCode, "pos");
+        animations[1] = new QPropertyAnimation(buttonOk, "pos");
+        animations[2] = new QPropertyAnimation(labelSignIn, "pos");
+        animations[3] = new QPropertyAnimation(labelSignUp, "pos");
+
+        lineConfirmCode->show();
+        animations[0]->setDuration(DURATION);
+        animations[0]->setEndValue(QPoint(lineConfirmCode->x(), lineLog->y()+lineLog->height()+this->height()/26));
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        opacity->setOpacity(1.0);
+        buttonOk->show();
+        animations[1]->setDuration(DURATION);
+        animations[1]->setStartValue(QPoint(buttonOk->x(),this->height()));
+        animations[1]->setEndValue(QPoint(buttonOk->x(), lineLog->y()+lineLog->height()+this->height()/26*2+lineConfirmCode->height()));
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        animations[2]->setDuration(DURATION);
+        animations[2]->setEndValue(QPoint(labelSignIn->x(), lineLog->y()+lineLog->height()+this->height()/26*3+lineConfirmCode->height()+buttonOk->height()));
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        animations[3]->setDuration(DURATION);
+        animations[3]->setEndValue(QPoint(labelSignUp->x(), lineLog->y()+lineLog->height()+this->height()/26*3+lineConfirmCode->height()+buttonOk->height()));
+        animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
     }
     else if(serverAnswer=="REGISTRATIONSUCCESSFUL"){
         labelRegistrationSuccessful->setGraphicsEffect(opacity);
@@ -508,11 +540,14 @@ void AuthWindow::registrationSend(){
 }
 
 void AuthWindow::registrationSuccess(){
-    QPropertyAnimation *animation = new QPropertyAnimation(opacity, "opacity");
-    animation->setDuration(DURATION*2);
-    animation->setEndValue(0);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-    connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
+    if(location==LOC_SIGNUP){
+        QPropertyAnimation *animation = new QPropertyAnimation(opacity, "opacity");
+        animation->setDuration(DURATION*2);
+        animation->setEndValue(0);
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
+        connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
+        connect(animation, SIGNAL(finished()), this, SLOT(signInLabel_released()));
+    }
 }
 
 void AuthWindow::passRecovery_released(){
@@ -543,7 +578,6 @@ void AuthWindow::passRecovery_released(){
 
 void AuthWindow::recoverySend(){
     socket->writeDatagram(QByteArray().append("recovery|"+lineLog->text()), host, 49003);
-    qDebug() << QByteArray().append("recovery|"+lineLog->text());
 }
 
 void AuthWindow::eye_released(){
@@ -1032,15 +1066,37 @@ void AuthWindow::errorHide()
     connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
 }
 
-void AuthWindow::test(){
-    labelRegistrationSuccessful->setGraphicsEffect(opacity);
-    QPropertyAnimation *animation = new QPropertyAnimation(opacity, "opacity");
-    animation->setDuration(DURATION*2);
-    animation->setStartValue(0);
-    animation->setEndValue(1);
-    labelRegistrationSuccessful->show();
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-    QTimer::singleShot(5000, this, SLOT(registrationSuccess()));
+void AuthWindow::test()
+{
+    answerState = SERVER_RESPONDED;
+
+    preloader->close();
+
+    QPropertyAnimation *animations[4];
+    animations[0] = new QPropertyAnimation(lineConfirmCode, "pos");
+    animations[1] = new QPropertyAnimation(buttonOk, "pos");
+    animations[2] = new QPropertyAnimation(labelSignIn, "pos");
+    animations[3] = new QPropertyAnimation(labelSignUp, "pos");
+
+    lineConfirmCode->show();
+    animations[0]->setDuration(DURATION);
+    animations[0]->setEndValue(QPoint(lineConfirmCode->x(), lineLog->y()+lineLog->height()+this->height()/26));
+    animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+
+    animations[1]->setDuration(DURATION);
+    animations[1]->setStartValue(QPoint(buttonOk->x(),this->height()));
+    animations[1]->setEndValue(QPoint(buttonOk->x(), lineLog->y()+lineLog->height()+this->height()/26*2+lineConfirmCode->height()));
+    opacity->setOpacity(1.0);
+    buttonOk->show();
+    animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+    animations[2]->setDuration(DURATION);
+    animations[2]->setEndValue(QPoint(labelSignIn->x(), lineLog->y()+lineLog->height()+this->height()/26*3+lineConfirmCode->height()+buttonOk->height()));
+    animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+    animations[3]->setDuration(DURATION);
+    animations[3]->setEndValue(QPoint(labelSignUp->x(), lineLog->y()+lineLog->height()+this->height()/26*3+lineConfirmCode->height()+buttonOk->height()));
+    animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void AuthWindow::mouseMoveEvent(QMouseEvent *event){
@@ -1150,6 +1206,9 @@ AuthWindow::~AuthWindow(){
     delete labelForgotPass;
     delete labelSignUp;
     delete labelSignIn;
+    delete labelConnectionFailed;
+    delete labelConnectionFailedBackground;
+    delete labelRegistrationSuccessful;
 
     socket->close();
     delete socket;
