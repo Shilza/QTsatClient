@@ -86,6 +86,7 @@ private:
     LineEdit *linePass;
     LineEdit *lineConfirmPass;
     LineEdit *lineEmail;
+    LineEdit *lineConfirmCode;
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
     QPushButton *buttonOk;
@@ -99,6 +100,7 @@ private:
     ClickableLabel *labelSignIn;
     ClickableLabel *labelConnectionFailed;
     ClickableLabel *labelConnectionFailedBackground;
+    ClickableLabel *labelRegistrationSuccessful;
 
     QUdpSocket *socket;
     QHostAddress host;
@@ -112,6 +114,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *);
     void changeEvent(QEvent* e);
     void resizeAll();
+
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
     bool eventFilter(QObject *watched, QEvent *event);
@@ -124,8 +127,12 @@ signals:
 private slots:
     void socketReading();
     void signIn_released();
+    void handshakeSend();
     void signUp_released();
+    void registrationSend();
+    void registrationSuccess();
     void passRecovery_released();
+    void recoverySend();
     void signInLabel_released();
     void signUpLabel_released();
     void forgotPassLabel_released();
@@ -141,6 +148,7 @@ private slots:
     void startPreloader();
     void cancelPreloading();
     void errorHide();
+    void test();
 };
 
 #endif // AUTHWINDOW_H
