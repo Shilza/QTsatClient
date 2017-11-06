@@ -80,6 +80,11 @@ private:
     bool nicknameExists=false;
     bool answerState = RESPONSE_WAITING;
 
+    quint16 defaultY, defaultLineX, defaultButtonX;
+    quint16 lineW, lineH;
+    quint16 buttonW, buttonH;
+    quint16 lineHWithSpace, buttonHWithSpace;
+
     quint8 location=LOC_SIGNIN;
 
     LineEdit *lineLog;
@@ -108,6 +113,7 @@ private:
     QSvgWidget *preloader;
     QGraphicsOpacityEffect *opacity;
     QPoint mpos;
+    QTimer *waitingAnswerTimer;
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -131,8 +137,10 @@ private slots:
     void signUp_released();
     void registrationSend();
     void registrationSuccess();
-    void passRecovery_released();
-    void recoverySend();
+    void buttonOk_released();
+    void buttonOk_secondReleased();
+    void recoveryEmailSend();
+    void recoveryCodeSend();
     void signInLabel_released();
     void signUpLabel_released();
     void forgotPassLabel_released();
