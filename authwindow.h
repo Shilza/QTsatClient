@@ -28,9 +28,9 @@
 #define DURATION 300
 #define LOC_SIGNIN 1
 #define LOC_SIGNUP 2
-#define LOC_RECOVERY 3
-#define RESPONSE_WAITING false
-#define SERVER_RESPONDED true
+#define LOC_RECOVERY_EMAIL 3
+#define LOC_RECOVERY_CODE 4
+#define LOC_RECOVERY_PASS 5
 
 namespace Ui {
 class AuthWindow;
@@ -78,7 +78,6 @@ private:
     Ui::AuthWindow *ui;
     int defaultFontSize;
     bool nicknameExists=false;
-    bool answerState = RESPONSE_WAITING;
 
     quint16 defaultY, defaultLineX, defaultButtonX;
     quint16 lineW, lineH;
@@ -92,6 +91,8 @@ private:
     LineEdit *lineConfirmPass;
     LineEdit *lineEmail;
     LineEdit *lineConfirmCode;
+    LineEdit *lineRecoveryPass;
+    LineEdit *lineRecoveryConfirmPass;
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
     QPushButton *buttonOk;
@@ -138,7 +139,6 @@ private slots:
     void registrationSend();
     void registrationSuccess();
     void buttonOk_released();
-    void buttonOk_secondReleased();
     void recoveryEmailSend();
     void recoveryCodeSend();
     void signInLabel_released();
