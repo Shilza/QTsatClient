@@ -106,7 +106,7 @@ private:
     ClickableLabel *labelSignIn;
     ClickableLabel *labelConnectionFailed;
     ClickableLabel *labelConnectionFailedBackground;
-    ClickableLabel *labelRegistrationSuccessful;
+    ClickableLabel *labelSuccess;
 
     QUdpSocket *socket;
     QHostAddress host;
@@ -114,7 +114,9 @@ private:
     QSvgWidget *preloader;
     QGraphicsOpacityEffect *opacity;
     QPoint mpos;
-    QTimer *waitingAnswerTimer;
+    QTimer *timerWaitingAnswer;
+    QTimer *timerLabelSuccess;
+    QTimer *timerErrorLabel;
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -134,13 +136,14 @@ signals:
 private slots:
     void socketReading();
     void signIn_released();
-    void handshakeSend();
+    void authorizationSend();
     void signUp_released();
     void registrationSend();
-    void registrationSuccess();
+    void labelSuccessHide();
     void buttonOk_released();
     void recoveryEmailSend();
     void recoveryCodeSend();
+    void recoveryNewPassSend();
     void signInLabel_released();
     void signUpLabel_released();
     void forgotPassLabel_released();
@@ -148,12 +151,15 @@ private slots:
     void checkingNickname();
     void checkingEmail();
     void checkingConfirming(QString text);
+    void checkingRecoveryConfirming(QString text);
     void emailChange();
     void logChange();
     void passChange();
+    void passRecoveryChange();
+    void codeChange();
     void eye_released();
     void buttonMinimize_released();
-    void startPreloader();
+    void startPreloading();
     void cancelPreloading();
     void errorHide();
     void test();
