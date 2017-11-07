@@ -100,6 +100,7 @@ private:
 
     QPushButton *buttonClose;
     QPushButton *buttonEye;
+    QPushButton *buttonRecoveryEye;
     QPushButton *buttonMinimize;
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
@@ -150,19 +151,21 @@ private slots:
     void waitingAnswer();
     void checkingNickname();
     void checkingEmail();
-    void checkingConfirming(QString text);
-    void checkingRecoveryConfirming(QString text);
+    void checkingConfirming(QString);
+    void checkingRecoveryConfirming(QString);
     void emailChange();
     void logChange();
     void passChange();
     void passRecoveryChange();
     void codeChange();
     void eye_released();
+    void eyeRecovery_released();
     void buttonMinimize_released();
     void startPreloading();
     void cancelPreloading();
     void errorHide();
     void test();
+    void test2();
 };
 
 #endif // AUTHWINDOW_H

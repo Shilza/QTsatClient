@@ -41,6 +41,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonMinimize = new QPushButton(this);
     buttonClose = new QPushButton(this);
     buttonEye = new QPushButton(linePass);
+    buttonRecoveryEye = new QPushButton(lineRecoveryPass);
     labelForgotPass = new ClickableLabel(this);
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
@@ -57,6 +58,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineLog->installEventFilter(this);
 
     buttonEye->setCursor(Qt::ArrowCursor);
+    buttonRecoveryEye->setCursor(Qt::ArrowCursor);
     buttonSignIn->setCursor(Qt::PointingHandCursor);
     buttonOk->setCursor(Qt::PointingHandCursor);
     buttonSignUp->setCursor(Qt::PointingHandCursor);
@@ -68,9 +70,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineEmail->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
     lineLog->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
     linePass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
+    lineRecoveryPass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
 
     linePass->setEchoMode(QLineEdit::Password);
     lineConfirmPass->setEchoMode(QLineEdit::Password);
+    lineRecoveryPass->setEchoMode(QLineEdit::Password);
+    lineRecoveryConfirmPass->setEchoMode(QLineEdit::Password);
 
     lineLog->setPlaceholderText("Login or email");
     linePass->setPlaceholderText("Password");
@@ -138,8 +143,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     buttonEye->setStyleSheet("QPushButton{background: transparent;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
-
     buttonEye->setIcon(QIcon(":fon/eye.png"));
+
+    buttonRecoveryEye->setStyleSheet("QPushButton{background: transparent;}"
+                             "QPushButton:hover{background: rgba(123,55,65,50);}");
+
+    buttonRecoveryEye->setIcon(QIcon(":fon/eye.png"));
 
     lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
                                      "font-size: %1px;"
@@ -228,13 +237,17 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSuccess->close();
 
     QPushButton *btn = new QPushButton(this);
+    QPushButton *btn2 = new QPushButton(this);
+    btn2->move(0, 30);
 
     connect(btn, SIGNAL(released()), this, SLOT(test()));
+    connect(btn2, SIGNAL(released()), this, SLOT(test2()));
     connect(this, SIGNAL(loadingWasStart()),this, SLOT(startPreloading()));
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
     connect(buttonOk, SIGNAL(released()), this, SLOT(buttonOk_released()));
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
+    connect(buttonRecoveryEye, SIGNAL(released()), this, SLOT(eyeRecovery_released()));
     connect(labelSignUp, SIGNAL(released()),this, SLOT(signUpLabel_released()));
     connect(labelSignIn, SIGNAL(released()),this, SLOT(signInLabel_released()));
     connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPassLabel_released()));
@@ -245,8 +258,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logChange()));
     connect(lineLog, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
     connect(linePass, SIGNAL(textChanged(QString)), this, SLOT(passChange()));
+    connect(linePass, SIGNAL(textChanged(QString)), this, SLOT(checkingConfirming(QString)));
     connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
     connect(lineRecoveryPass, SIGNAL(textChanged(QString)), this, SLOT(passRecoveryChange()));
+    connect(lineRecoveryPass, SIGNAL(textChanged(QString)), this, SLOT(checkingRecoveryConfirming(QString)));
     connect(lineRecoveryConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingRecoveryConfirming(QString)));
     connect(lineConfirmCode, SIGNAL(textChanged(QString)), this, SLOT(codeChange()));
 
@@ -376,7 +391,19 @@ void AuthWindow::test()
         animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[4]->start(QAbstractAnimation::DeleteWhenStopped);
 
-        timerLabelSuccess->start(5000);
+        timerLabelSuccess->start(2000);
+    }
+}
+
+void AuthWindow::test2(){
+    timerWaitingAnswer->stop();
+    if(location==LOC_RECOVERY_EMAIL){
+        labelConnectionFailed->setText("Nickname or email not found");
+        emit connectionFailed();
+    }
+    if(location==LOC_RECOVERY_CODE){
+       labelConnectionFailed->setText("Invalid confirmation code");
+       emit connectionFailed();
     }
 }
 
@@ -427,7 +454,8 @@ void AuthWindow::socketReading()
 
         lineConfirmCode->show();
         animations[0]->setDuration(DURATION);
-        animations[0]->setEndValue(QPoint(lineConfirmCode->x(), defaultY+lineHWithSpace));
+        animations[0]->setStartValue(QPoint(defaultLineX, height()));
+        animations[0]->setEndValue(QPoint(defaultLineX, defaultY+lineHWithSpace));
         animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
 
         opacity->setOpacity(1.0);
@@ -449,8 +477,8 @@ void AuthWindow::socketReading()
         //DO
     }
     else if(serverAnswer=="RIGHT_CODE"){
-        preloader->close();
         location = LOC_RECOVERY_PASS;
+        preloader->close();
         QPropertyAnimation *animations[6];
         animations[0] = new QPropertyAnimation(lineConfirmCode, "pos");
         animations[1] = new QPropertyAnimation(lineRecoveryPass, "pos");
@@ -458,6 +486,11 @@ void AuthWindow::socketReading()
         animations[3] = new QPropertyAnimation(opacity, "opacity");
         animations[4] = new QPropertyAnimation(labelSignIn, "pos");
         animations[5] = new QPropertyAnimation(labelSignUp, "pos");
+
+        lineRecoveryPass->show();
+        lineRecoveryConfirmPass->show();
+        lineRecoveryPass->setEnabled(true);
+        lineRecoveryConfirmPass->setEnabled(true);
 
         animations[0]->setEndValue(QPoint(width(), lineConfirmCode->y()));
         animations[1]->setStartValue(QPoint(defaultLineX, height()));
@@ -468,7 +501,9 @@ void AuthWindow::socketReading()
         animations[4]->setEndValue(QPoint(labelSignIn->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
         animations[5]->setEndValue(QPoint(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
 
+        buttonOk->move(defaultButtonX, defaultY+(3*lineHWithSpace));
         buttonOk->show();
+        connect(animations[0], SIGNAL(finished()), lineConfirmCode, SLOT(clear()));
         for(int i=0; i<6; i++){
             animations[i]->setDuration(DURATION);
             animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
@@ -478,7 +513,53 @@ void AuthWindow::socketReading()
         //DO
     }
     else if(serverAnswer=="SUCCESS_RECOVERY"){
-        //DO
+        labelSuccess->setText("Your password has been changed succesfully");
+        labelSuccess->setGraphicsEffect(opacity);
+        location=LOC_SIGNIN;
+        lineLog->setEnabled(true);
+        preloader->close();
+        labelSignIn->close();
+
+        QPropertyAnimation *animations[5];
+        animations[0] = new QPropertyAnimation(lineRecoveryConfirmPass, "pos");
+        animations[1] = new QPropertyAnimation(buttonSignIn, "pos");
+        animations[2] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[3] = new QPropertyAnimation(labelForgotPass, "pos");
+        animations[4] = new QPropertyAnimation(opacity, "opacity");
+
+        animations[0]->setEndValue(QPoint(width(), lineRecoveryConfirmPass->y()));
+        animations[1]->setStartValue(QPoint(defaultButtonX, height()));
+        animations[1]->setEndValue(QPoint(defaultButtonX, defaultY+(2*lineHWithSpace)));
+        animations[2]->setStartValue(QPoint(defaultLineX+lineW-labelSignUp->width(), height()+buttonHWithSpace));
+        animations[2]->setEndValue(QPoint(defaultLineX+lineW-labelSignUp->width(), defaultY+(2*lineHWithSpace)+buttonHWithSpace));
+        animations[3]->setStartValue(QPoint(defaultLineX, height()+buttonHWithSpace));
+        animations[3]->setEndValue(QPoint(defaultLineX, defaultY+(2*lineHWithSpace)+buttonHWithSpace));
+        animations[4]->setStartValue(0.0);
+        animations[4]->setEndValue(1.0);
+
+        animations[0]->setDuration(DURATION);
+        animations[1]->setDuration(DURATION);
+        animations[2]->setDuration(DURATION);
+        animations[3]->setDuration(DURATION);
+        animations[4]->setDuration(DURATION);
+        labelSuccess->show();
+
+        buttonSignIn->show();
+        labelSignUp->show();
+        labelForgotPass->show();
+        linePass->move(lineRecoveryPass->x(), lineRecoveryPass->y());
+        lineRecoveryPass->close();
+        lineRecoveryPass->clear();
+        lineRecoveryConfirmPass->clear();
+        linePass->show();
+        connect(animations[0], SIGNAL(finished()), lineRecoveryConfirmPass, SLOT(close()));
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
+        animations[4]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        timerLabelSuccess->start(2000);
     }
     else if(serverAnswer=="REGISTRATIONSUCCESSFUL"){
         labelSuccess->setText("Registration completed successfully");
@@ -489,7 +570,7 @@ void AuthWindow::socketReading()
         animation->setEndValue(1);
         labelSuccess->show();
         animation->start(QAbstractAnimation::DeleteWhenStopped);
-        timerLabelSuccess->start(5000);
+        timerLabelSuccess->start(2000);
     }
     else emit sessionKeyReceived(serverAnswer);
 }
@@ -595,6 +676,7 @@ void AuthWindow::labelSuccessHide(){
     animation->setDuration(DURATION*2);
     animation->setEndValue(0);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(animation, SIGNAL(finished()), labelSuccess, SLOT(close()));
     connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
 
     if(location==LOC_SIGNUP){
@@ -909,7 +991,7 @@ void AuthWindow::cancelPreloading(){
         animation->setDuration(DURATION*2);
         animation->setEndValue(QPoint(0,labelConnectionFailedBackground->y()));
         animation->start(QAbstractAnimation::DeleteWhenStopped);
-        timerLabelSuccess->start(5000);
+        timerErrorLabel->start(5000);
 }
 
 
@@ -924,8 +1006,20 @@ void AuthWindow::eye_released(){
     }
 }
 
+void AuthWindow::eyeRecovery_released(){
+    if(lineRecoveryPass->echoMode()==QLineEdit::Password){
+        lineRecoveryPass->setEchoMode(QLineEdit::Normal);
+        lineRecoveryConfirmPass->setEchoMode(QLineEdit::Normal);
+    }
+    else{
+        lineRecoveryPass->setEchoMode(QLineEdit::Password);
+        lineRecoveryConfirmPass->setEchoMode(QLineEdit::Password);
+    }
+}
+
 void AuthWindow::forgotPassLabel_released(){
     lineConfirmCode->setEnabled(true);
+    lineConfirmCode->clear();
     location=LOC_RECOVERY_EMAIL;
 
     lineLog->setStyleSheet(QString("font-family: Century Gothic;"
@@ -1235,13 +1329,13 @@ void AuthWindow::checkingEmail()
     }
 }
 
-void AuthWindow::checkingConfirming(QString text){
-    if(text=="")
+void AuthWindow::checkingConfirming(QString){
+    if(lineConfirmPass->text()=="")
         lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                                "font-size: %1px;"
                                                "background: transparent;"
                                                "color: #B5EBEE;").arg(defaultFontSize));
-    else if(text!=linePass->text())
+    else if(lineConfirmPass->text()!=linePass->text())
         lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                                "font-size: %1px;"
                                                "background: transparent;"
@@ -1254,13 +1348,13 @@ void AuthWindow::checkingConfirming(QString text){
                                                "color: #B5EBEE;").arg(defaultFontSize));
 }
 
-void AuthWindow::checkingRecoveryConfirming(QString text){
-    if(text=="")
+void AuthWindow::checkingRecoveryConfirming(QString){
+    if(lineRecoveryConfirmPass->text()=="")
         lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                        "font-size: %1px;"
                                        "background: transparent;"
                                        "color: #B5EBEE;").arg(defaultFontSize));
-    else if(text!=lineRecoveryPass->text())
+    else if(lineRecoveryConfirmPass->text()!=lineRecoveryPass->text())
         lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
                                        "font-size: %1px;"
                                        "background: transparent;"
@@ -1322,7 +1416,7 @@ void AuthWindow::errorHide(){
     timerLabelSuccess->stop();
     QPropertyAnimation *animation = new QPropertyAnimation(labelConnectionFailedBackground, "pos");
     animation->setDuration(DURATION*2);
-    animation->setEndValue(QPoint(0-labelConnectionFailedBackground->width(), labelConnectionFailedBackground->y()));
+    animation->setEndValue(QPoint(-labelConnectionFailedBackground->width(), labelConnectionFailedBackground->y()));
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
 }
@@ -1422,6 +1516,9 @@ void AuthWindow::resizeAll(){
 
     buttonEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
     buttonEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
+
+    buttonRecoveryEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
+    buttonRecoveryEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
 
     labelForgotPass->setGeometry(defaultLineX, 2*lineHWithSpace + buttonHWithSpace + defaultY, labelForgotPassW, labelForgotPassH);
     labelSignUp->setGeometry(defaultLineX+lineW-labelSignUpW, 2*lineHWithSpace + buttonHWithSpace + defaultY, labelSignUpW, labelSignUpH);
