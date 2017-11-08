@@ -139,6 +139,7 @@ private slots:
     void authorizationSend();
     void signUp_released();
     void registrationSend();
+    void registrationCodeSend();
     void labelSuccessHide();
     void buttonOk_released();
     void recoveryEmailSend();
