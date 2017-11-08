@@ -23,14 +23,13 @@
 #include <QPixmap>
 #include "def.h"
 
-#define sizeX 260
-#define sizeY 260
 #define DURATION 300
 #define LOC_SIGNIN 1
-#define LOC_SIGNUP 2
+#define LOC_REGISTRATION 2
 #define LOC_RECOVERY_EMAIL 3
 #define LOC_RECOVERY_CODE 4
 #define LOC_RECOVERY_PASS 5
+#define LOC_REGISTRATION_CODE 6
 
 namespace Ui {
 class AuthWindow;
@@ -52,7 +51,7 @@ signals:
 
 
 private slots:
-    void showMenu(QPoint position){}
+    void showMenu(QPoint){}
 };
 
 class ClickableLabel : public QLabel
@@ -66,8 +65,8 @@ signals:
 private:
     bool isUnderlined;
     void mouseReleaseEvent(QMouseEvent* event);
-    void enterEvent(QEvent* event);
-    void leaveEvent(QEvent* event);
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
 };
 
 class AuthWindow : public QMainWindow

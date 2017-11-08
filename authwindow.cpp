@@ -393,6 +393,34 @@ void AuthWindow::test()
 
         timerLabelSuccess->start(2000);
     }
+    else if(location==LOC_REGISTRATION){
+        preloader->close();
+
+        QPropertyAnimation *animations[5];
+        animations[0] = new QPropertyAnimation(linePass, "pos");
+        animations[1] = new QPropertyAnimation(lineConfirmPass, "pos");
+        animations[2] = new QPropertyAnimation(lineConfirmCode, "pos");
+        animations[3] = new QPropertyAnimation(buttonSignUp, "pos");
+        animations[4] = new QPropertyAnimation(labelSignIn, "pos");
+
+        animations[0]->setEndValue(QPoint(width(), linePass->y()));
+        animations[1]->setEndValue(QPoint(width(), lineConfirmPass->y()));
+        animations[2]->setStartValue(QPoint(defaultLineX, height()));
+        animations[2]->setEndValue(QPoint(defaultLineX, defaultY+lineHWithSpace));
+        animations[3]->setStartValue(QPoint(defaultButtonX, height()+lineHWithSpace));
+        animations[3]->setEndValue(QPoint(defaultButtonX, defaultY+(2*lineHWithSpace)));
+        animations[4]->setEndValue(QPoint(labelSignIn->x(), defaultY+(2*lineHWithSpace)+buttonHWithSpace));
+
+
+        for(int i=0; i<5; i++){
+            animations[i]->setDuration(DURATION);
+            animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        lineConfirmCode->show();
+        buttonSignUp->show();
+        opacity->setOpacity(1.0);
+        location = LOC_REGISTRATION_CODE;
+    }
 }
 
 void AuthWindow::test2(){
@@ -679,7 +707,7 @@ void AuthWindow::labelSuccessHide(){
     connect(animation, SIGNAL(finished()), labelSuccess, SLOT(close()));
     connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
 
-    if(location==LOC_SIGNUP){
+    if(location==LOC_REGISTRATION){
         connect(animation, SIGNAL(finished()), this, SLOT(signInLabel_released()));
     }
 }
@@ -811,7 +839,7 @@ void AuthWindow::startPreloading()
 
         connect(animations[2], SIGNAL(finished()), buttonSignIn, SLOT(close()));
     }
-    else if(location==LOC_SIGNUP){
+    else if(location==LOC_REGISTRATION){
         buttonSignUp->setGraphicsEffect(opacity);
 
         QPropertyAnimation *animations[2];
@@ -891,7 +919,7 @@ void AuthWindow::cancelPreloading(){
             lineLog->setEnabled(true);
             linePass->setEnabled(true);
         }
-        else if(location==LOC_SIGNUP){
+        else if(location==LOC_REGISTRATION){
             buttonSignUp->show();
             buttonSignUp->setGraphicsEffect(opacity);
 
@@ -1069,19 +1097,8 @@ void AuthWindow::signUpLabel_released(){
     lineLog->setPlaceholderText("Nickname");
     lineLog->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[_]){2,12}$")));
 
-    QPropertyAnimation *animations[4];
-
-    animations[0] = new QPropertyAnimation(labelForgotPass, "pos");
-    animations[1] = new QPropertyAnimation(lineConfirmPass, "pos");
-    animations[2] = new QPropertyAnimation(lineEmail, "pos");
-    animations[3] = new QPropertyAnimation(labelSignUp, "pos");
-
-    animations[0]->setEndValue(QPoint(-labelForgotPass->width(), labelForgotPass->y()));
-    animations[1]->setEndValue(QPoint(defaultLineX, lineConfirmPass->y()));
-    animations[2]->setEndValue(QPoint(defaultLineX, lineEmail->y()));
-    animations[3]->setEndValue(QPoint(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
-    labelSignIn->move(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace);
-
+    lineConfirmPass->show();
+    lineEmail->show();
     if(location==LOC_RECOVERY_EMAIL){
         labelSignIn->close();
 
@@ -1094,9 +1111,13 @@ void AuthWindow::signUpLabel_released(){
                                                "background: transparent;"
                                                "color: #B5EBEE;").arg(defaultFontSize));
 
-        QPropertyAnimation *localAnimations[2];
+        QPropertyAnimation *localAnimations[5];
         localAnimations[0] = new QPropertyAnimation(linePass, "pos");
         localAnimations[1] = new QPropertyAnimation(buttonOk, "pos");
+        localAnimations[2] = new QPropertyAnimation(lineConfirmPass, "pos");
+        localAnimations[3] = new QPropertyAnimation(lineEmail, "pos");
+        localAnimations[4] = new QPropertyAnimation(labelSignUp, "pos");
+
 
         localAnimations[0]->setDuration(DURATION);
         localAnimations[0]->setEndValue(QPoint(defaultLineX, linePass->y()));
@@ -1106,12 +1127,90 @@ void AuthWindow::signUpLabel_released(){
         localAnimations[1]->setEndValue(QPoint(buttonOk->x(), defaultY+(3*lineHWithSpace)));
         localAnimations[1]->start(QAbstractAnimation::DeleteWhenStopped);
 
+        localAnimations[2]->setDuration(DURATION);
+        localAnimations[2]->setEndValue(QPoint(defaultLineX, lineConfirmPass->y()));
+        localAnimations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        localAnimations[3]->setDuration(DURATION);
+        localAnimations[3]->setEndValue(QPoint(defaultLineX, lineEmail->y()));
+        localAnimations[3]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        localAnimations[4]->setDuration(DURATION);
+        localAnimations[4]->setEndValue(QPoint(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
+        localAnimations[4]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        labelSignIn->move(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace);
+        labelSignIn->setAlignment(Qt::AlignRight | Qt::AlignTop);
         buttonSignUp->move(buttonOk->x(), labelSignUp->y() + labelSignUp->height() + height()/26);
         buttonSignIn->move(width(), buttonSignIn->y());
         connect(localAnimations[1], SIGNAL(finished()), buttonOk, SLOT(close()));
         connect(localAnimations[1], SIGNAL(finished()), buttonSignUp, SLOT(show()));
+        connect(localAnimations[4], SIGNAL(finished()), labelSignUp, SLOT(close()));
+        connect(localAnimations[4], SIGNAL(finished()), labelSignIn, SLOT(show()));
     }
-    else{
+    else if(location==LOC_RECOVERY_CODE){
+        QPropertyAnimation *animations[6];
+        animations[0] = new QPropertyAnimation(lineEmail, "pos");
+        animations[1] = new QPropertyAnimation(lineConfirmCode, "pos");
+        animations[2] = new QPropertyAnimation(linePass, "pos");
+        animations[3] = new QPropertyAnimation(buttonOk, "pos");
+        animations[4] = new QPropertyAnimation(lineConfirmPass, "pos");
+        animations[5] = new QPropertyAnimation(labelSignUp, "pos");
+
+        animations[0]->setStartValue(QPoint(-lineW, defaultY-lineHWithSpace));
+        animations[0]->setEndValue(QPoint(defaultLineX, defaultY-lineHWithSpace));
+        animations[1]->setEndValue(QPoint(width(), lineConfirmCode->y()));
+        animations[2]->setStartValue(QPoint(-lineW, defaultY+lineHWithSpace));
+        animations[2]->setEndValue(QPoint(defaultLineX, defaultY+lineHWithSpace));
+        animations[3]->setEndValue(QPoint(defaultButtonX, defaultY+(3*lineHWithSpace)));
+        animations[4]->setStartValue(QPoint(-lineW, defaultY+(2*lineHWithSpace)));
+        animations[4]->setEndValue(QPoint(defaultLineX, defaultY+(2*lineHWithSpace)));
+        animations[5]->setEndValue(QPoint(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
+
+        for(int i=0; i<6; i++){
+            animations[i]->setDuration(DURATION);
+            animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        labelSignIn->close();
+        connect(animations[3], SIGNAL(finished()), buttonOk, SLOT(close()));
+        buttonSignUp->move(defaultButtonX, defaultY+(3*lineHWithSpace));
+        connect(animations[3], SIGNAL(finished()), buttonSignUp, SLOT(show()));
+        connect(animations[5], SIGNAL(finished()), labelSignUp, SLOT(close()));
+        labelSignIn->move(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace);
+        labelSignIn->setAlignment(Qt::AlignRight | Qt::AlignTop);
+        connect(animations[5], SIGNAL(finished()), labelSignIn, SLOT(show()));
+    }
+    else if(location==LOC_RECOVERY_PASS){
+        QPropertyAnimation *animations[3];
+        animations[0] = new QPropertyAnimation(lineEmail, "pos");
+        animations[1] = new QPropertyAnimation(labelSignUp, "pos");
+        animations[2] = new QPropertyAnimation(labelSignIn, "pos");
+
+        animations[0]->setDuration(DURATION);
+        animations[0]->setStartValue(QPoint(-lineW, defaultY-lineHWithSpace));
+        animations[0]->setEndValue(QPoint(defaultLineX, defaultY-lineHWithSpace));
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        connect(animations[1], SIGNAL(finished()), labelSignUp, SLOT(close()));
+        animations[1]->setDuration(DURATION);
+        animations[1]->setEndValue(QPoint(width(), labelSignUp->y()));
+        animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
+
+        animations[2]->setDuration(DURATION);
+        animations[2]->setEndValue(QPoint(defaultLineX+lineW-labelSignIn->width(), labelSignIn->y()));
+        animations[2]->start(QAbstractAnimation::DeleteWhenStopped);
+        labelSignIn->setAlignment(Qt::AlignRight | Qt::AlignTop);
+        lineRecoveryPass->close();
+        linePass->move(lineRecoveryPass->x(), lineRecoveryPass->y());
+        linePass->show();
+        lineRecoveryConfirmPass->close();
+        lineConfirmPass->move(lineRecoveryConfirmPass->x(), lineRecoveryConfirmPass->y());
+        lineConfirmPass->show();
+        buttonOk->close();
+        buttonSignUp->move(buttonOk->x(), buttonOk->y());
+        buttonSignUp->show();
+    }
+    else if(location==LOC_SIGNIN){
         lineLog->setStyleSheet(QString("font-family: Century Gothic;"
                                        "font-size: %1px;"
                                        "background: transparent;"
@@ -1121,34 +1220,38 @@ void AuthWindow::signUpLabel_released(){
                                         "background: transparent;"
                                         "color: #B5EBEE;").arg(defaultFontSize));
 
-        QPropertyAnimation *localAnimations[2];
+        QPropertyAnimation *localAnimations[6];
         localAnimations[0] = new QPropertyAnimation(buttonSignUp, "pos");
         localAnimations[1] = new QPropertyAnimation(buttonSignIn, "pos");
+        localAnimations[2] = new QPropertyAnimation(labelForgotPass, "pos");
+        localAnimations[3] = new QPropertyAnimation(lineConfirmPass, "pos");
+        localAnimations[4] = new QPropertyAnimation(lineEmail, "pos");
+        localAnimations[5] = new QPropertyAnimation(labelSignUp, "pos");
 
-        localAnimations[0]->setDuration(DURATION);
         localAnimations[0]->setStartValue(QPoint(width(), buttonSignUp->y()));
         localAnimations[0]->setEndValue(QPoint(defaultButtonX, buttonSignUp->y()));
-        localAnimations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+        localAnimations[1]->setEndValue(QPoint(width(), buttonSignIn->y()));     
+        localAnimations[2]->setEndValue(QPoint(-labelForgotPass->width(), labelForgotPass->y()));
+        localAnimations[3]->setEndValue(QPoint(defaultLineX, lineConfirmPass->y()));
+        localAnimations[4]->setEndValue(QPoint(defaultLineX, lineEmail->y()));
+        localAnimations[5]->setEndValue(QPoint(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace));
+        labelSignIn->move(labelSignUp->x(), defaultY+(3*lineHWithSpace)+buttonHWithSpace);
 
-        localAnimations[1]->setDuration(DURATION);
-        localAnimations[1]->setEndValue(QPoint(width(), buttonSignIn->y()));
-        localAnimations[1]->start();
+        for(int i=0;i<6;i++){
+            localAnimations[i]->setDuration(DURATION);
+            localAnimations[i]->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+
         buttonSignUp->show();
 
-    }
-    lineConfirmPass->show();
-    lineEmail->show();
 
-    for(int i=0;i<4;i++){
-        animations[i]->setDuration(DURATION);
-        animations[i]->start(QAbstractAnimation::DeleteWhenStopped);           
+        labelSignIn->setAlignment(Qt::AlignRight | Qt::AlignTop);
+        connect(localAnimations[5], SIGNAL(finished()), labelSignUp, SLOT(close()));
+        connect(localAnimations[5], SIGNAL(finished()), labelSignIn, SLOT(show()));
+
     }
 
-    location=LOC_SIGNUP;
-
-    labelSignIn->setAlignment(Qt::AlignRight | Qt::AlignTop);
-    connect(animations[3], SIGNAL(finished()), labelSignUp, SLOT(close()));
-    connect(animations[3], SIGNAL(finished()), labelSignIn, SLOT(show()));
+    location=LOC_REGISTRATION;
 }
 
 void AuthWindow::signInLabel_released(){
@@ -1212,7 +1315,7 @@ void AuthWindow::signInLabel_released(){
         connect(localAnimations[0], SIGNAL(finished()), buttonOk, SLOT(close()));
 
     }
-    else if(location==LOC_SIGNUP){
+    else if(location==LOC_REGISTRATION){
         QPropertyAnimation *animations[6];
 
         animations[0] = new QPropertyAnimation(labelForgotPass, "pos");
@@ -1315,7 +1418,7 @@ void AuthWindow::signInLabel_released(){
 
 
 void AuthWindow::checkingNickname(){
-    if(location==LOC_SIGNUP && lineLog->text()!=""){
+    if(location==LOC_REGISTRATION && lineLog->text()!=""){
         QByteArray par;
         socket->writeDatagram(par.append("DoesExNick|"+lineLog->text()), host, 49003);
     }
@@ -1565,15 +1668,15 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
             buttonMinimize->setIcon(QIcon(":fon/min1.png"));
     }
     else if(target == lineLog){ 
-        if(event->type() == QEvent::HoverEnter && location==LOC_SIGNUP && nicknameExists){
+        if(event->type() == QEvent::HoverEnter && location==LOC_REGISTRATION && nicknameExists){
             labelUncorrectNickname->show();
             inHover = true;
         }
-        else if(event->type() == QEvent::HoverLeave && location==LOC_SIGNUP && nicknameExists){
+        else if(event->type() == QEvent::HoverLeave && location==LOC_REGISTRATION && nicknameExists){
             labelUncorrectNickname->close();
             inHover = false;
         }
-        else if(event->type() == QEvent::MouseMove && inHover && location==LOC_SIGNUP && nicknameExists){
+        else if(event->type() == QEvent::MouseMove && inHover && location==LOC_REGISTRATION && nicknameExists){
             QPoint mousePos = QCursor::pos();
 
             if(labelUncorrectNickname->width()+mousePos.x()-x()+(width()/26)*2 >= this->width())
@@ -1587,7 +1690,7 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     return QMainWindow::eventFilter(target, event);
 }
 
-void ClickableLabel::enterEvent(QEvent* event)
+void ClickableLabel::enterEvent(QEvent*)
 {
     if(isUnderlined){
         QFont f = font();
@@ -1596,7 +1699,7 @@ void ClickableLabel::enterEvent(QEvent* event)
     }
 }
 
-void ClickableLabel::leaveEvent(QEvent* event)
+void ClickableLabel::leaveEvent(QEvent*)
 {
     if(isUnderlined){
         QFont f = font();
