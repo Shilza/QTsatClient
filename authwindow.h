@@ -37,6 +37,7 @@ class AuthWindow;
 
 class LineEdit : public QLineEdit{
     Q_OBJECT
+
 public:
     LineEdit(QWidget *parent=0) : QLineEdit(parent){ init(); }
     LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
@@ -92,15 +93,16 @@ private:
     LineEdit *lineConfirmCode;
     LineEdit *lineRecoveryPass;
     LineEdit *lineRecoveryConfirmPass;
+
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;
     QPushButton *buttonOk;
-    QLabel *labelUncorrectNickname;
-
     QPushButton *buttonClose;
     QPushButton *buttonEye;
     QPushButton *buttonRecoveryEye;
     QPushButton *buttonMinimize;
+
+    QLabel *labelUncorrectNickname;
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
@@ -114,6 +116,7 @@ private:
     QSvgWidget *preloader;
     QGraphicsOpacityEffect *opacity;
     QPoint mpos;
+
     QTimer *timerWaitingAnswer;
     QTimer *timerLabelSuccess;
     QTimer *timerErrorLabel;
@@ -121,18 +124,20 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
-    void changeEvent(QEvent* e);
+    void changeEvent(QEvent *e);
     void resizeAll();
 
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
     bool eventFilter(QObject *watched, QEvent *event);
     ~AuthWindow();
+
 signals:
     void sessionKeyReceived(QByteArray sessionKey);
     void loadingWasStart();
-    void connectionFailed();
+    void error_signal();
     void closingErrorLabel();
+
 private slots:
     void socketReading();
     void signIn_released();

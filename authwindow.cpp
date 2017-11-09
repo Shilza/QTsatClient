@@ -12,12 +12,15 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     host.setAddress(HOST_IP);
 
     timerWaitingAnswer = new QTimer(this);
+    timerWaitingAnswer->setInterval(10000);
     timerWaitingAnswer->setSingleShot(true);
 
     timerLabelSuccess = new QTimer(this);
+    timerLabelSuccess->setInterval(2000);
     timerLabelSuccess->setSingleShot(true);
 
     timerErrorLabel = new QTimer(this);
+    timerErrorLabel->setInterval(5000);
     timerErrorLabel->setSingleShot(true);
 
     this->setAttribute(Qt::WA_TranslucentBackground);
@@ -35,13 +38,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineConfirmCode = new LineEdit(this);
     lineRecoveryPass = new LineEdit(this);
     lineRecoveryConfirmPass = new LineEdit(this);
-    buttonSignIn = new QPushButton(this);
-    buttonSignUp = new QPushButton(this);
-    buttonOk = new QPushButton(this);
-    buttonMinimize = new QPushButton(this);
-    buttonClose = new QPushButton(this);
-    buttonEye = new QPushButton(linePass);
-    buttonRecoveryEye = new QPushButton(lineRecoveryPass);
+
     labelForgotPass = new ClickableLabel(this);
     labelSignUp = new ClickableLabel(this);
     labelSignIn = new ClickableLabel(this);
@@ -49,6 +46,14 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelUncorrectNickname = new QLabel(this);
     labelConnectionFailedBackground = new ClickableLabel(this);
     labelConnectionFailed = new ClickableLabel(labelConnectionFailedBackground, false);
+
+    buttonSignUp = new QPushButton(this);
+    buttonSignIn = new QPushButton(this);
+    buttonOk = new QPushButton(this);
+    buttonMinimize = new QPushButton(this);
+    buttonClose = new QPushButton(this);
+    buttonEye = new QPushButton(linePass);
+    buttonRecoveryEye = new QPushButton(lineRecoveryPass);
 
     preloader = new QSvgWidget(this);
     opacity = new QGraphicsOpacityEffect;
@@ -84,9 +89,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineConfirmCode->setPlaceholderText("Confirmation code");
     lineRecoveryPass->setPlaceholderText("New password");
     lineRecoveryConfirmPass->setPlaceholderText("Confirm new password");
+
     buttonSignIn->setText("Sign in");
     buttonSignUp->setText("Sign up");
     buttonOk->setText("Ok");
+
     labelForgotPass->setText("Forgot password?");
     labelForgotPass->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     labelSignUp->setText("Sign up");
@@ -225,16 +232,19 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelUncorrectNickname->resize(QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
     delete tempFontSize;
 
-    labelSignIn->close();
-    buttonOk->close();
-    buttonSignUp->close();
     lineConfirmPass->close();
     lineEmail->close();
-    labelUncorrectNickname->close();
-    preloader->close();
-    labelConnectionFailedBackground->close();
     lineConfirmCode->close();
+
+    labelSignIn->close();
     labelSuccess->close();
+    labelUncorrectNickname->close();
+    labelConnectionFailedBackground->close();
+
+    buttonOk->close();
+    buttonSignUp->close();
+
+    preloader->close();
 
     QPushButton *btn = new QPushButton(this);
     QPushButton *btn2 = new QPushButton(this);
@@ -242,16 +252,26 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     connect(btn, SIGNAL(released()), this, SLOT(test()));
     connect(btn2, SIGNAL(released()), this, SLOT(test2()));
+
+    connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
+
     connect(this, SIGNAL(loadingWasStart()),this, SLOT(startPreloading()));
+    connect(this, SIGNAL(closingErrorLabel()),this,SLOT(errorHide()));
+    connect(this, SIGNAL(error_signal()), this, SLOT(cancelPreloading()));
+
     connect(buttonSignIn, SIGNAL(released()), this, SLOT(signIn_released()));
     connect(buttonSignUp, SIGNAL(released()), this, SLOT(signUp_released()));
     connect(buttonOk, SIGNAL(released()), this, SLOT(buttonOk_released()));
     connect(buttonEye, SIGNAL(released()), this, SLOT(eye_released()));
+    connect(buttonClose, SIGNAL(released()), this, SLOT(close()));
+    connect(buttonMinimize, SIGNAL(released()), this, SLOT(buttonMinimize_released()));
     connect(buttonRecoveryEye, SIGNAL(released()), this, SLOT(eyeRecovery_released()));
+
     connect(labelSignUp, SIGNAL(released()),this, SLOT(signUpLabel_released()));
     connect(labelSignIn, SIGNAL(released()),this, SLOT(signInLabel_released()));
     connect(labelForgotPass, SIGNAL(released()), this,SLOT(forgotPassLabel_released()));
     connect(labelSuccess, SIGNAL(released()), this, SLOT(labelSuccessHide()));
+    connect(labelConnectionFailed, SIGNAL(released()),this,SLOT(errorHide()));
 
     connect(lineEmail, SIGNAL(textChanged(QString)), this, SLOT(emailChange()));
     connect(lineEmail, SIGNAL(editingFinished()), this, SLOT(checkingEmail()));
@@ -265,13 +285,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(lineRecoveryConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingRecoveryConfirming(QString)));
     connect(lineConfirmCode, SIGNAL(textChanged(QString)), this, SLOT(codeChange()));
 
-    connect(socket, SIGNAL(readyRead()),this,SLOT(socketReading()));
-    connect(buttonClose, SIGNAL(released()), this, SLOT(close()));
-    connect(buttonMinimize, SIGNAL(released()), this, SLOT(buttonMinimize_released()));
-    connect(labelConnectionFailed, SIGNAL(released()),this,SLOT(errorHide()));
-    connect(this, SIGNAL(closingErrorLabel()),this,SLOT(errorHide()));
-    connect(this, SIGNAL(connectionFailed()), this, SLOT(cancelPreloading()));
-
     connect(timerWaitingAnswer, SIGNAL(timeout()), this, SLOT(waitingAnswer()));
     connect(timerLabelSuccess, SIGNAL(timeout()), this, SLOT(labelSuccessHide()));
     connect(timerErrorLabel, SIGNAL(timeout()), this, SLOT(errorHide()));
@@ -280,7 +293,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
 void AuthWindow::test(){
     timerWaitingAnswer->stop();
-    if(location==LOC_RECOVERY_EMAIL){
+    if(location == LOC_SIGNIN){
+        sessionKeyReceived("203489wef9234cn9234fmn3fdafgv34g");
+    }
+    else if(location==LOC_RECOVERY_EMAIL){
         preloader->close();
         location = LOC_RECOVERY_CODE;
         QPropertyAnimation *animations[4];
@@ -337,6 +353,7 @@ void AuthWindow::test(){
 
         buttonOk->move(defaultButtonX, defaultY+(3*lineHWithSpace));
         buttonOk->show();
+
         connect(animations[0], SIGNAL(finished()), lineConfirmCode, SLOT(clear()));
         for(int i=0; i<6; i++){
             animations[i]->setDuration(DURATION);
@@ -373,7 +390,6 @@ void AuthWindow::test(){
         animations[2]->setDuration(DURATION);
         animations[3]->setDuration(DURATION);
         animations[4]->setDuration(DURATION);
-        labelSuccess->show();
 
         buttonSignIn->show();
         labelSignUp->show();
@@ -383,6 +399,8 @@ void AuthWindow::test(){
         lineRecoveryPass->clear();
         lineRecoveryConfirmPass->clear();
         linePass->show();
+        labelSuccess->show();
+
         connect(animations[0], SIGNAL(finished()), lineRecoveryConfirmPass, SLOT(close()));
         animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
@@ -390,17 +408,25 @@ void AuthWindow::test(){
         animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[4]->start(QAbstractAnimation::DeleteWhenStopped);
 
-        timerLabelSuccess->start(2000);
+        timerLabelSuccess->start();
     }
     else if(location==LOC_REGISTRATION){
+
         preloader->close();
+        lineConfirmCode->show();
+        buttonSignUp->show();
+        labelSuccess->setGraphicsEffect(opacity);
+        labelSuccess->setText("Check your email for confirmation");
+        labelSuccess->show();
         lineConfirmCode->setEnabled(true);
-        QPropertyAnimation *animations[5];
+
+        QPropertyAnimation *animations[6];
         animations[0] = new QPropertyAnimation(linePass, "pos");
         animations[1] = new QPropertyAnimation(lineConfirmPass, "pos");
         animations[2] = new QPropertyAnimation(lineConfirmCode, "pos");
         animations[3] = new QPropertyAnimation(buttonSignUp, "pos");
         animations[4] = new QPropertyAnimation(labelSignIn, "pos");
+        animations[5] = new QPropertyAnimation(opacity, "opacity");
 
         animations[0]->setEndValue(QPoint(width(), linePass->y()));
         animations[1]->setEndValue(QPoint(width(), lineConfirmPass->y()));
@@ -409,23 +435,26 @@ void AuthWindow::test(){
         animations[3]->setStartValue(QPoint(defaultButtonX, height()+lineHWithSpace));
         animations[3]->setEndValue(QPoint(defaultButtonX, defaultY+(2*lineHWithSpace)));
         animations[4]->setEndValue(QPoint(labelSignIn->x(), defaultY+(2*lineHWithSpace)+buttonHWithSpace));
-
+        animations[5]->setStartValue(0.0);
+        animations[5]->setEndValue(1.0);
 
         for(int i=0; i<5; i++){
             animations[i]->setDuration(DURATION);
             animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
         }
-        lineConfirmCode->show();
-        buttonSignUp->show();
-        opacity->setOpacity(1.0);
+
+        animations[5]->setDuration(DURATION*2);
+        animations[5]->start(QAbstractAnimation::DeleteWhenStopped);
+        timerLabelSuccess->start();
+
         location = LOC_REGISTRATION_CODE;
     }
     else if(location==LOC_REGISTRATION_CODE){
         preloader->close();
         labelSuccess->setText("Registration completed successfully");
         labelSuccess->setGraphicsEffect(opacity);
-        labelSuccess->show();
         labelSignUp->show();
+        labelSuccess->show();
         lineLog->setEnabled(true);
         linePass->setEnabled(true);
 
@@ -449,26 +478,36 @@ void AuthWindow::test(){
         animations[5]->setStartValue(QPoint(defaultLineX+lineW-labelSignUp->width(), height()+buttonHWithSpace));
         animations[5]->setEndValue(QPoint(defaultLineX+lineW-labelSignUp->width(), defaultY+(2*lineHWithSpace)+buttonHWithSpace));
 
-        animations[0]->setDuration(DURATION*2);
-        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
         for(int i=1; i<6; i++){
             animations[i]->setDuration(DURATION);
             animations[i]->start(QAbstractAnimation::DeleteWhenStopped);
         }
+        animations[0]->setDuration(DURATION*2);
+        animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
+
         location = LOC_SIGNIN;
-        timerLabelSuccess->start(3000);
+        timerLabelSuccess->start();
     }
 }
 
 void AuthWindow::test2(){
     timerWaitingAnswer->stop();
-    if(location==LOC_RECOVERY_EMAIL){
-        labelConnectionFailed->setText("Nickname or email not found");
-        emit connectionFailed();
+
+    if(location == LOC_SIGNIN){
+        labelConnectionFailed->setText("Invalid password or nickname");
+        emit error_signal();
     }
-    if(location==LOC_RECOVERY_CODE){
+    else if(location==LOC_RECOVERY_EMAIL){
+        labelConnectionFailed->setText("Nickname or email not found");
+        emit error_signal();
+    }
+    else if(location==LOC_RECOVERY_CODE || location == LOC_REGISTRATION_CODE){
        labelConnectionFailed->setText("Invalid confirmation code");
-       emit connectionFailed();
+       emit error_signal();
+    }
+    else if(location==LOC_REGISTRATION){
+        labelConnectionFailed->setText("Email already exists");
+        emit error_signal();
     }
 }
 
@@ -484,7 +523,7 @@ void AuthWindow::socketReading()
         //CHECK
         cancelPreloading();
         labelConnectionFailed->setText("Wrong login or password");
-        emit connectionFailed();
+        emit error_signal();
     }
     else if(serverAnswer=="NICKEXIST"){
         //CHECK
@@ -607,7 +646,7 @@ void AuthWindow::socketReading()
         animations[2]->setDuration(DURATION);
         animations[3]->setDuration(DURATION);
         animations[4]->setDuration(DURATION);
-        labelSuccess->show();
+
 
         buttonSignIn->show();
         labelSignUp->show();
@@ -617,6 +656,8 @@ void AuthWindow::socketReading()
         lineRecoveryPass->clear();
         lineRecoveryConfirmPass->clear();
         linePass->show();
+        labelSuccess->show();
+
         connect(animations[0], SIGNAL(finished()), lineRecoveryConfirmPass, SLOT(close()));
         animations[0]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[1]->start(QAbstractAnimation::DeleteWhenStopped);
@@ -624,7 +665,7 @@ void AuthWindow::socketReading()
         animations[3]->start(QAbstractAnimation::DeleteWhenStopped);
         animations[4]->start(QAbstractAnimation::DeleteWhenStopped);
 
-        timerLabelSuccess->start(2000);
+        timerLabelSuccess->start();
     }
     else if(serverAnswer=="REGISTRATIONSUCCESSFUL"){
         labelSuccess->setText("Registration completed successfully");
@@ -635,7 +676,7 @@ void AuthWindow::socketReading()
         animation->setEndValue(1);
         labelSuccess->show();
         animation->start(QAbstractAnimation::DeleteWhenStopped);
-        timerLabelSuccess->start(2000);
+        timerLabelSuccess->start();
     }
     else emit sessionKeyReceived(serverAnswer);
 }
@@ -668,13 +709,13 @@ void AuthWindow::signIn_released(){
         QNetworkConfigurationManager internetConnection;
         if(!internetConnection.isOnline()){
             labelConnectionFailed->setText("No Internet access");
-            emit connectionFailed();
+            emit error_signal();
         }
         else{
             emit loadingWasStart();
             emit closingErrorLabel();
 
-            timerWaitingAnswer->start(10000);
+            timerWaitingAnswer->start();
             QTimer::singleShot(600, this, SLOT(authorizationSend()));
         }
     }
@@ -719,13 +760,13 @@ void AuthWindow::signUp_released(){
             QNetworkConfigurationManager internetConnection;
             if(!internetConnection.isOnline()){
                 labelConnectionFailed->setText("No Internet access");
-                emit connectionFailed();
+                emit error_signal();
             }
             else{
                 emit loadingWasStart();
                 emit closingErrorLabel();
 
-                timerWaitingAnswer->start(10000);
+                timerWaitingAnswer->start();
                 QTimer::singleShot(500, this, SLOT(registrationSend()));
             }
         }
@@ -742,14 +783,14 @@ void AuthWindow::signUp_released(){
             QNetworkConfigurationManager internetConnection;
             if(!internetConnection.isOnline()){
                 labelConnectionFailed->setText("No Internet access");
-                emit connectionFailed();
+                emit error_signal();
             }
             else{
                 emit loadingWasStart();
                 emit closingErrorLabel();
                 lineConfirmCode->setDisabled(true);
 
-                timerWaitingAnswer->start(10000);
+                timerWaitingAnswer->start();
                 QTimer::singleShot(500, this, SLOT(registrationCodeSend()));
             }
         }
@@ -793,13 +834,13 @@ void AuthWindow::buttonOk_released(){
             QNetworkConfigurationManager internetConnection;
             if(!internetConnection.isOnline()){
                 labelConnectionFailed->setText("No Internet access");
-                emit connectionFailed();
+                emit error_signal();
             }
             else{
                 emit loadingWasStart();
                 emit closingErrorLabel();
 
-                timerWaitingAnswer->start(10000);
+                timerWaitingAnswer->start();
                 QTimer::singleShot(500, this, SLOT(recoveryEmailSend()));
             }
         }
@@ -816,14 +857,14 @@ void AuthWindow::buttonOk_released(){
             QNetworkConfigurationManager internetConnection;
             if(!internetConnection.isOnline()){
                 labelConnectionFailed->setText("No Internet access");
-                emit connectionFailed();
+                emit error_signal();
             }
             else{
                 emit loadingWasStart();
                 emit closingErrorLabel();
                 lineConfirmCode->setDisabled(true);
 
-                timerWaitingAnswer->start(10000);
+                timerWaitingAnswer->start();
                 QTimer::singleShot(500, this, SLOT(recoveryCodeSend()));
             }
         }
@@ -847,7 +888,7 @@ void AuthWindow::buttonOk_released(){
             QNetworkConfigurationManager internetConnection;
             if(!internetConnection.isOnline()){
                 labelConnectionFailed->setText("No Internet access");
-                emit connectionFailed();
+                emit error_signal();
             }
             else{
                 emit loadingWasStart();
@@ -855,7 +896,7 @@ void AuthWindow::buttonOk_released(){
                 lineRecoveryConfirmPass->setDisabled(true);
                 lineRecoveryPass->setDisabled(true);
 
-                timerWaitingAnswer->start(10000);
+                timerWaitingAnswer->start();
                 QTimer::singleShot(500, this, SLOT(recoveryNewPassSend()));
             }
         }
@@ -1123,7 +1164,7 @@ void AuthWindow::cancelPreloading(){
         animation->setDuration(DURATION*2);
         animation->setEndValue(QPoint(0,labelConnectionFailedBackground->y()));
         animation->start(QAbstractAnimation::DeleteWhenStopped);
-        timerErrorLabel->start(5000);
+        timerErrorLabel->start();
 }
 
 
@@ -1471,6 +1512,7 @@ void AuthWindow::signInLabel_released(){
         buttonSignUp->close();
         buttonSignIn->move(buttonSignUp->x(), buttonSignUp->y());
         buttonSignIn->show();
+        lineConfirmCode->clear();
         lineConfirmCode->close();
         linePass->move(lineConfirmCode->x(), lineConfirmCode->y());
         linePass->show();
@@ -1645,7 +1687,7 @@ void AuthWindow::waitingAnswer(){
     //CHECK
     labelConnectionFailed->setText("Server is not available");
 
-    emit connectionFailed();
+    emit error_signal();
 }
 
 void AuthWindow::errorHide(){
@@ -1721,7 +1763,7 @@ void AuthWindow::resizeAll(){
 
     quint16 labelConnectionFailedBackgroundH = (windowSize/65)*6;
     quint16 labelConnectionFailedBackgroundW = windowSize;
-    qint16  labelConnectionFailedBackgroundX = 0-labelConnectionFailedBackgroundW;
+    qint16  labelConnectionFailedBackgroundX = labelConnectionFailedBackgroundW;
     quint16 labelConnectionFailedBackgroundY = windowSize - labelConnectionFailedBackgroundH;
 
     quint16 labelRegistrationSuccessfulH = windowSize/3;
@@ -1847,6 +1889,10 @@ void LineEdit::init(){
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
 }
 
+void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
+    emit released();
+}
+
 void LineEdit::keyPressEvent(QKeyEvent *event){
     if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
         event->ignore();
@@ -1880,38 +1926,44 @@ void AuthWindow::changeEvent(QEvent* e){
 AuthWindow::~AuthWindow(){
     delete ui;
 
+    socket->close();
+
     delete lineLog;
     delete linePass;
     delete lineConfirmPass;
     delete lineEmail;
+    delete lineConfirmCode;
+    delete lineRecoveryPass;
+    delete lineRecoveryConfirmPass;
+
     delete buttonSignIn;
     delete buttonSignUp;
     delete buttonOk;
-    delete labelUncorrectNickname;
-
     delete buttonClose;
     delete buttonEye;
+    delete buttonRecoveryEye;
     delete buttonMinimize;
+
     delete labelForgotPass;
     delete labelSignUp;
     delete labelSignIn;
+    delete labelUncorrectNickname;
     delete labelConnectionFailed;
     delete labelConnectionFailedBackground;
     delete labelSuccess;
 
-    socket->close();
     delete socket;
 
     delete preloader;
     delete opacity;
+
+    delete timerWaitingAnswer;
+    delete timerLabelSuccess;
+    delete timerErrorLabel;
 }
 
 ClickableLabel::ClickableLabel(QWidget* parent, bool isUnderlined) : QLabel(parent){
     this->isUnderlined = isUnderlined;
-}
-
-void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
-    emit released();
 }
 
 ClickableLabel::~ClickableLabel(){}

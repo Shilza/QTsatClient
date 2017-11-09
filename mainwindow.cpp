@@ -9,8 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    this->setFixedSize(360,260);
-    this->setContentsMargins(0,0,0,-20);
+    this->setFixedSize(360,250);
 
     ui->listWidget->setWordWrap(true);
 
@@ -41,8 +40,8 @@ void MainWindow::on_sendButton_clicked()
     QString a = ui->textEdit->toPlainText();
 
     if(a!=NULL){
-    ui->textEdit->clear();
-    client->sendMessage(client->sessionKey+'|'+a);
+        ui->textEdit->clear();
+        client->sendMessage(client->sessionKey+'|'+a);
     }
 }
 
