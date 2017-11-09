@@ -39,14 +39,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     lineRecoveryPass = new LineEdit(this);
     lineRecoveryConfirmPass = new LineEdit(this);
 
-    labelForgotPass = new ClickableLabel(this);
-    labelSignUp = new ClickableLabel(this);
-    labelSignIn = new ClickableLabel(this);
-    labelSuccess = new ClickableLabel(this, false);
-    labelUncorrectNickname = new QLabel(this);
-    labelConnectionFailedBackground = new ClickableLabel(this);
-    labelConnectionFailed = new ClickableLabel(labelConnectionFailedBackground, false);
-
     buttonSignUp = new QPushButton(this);
     buttonSignIn = new QPushButton(this);
     buttonOk = new QPushButton(this);
@@ -54,6 +46,14 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonClose = new QPushButton(this);
     buttonEye = new QPushButton(linePass);
     buttonRecoveryEye = new QPushButton(lineRecoveryPass);
+
+    labelForgotPass = new ClickableLabel(this);
+    labelSignUp = new ClickableLabel(this);
+    labelSignIn = new ClickableLabel(this);
+    labelSuccess = new ClickableLabel(this, false);
+    labelUncorrectNickname = new QLabel(this);
+    labelConnectionFailedBackground = new ClickableLabel(this);
+    labelConnectionFailed = new ClickableLabel(labelConnectionFailedBackground, false);
 
     preloader = new QSvgWidget(this);
     opacity = new QGraphicsOpacityEffect;
@@ -411,14 +411,16 @@ void AuthWindow::test(){
         timerLabelSuccess->start();
     }
     else if(location==LOC_REGISTRATION){
-
         preloader->close();
+        labelSuccess->show();
         lineConfirmCode->show();
         buttonSignUp->show();
-        labelSuccess->setGraphicsEffect(opacity);
-        labelSuccess->setText("Check your email for confirmation");
-        labelSuccess->show();
+        opacity->setOpacity(1.0);
+        labelSuccess->setText("Сheck your email for confirmation code");
         lineConfirmCode->setEnabled(true);
+
+        QGraphicsOpacityEffect *op = new QGraphicsOpacityEffect;
+        labelSuccess->setGraphicsEffect(op);
 
         QPropertyAnimation *animations[6];
         animations[0] = new QPropertyAnimation(linePass, "pos");
@@ -426,7 +428,7 @@ void AuthWindow::test(){
         animations[2] = new QPropertyAnimation(lineConfirmCode, "pos");
         animations[3] = new QPropertyAnimation(buttonSignUp, "pos");
         animations[4] = new QPropertyAnimation(labelSignIn, "pos");
-        animations[5] = new QPropertyAnimation(opacity, "opacity");
+        animations[5] = new QPropertyAnimation(op, "opacity");
 
         animations[0]->setEndValue(QPoint(width(), linePass->y()));
         animations[1]->setEndValue(QPoint(width(), lineConfirmPass->y()));
@@ -446,7 +448,6 @@ void AuthWindow::test(){
         animations[5]->setDuration(DURATION*2);
         animations[5]->start(QAbstractAnimation::DeleteWhenStopped);
         timerLabelSuccess->start();
-
         location = LOC_REGISTRATION_CODE;
     }
     else if(location==LOC_REGISTRATION_CODE){
