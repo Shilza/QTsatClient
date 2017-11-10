@@ -8,7 +8,6 @@
 #include <QUdpSocket>
 #include <QPushButton>
 #include <QMouseEvent>
-#include <QRegExp>
 #include <QRegExpValidator>
 #include <QPropertyAnimation>
 #include <QDesktopWidget>
@@ -18,18 +17,17 @@
 #include <QDateTime>
 #include <QTime>
 #include <QTimer>
+#include <QBrush>
 #include <QNetworkConfigurationManager>
-#include <QPicture>
-#include <QPixmap>
 #include "def.h"
 
 #define DURATION 300
 #define LOC_SIGNIN 1
 #define LOC_REGISTRATION 2
-#define LOC_RECOVERY_EMAIL 3
-#define LOC_RECOVERY_CODE 4
-#define LOC_RECOVERY_PASS 5
-#define LOC_REGISTRATION_CODE 6
+#define LOC_REGISTRATION_CODE 3
+#define LOC_RECOVERY_EMAIL 4
+#define LOC_RECOVERY_CODE 5
+#define LOC_RECOVERY_PASS 6
 
 namespace Ui {
 class AuthWindow;
@@ -79,12 +77,12 @@ private:
     int defaultFontSize;
     bool nicknameExists=false;
 
+    quint8 location=LOC_SIGNIN;
+
     quint16 defaultY, defaultLineX, defaultButtonX;
     quint16 lineW, lineH;
     quint16 buttonW, buttonH;
     quint16 lineHWithSpace, buttonHWithSpace;
-
-    quint8 location=LOC_SIGNIN;
 
     LineEdit *lineLog;
     LineEdit *linePass;
@@ -138,40 +136,48 @@ public:
 signals:
     void sessionKeyReceived(QByteArray sessionKey);
     void loadingWasStart();
-    void error_signal();
-    void closingErrorLabel();
+    void errorHasOccured();
 
 private slots:
     void socketReading();
+
     void signIn_released();
     void authorizationSend();
     void signUp_released();
     void registrationSend();
     void registrationCodeSend();
-    void labelSuccessHide();
     void buttonOk_released();
     void recoveryEmailSend();
     void recoveryCodeSend();
     void recoveryNewPassSend();
-    void signInLabel_released();
-    void signUpLabel_released();
-    void forgotPassLabel_released();
+
+    void gotoSignInLoc();
+    void gotoSignUpLoc();
+    void gotoRecoveryLoc();
+
     void waitingAnswer();
+
     void checkingNickname();
     void checkingEmail();
     void checkingConfirming(QString);
     void checkingRecoveryConfirming(QString);
-    void emailChange();
-    void logChange();
-    void passChange();
-    void passRecoveryChange();
-    void codeChange();
-    void eye_released();
-    void eyeRecovery_released();
+
+    void emailBorderChange();
+    void logBorderChange();
+    void passBorderChange();
+    void passRecoveryBorderChange();
+    void codeBorderChange();
+
+    void changingPassEchoMode();
+    void changingRecoveryPassEchoMode();
+
     void buttonMinimize_released();
+
     void startPreloading();
     void cancelPreloading();
+
     void errorHide();
+    void labelSuccessHide();
     void test();
     void test2();
 };

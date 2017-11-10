@@ -1,6 +1,6 @@
 <RCC>
-    <qresource prefix="/fon">
-        <file>fon.png</file>
+    <qresource prefix="/images">
+        <file>default.png</file>
         <file>eye.png</file>
         <file>close1.png</file>
         <file>close2.png</file>
