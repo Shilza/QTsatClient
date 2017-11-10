@@ -103,6 +103,7 @@ private:
     QPushButton *buttonMinimize;
 
     QLabel *labelUncorrectNickname;
+    QLabel *labelPassword;
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
@@ -115,6 +116,7 @@ private:
 
     QSvgWidget *preloader;
     QGraphicsOpacityEffect *opacity;
+    QGraphicsOpacityEffect *opacityLabel;
     QPoint mpos;
 
     QTimer *timerWaitingAnswer;

@@ -31,8 +31,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     QTime randTime(0,0,0);
     qsrand(randTime.secsTo(QTime::currentTime()));
 
+    labelPassword = new QLabel(this);
+
     lineLog = new LineEdit(this);
-    linePass = new LineEdit(this);
+    linePass = new LineEdit(labelPassword);
     lineConfirmPass = new LineEdit(this);
     lineEmail = new LineEdit(this);
     lineConfirmCode = new LineEdit(this);
@@ -44,7 +46,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonOk = new QPushButton(this);
     buttonMinimize = new QPushButton(this);
     buttonClose = new QPushButton(this);
-    buttonEye = new QPushButton(linePass);
+    buttonEye = new QPushButton(labelPassword);
     buttonRecoveryEye = new QPushButton(lineRecoveryPass);
 
     labelForgotPass = new ClickableLabel(this);
@@ -57,6 +59,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     preloader = new QSvgWidget(this);
     opacity = new QGraphicsOpacityEffect;
+    opacityLabel = new QGraphicsOpacityEffect;
 
     buttonClose->installEventFilter(this);
     buttonMinimize->installEventFilter(this);
@@ -74,8 +77,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     lineEmail->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
     lineLog->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
+    lineConfirmPass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
     linePass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
     lineRecoveryPass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
+    lineRecoveryConfirmPass->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w|[._]){6,32}$")));
+    lineConfirmCode->setValidator(new QRegExpValidator(QRegExp("^(\\d|\\w){,6}$")));
 
     linePass->setEchoMode(QLineEdit::Password);
     lineConfirmPass->setEchoMode(QLineEdit::Password);
@@ -215,6 +221,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelSuccess->setStyleSheet(QString("font-family: Century Gothic;"
                                                        "font-size: %1px;"
                                                        "background: rgba(255,255,255,200);").arg(defaultFontSize/11*13));
+    labelPassword->setStyleSheet("background: transparent;");
     preloader->setStyleSheet("background:transparent;");
 
     labelConnectionFailedBackground->setStyleSheet("background:transparent;");
@@ -231,6 +238,8 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     QFontMetrics *tempFontSize = new QFontMetrics(labelUncorrectNickname->font());
     labelUncorrectNickname->resize(QSize(tempFontSize->width(labelUncorrectNickname->text()), tempFontSize->height()));
     delete tempFontSize;
+
+    labelSuccess->setGraphicsEffect(opacityLabel);
 
     lineConfirmPass->close();
     lineEmail->close();
@@ -362,7 +371,7 @@ void AuthWindow::test(){
     }
     else if(location==LOC_RECOVERY_PASS){
         labelSuccess->setText("Your password has been changed succesfully");
-        labelSuccess->setGraphicsEffect(opacity);
+
         location=LOC_SIGNIN;
         lineLog->setEnabled(true);
         preloader->close();
@@ -373,7 +382,7 @@ void AuthWindow::test(){
         animations[1] = new QPropertyAnimation(buttonSignIn, "pos");
         animations[2] = new QPropertyAnimation(labelSignUp, "pos");
         animations[3] = new QPropertyAnimation(labelForgotPass, "pos");
-        animations[4] = new QPropertyAnimation(opacity, "opacity");
+        animations[4] = new QPropertyAnimation(opacityLabel, "opacity");
 
         animations[0]->setEndValue(QPoint(width(), lineRecoveryConfirmPass->y()));
         animations[1]->setStartValue(QPoint(defaultButtonX, height()));
@@ -419,16 +428,13 @@ void AuthWindow::test(){
         labelSuccess->setText("Сheck your email for confirmation code");
         lineConfirmCode->setEnabled(true);
 
-        QGraphicsOpacityEffect *op = new QGraphicsOpacityEffect;
-        labelSuccess->setGraphicsEffect(op);
-
         QPropertyAnimation *animations[6];
         animations[0] = new QPropertyAnimation(linePass, "pos");
         animations[1] = new QPropertyAnimation(lineConfirmPass, "pos");
         animations[2] = new QPropertyAnimation(lineConfirmCode, "pos");
         animations[3] = new QPropertyAnimation(buttonSignUp, "pos");
         animations[4] = new QPropertyAnimation(labelSignIn, "pos");
-        animations[5] = new QPropertyAnimation(op, "opacity");
+        animations[5] = new QPropertyAnimation(opacityLabel, "opacity");
 
         animations[0]->setEndValue(QPoint(width(), linePass->y()));
         animations[1]->setEndValue(QPoint(width(), lineConfirmPass->y()));
@@ -453,14 +459,14 @@ void AuthWindow::test(){
     else if(location==LOC_REGISTRATION_CODE){
         preloader->close();
         labelSuccess->setText("Registration completed successfully");
-        labelSuccess->setGraphicsEffect(opacity);
+
         labelSignUp->show();
         labelSuccess->show();
         lineLog->setEnabled(true);
         linePass->setEnabled(true);
 
         QPropertyAnimation *animations[6];
-        animations[0] = new QPropertyAnimation(opacity, "opacity");
+        animations[0] = new QPropertyAnimation(opacityLabel, "opacity");
         animations[1] = new QPropertyAnimation(lineEmail, "pos");
         animations[2] = new QPropertyAnimation(linePass, "pos");
         animations[3] = new QPropertyAnimation(buttonSignIn, "pos");
@@ -619,7 +625,7 @@ void AuthWindow::socketReading()
     }
     else if(serverAnswer=="SUCCESS_RECOVERY"){
         labelSuccess->setText("Your password has been changed succesfully");
-        labelSuccess->setGraphicsEffect(opacity);
+
         location=LOC_SIGNIN;
         lineLog->setEnabled(true);
         preloader->close();
@@ -630,7 +636,7 @@ void AuthWindow::socketReading()
         animations[1] = new QPropertyAnimation(buttonSignIn, "pos");
         animations[2] = new QPropertyAnimation(labelSignUp, "pos");
         animations[3] = new QPropertyAnimation(labelForgotPass, "pos");
-        animations[4] = new QPropertyAnimation(opacity, "opacity");
+        animations[4] = new QPropertyAnimation(opacityLabel, "opacity");
 
         animations[0]->setEndValue(QPoint(width(), lineRecoveryConfirmPass->y()));
         animations[1]->setStartValue(QPoint(defaultButtonX, height()));
@@ -670,8 +676,8 @@ void AuthWindow::socketReading()
     }
     else if(serverAnswer=="REGISTRATIONSUCCESSFUL"){
         labelSuccess->setText("Registration completed successfully");
-        labelSuccess->setGraphicsEffect(opacity);
-        QPropertyAnimation *animation = new QPropertyAnimation(opacity, "opacity");
+
+        QPropertyAnimation *animation = new QPropertyAnimation(opacityLabel, "opacity");
         animation->setDuration(DURATION*2);
         animation->setStartValue(0);
         animation->setEndValue(1);
@@ -808,9 +814,9 @@ void AuthWindow::registrationCodeSend(){
 
 void AuthWindow::labelSuccessHide(){
     timerLabelSuccess->stop();
-    QPropertyAnimation *animation = new QPropertyAnimation(opacity, "opacity");
+    QPropertyAnimation *animation = new QPropertyAnimation(opacityLabel, "opacity");
     animation->setDuration(DURATION*2);
-    animation->setEndValue(0);
+    animation->setEndValue(0.0);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     connect(animation, SIGNAL(finished()), labelSuccess, SLOT(close()));
     connect(animation, SIGNAL(finished()), labelConnectionFailedBackground, SLOT(close()));
@@ -1735,9 +1741,6 @@ void AuthWindow::resizeAll(){
     quint16 lineLogX = (windowSize - lineLogW)/2;
     quint16 lineLogY = lineLogH * 4;
 
-    quint16 linePassW = lineLogW;
-    quint16 linePassH = lineLogH;
-
     quint16 buttonSignInH = windowSize/52*5;
 
     quint16 labelSignUpW = (windowSize/26)*4;
@@ -1746,9 +1749,9 @@ void AuthWindow::resizeAll(){
     quint16 labelForgotPassW = windowSize/26*9;
     quint16 labelForgotPassH = labelSignUpH;
 
-    quint16 buttonEyeH = linePassH;
+    quint16 buttonEyeH = lineH;
     quint16 buttonEyeW = buttonEyeH;
-    quint16 buttonEyeX = linePassW - buttonEyeW;
+    quint16 buttonEyeX = lineW - buttonEyeW;
 
     quint16 labelSignInW = labelSignUpW;
     quint16 labelSignInH = labelSignUpH;
@@ -1772,42 +1775,39 @@ void AuthWindow::resizeAll(){
     quint16 labelRegistrationSuccessfulX = 0;
     quint16 labelRegistrationSuccessfulY = windowSize/3;
 
-    quint16 lineConfirmCodeH = lineLogH;
-    quint16 lineConfirmCodeW = lineLogW;
+    quint16 lineConfirmCodeH = lineH;
+    quint16 lineConfirmCodeW = lineW;
     quint16 lineConfirmCodeX = lineLogX;
     quint16 lineConfirmCodeY = windowSize;
 
     lineEmail->setGeometry(-lineW, defaultY-lineHWithSpace, lineW, lineH);
     lineLog->setGeometry(defaultLineX, defaultY, lineW, lineH);
-    linePass->setGeometry(defaultLineX, defaultY+lineHWithSpace, lineW, lineH);
+    linePass->setGeometry(0, 0, windowSize/13*6, lineH);
     lineConfirmPass->setGeometry(-lineW, (2*lineHWithSpace)+defaultY , lineW, lineH);
     lineRecoveryPass->setGeometry(height(), defaultLineX, lineW, lineH);
     lineRecoveryConfirmPass->setGeometry(height()+lineHWithSpace, defaultLineX, lineW, lineH);
-
-    preloader->resize(preloaderW, preloaderH);
+    lineConfirmCode->setGeometry(lineConfirmCodeX, lineConfirmCodeY, lineConfirmCodeW, lineConfirmCodeH);
 
     buttonClose->setGeometry(buttonCloseX, 0, buttonCloseW, buttonCloseH);
     buttonMinimize->setGeometry(buttonMinimizeX, 0, buttonMinimizeW, buttonMinimizeH);
-
     buttonSignIn->setGeometry(defaultButtonX, (2*lineHWithSpace)+defaultY, buttonW, buttonH);
     buttonSignUp->setGeometry(defaultButtonX, defaultY+(3*lineHWithSpace), buttonW, buttonH);
     buttonOk->setGeometry(defaultButtonX, defaultY+lineHWithSpace, buttonW, buttonH);
-
-    buttonEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
+    buttonEye->setGeometry(linePass->width(), 0, buttonEyeW, buttonEyeH);
     buttonEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
-
     buttonRecoveryEye->setGeometry(buttonEyeX, 0, buttonEyeW, buttonEyeH);
     buttonRecoveryEye->setIconSize(QSize(buttonEyeW, buttonEyeH));
 
     labelForgotPass->setGeometry(defaultLineX, 2*lineHWithSpace + buttonHWithSpace + defaultY, labelForgotPassW, labelForgotPassH);
     labelSignUp->setGeometry(defaultLineX+lineW-labelSignUpW, 2*lineHWithSpace + buttonHWithSpace + defaultY, labelSignUpW, labelSignUpH);
     labelSignIn->setGeometry(defaultLineX+lineW-labelSignInW , defaultY + (3*lineHWithSpace) + buttonHWithSpace, labelSignInW, labelSignInH);
-
     labelUncorrectNickname->move(labelUncorrectNicknameX, labelUncorrectNicknameY);
     labelConnectionFailedBackground->setGeometry(labelConnectionFailedBackgroundX, labelConnectionFailedBackgroundY,labelConnectionFailedBackgroundW, labelConnectionFailedBackgroundH);
     labelConnectionFailed->setGeometry(0, 0, labelConnectionFailedW, labelConnectionFailedH);
     labelSuccess->setGeometry(labelRegistrationSuccessfulX,labelRegistrationSuccessfulY,labelRegistrationSuccessfulW, labelRegistrationSuccessfulH);
-    lineConfirmCode->setGeometry(lineConfirmCodeX, lineConfirmCodeY, lineConfirmCodeW, lineConfirmCodeH);
+    labelPassword->setGeometry(defaultLineX, defaultY+lineHWithSpace, lineW, lineH);
+
+    preloader->resize(preloaderW, preloaderH);
 }
 
 void AuthWindow::mouseMoveEvent(QMouseEvent *event){
