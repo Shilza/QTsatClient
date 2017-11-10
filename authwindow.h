@@ -103,7 +103,8 @@ private:
     QPushButton *buttonMinimize;
 
     QLabel *labelUncorrectNickname;
-    QLabel *labelPassword;
+    QLabel *labelPass;
+    QLabel *labelRecoveryPass;
     ClickableLabel *labelForgotPass;
     ClickableLabel *labelSignUp;
     ClickableLabel *labelSignIn;
