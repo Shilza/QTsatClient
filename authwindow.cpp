@@ -66,6 +66,10 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonClose->installEventFilter(this);
     buttonMinimize->installEventFilter(this);
     lineLog->installEventFilter(this);
+    linePass->installEventFilter(this);
+    buttonEye->installEventFilter(this);
+    lineRecoveryPass->installEventFilter(this);
+    buttonRecoveryEye->installEventFilter(this);
 
     buttonEye->setCursor(Qt::ArrowCursor);
     buttonRecoveryEye->setCursor(Qt::ArrowCursor);
@@ -143,13 +147,18 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonOk->setStyleSheet(strButtonStyle.arg(defaultFontSize));
 
-    buttonEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
-                             "QPushButton:hover{background: rgba(123,55,65,50);}");
+    buttonEye->setStyleSheet("QPushButton{"
+                             "background: transparent;"
+                             "border: 1px solid gray;"
+                             "border-left: 0px;"
+                             "}");
     buttonEye->setIcon(QIcon(":images/eye.png"));
 
-    buttonRecoveryEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
-                                     "QPushButton:hover{background: rgba(123,55,65,50);}");
-
+    buttonRecoveryEye->setStyleSheet("QPushButton{"
+                                     "background: transparent;"
+                                     "border: 1px solid gray;"
+                                     "border-left: 0px;"
+                                     "}");
     buttonRecoveryEye->setIcon(QIcon(":images/eye.png"));
 
 
@@ -173,6 +182,23 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "border: 0px;"
                                   "}");
 
+   linePass->setStyleSheet(QString("LineEdit{"
+                                     "font-family: Century Gothic;"
+                                     "font-size: %1px;"
+                                     "background: transparent;"
+                                     "border: 1px solid gray;"
+                                   "border-right: 0px;"
+                                     "color: #B5EBEE;"
+                                     "}").arg(defaultFontSize));
+   lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                                     "font-family: Century Gothic;"
+                                     "font-size: %1px;"
+                                     "background: transparent;"
+                                     "border: 1px solid gray;"
+                                   "border-right: 0px;"
+                                     "color: #B5EBEE;"
+                                     "}").arg(defaultFontSize));
+
     labelForgotPass->setStyleSheet(QString("font-family: Century Gothic;"
                                            "font-size: %1px;"
                                            "background: transparent;"
@@ -187,10 +213,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                        "font-size: %1px;"
                                        "background: transparent;"
                                        "color: #B5EBEE;").arg(defaultFontSize));
+
     labelConnectionFailed->setStyleSheet(QString("font-family: Century Gothic;"
                                                  "font-size: %1px;"
                                                  "background: transparent;"
                                                  "color: red;").arg(defaultFontSize/11*13));
+
     labelSuccess->setStyleSheet(QString("font-family: Century Gothic;"
                                         "font-size: %1px;"
                                         "background: rgba(255,255,255,200);").arg(defaultFontSize/11*13));
@@ -729,7 +757,14 @@ void AuthWindow::signIn_released(){
         isLineEmpty=true;
     }
     if(pass==""){
-        linePass->setErrorStyleSheet();
+        linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                        "font-size: %1px;"
+                                        "background: transparent;"
+                                        "border: 1px solid red;"
+                                        "border-right: 0px;"
+                                        "color: #B5EBEE;").arg(defaultFontSize));
+        buttonEye->setStyleSheet("border: 1px solid red;"
+                                 "border-left: 0px;");
         isLineEmpty=true;
     }
 
@@ -745,7 +780,7 @@ void AuthWindow::signIn_released(){
             errorHide();
 
             timerWaitingAnswer->start();
-            QTimer::singleShot(600, this, SLOT(authorizationSend()));
+            QTimer::singleShot(DURATION*2, this, SLOT(authorizationSend()));
         }
     }
 }
@@ -773,7 +808,14 @@ void AuthWindow::signUp_released(){
         }
         if(pass==""){
             isLineEmpty=true;
-            linePass->setErrorStyleSheet();
+            linePass->setStyleSheet(QString("font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid red;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;").arg(defaultFontSize));
+            buttonEye->setStyleSheet("border: 1px solid red;"
+                                     "border-left: 0px;");
         }
         if(confirmPass==""){
             isLineEmpty=true;
@@ -887,7 +929,14 @@ void AuthWindow::buttonOk_released(){
             lineRecoveryConfirmPass->setErrorStyleSheet();
         }
         if(lineRecoveryPass->text()==""){
-            lineRecoveryPass->setErrorStyleSheet();
+            lineRecoveryPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid red;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;").arg(defaultFontSize));
+            buttonRecoveryEye->setStyleSheet("border: 1px solid red;"
+                                     "border-left: 0px;");
         }
         else if(lineRecoveryConfirmPass->text()!=lineRecoveryPass->text()){
             lineRecoveryConfirmPass->setErrorStyleSheet();
@@ -1215,7 +1264,8 @@ void AuthWindow::gotoRecoveryLoc(){
 
     lineLog->setDefaultStyleSheet();
     linePass->setDefaultStyleSheet();
-
+    buttonEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
+                             "QPushButton:hover{background: rgba(123,55,65,50);}");
 
     QPropertyAnimation *animations[5];
 
@@ -1366,6 +1416,8 @@ void AuthWindow::gotoSignUpLoc(){
     else if(location==LOC_SIGNIN){
         lineLog->setDefaultStyleSheet();
         linePass->setDefaultStyleSheet();
+        buttonEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
+                             "QPushButton:hover{background: rgba(123,55,65,50);}");
 
         QPropertyAnimation *localAnimations[6];
         localAnimations[0] = new QPropertyAnimation(buttonSignUp, "pos");
@@ -1621,6 +1673,7 @@ void AuthWindow::waitingAnswer(){
     emit errorHasOccured();
 }
 
+
 void AuthWindow::errorHide(){
     timerLabelSuccess->stop();
     QPropertyAnimation *animation = new QPropertyAnimation(labelConnectionFailedBackground, "pos");
@@ -1786,6 +1839,108 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
 
         }
     }
+    else if(target == linePass || target==buttonEye){
+        if(target == buttonEye && event->type() == QEvent::HoverEnter){
+            linePass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid black;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonEye->setStyleSheet("background: rgba(123,55,65,50);"
+                                     "border: 1px solid black;"
+                                     "border-left: 0px;");
+        }
+        else if (event->type() == QEvent::HoverEnter){
+            linePass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid black;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonEye->setStyleSheet("border: 1px solid black;"
+                                     "border-left: 0px;");
+        }
+        else if((event->type() == QEvent::HoverLeave && linePass->hasFocus()) || (event->type() == QEvent::FocusIn)){
+            linePass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid #0078d7;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonEye->setStyleSheet("border: 1px solid #0078d7;"
+                                     "border-left: 0px;");
+        }
+        else if((event->type() == QEvent::HoverLeave && !linePass->hasFocus()) || event->type() == QEvent::FocusOut){
+            linePass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid gray;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonEye->setStyleSheet("border: 1px solid gray;"
+                                     "border-left: 0px;");
+        }
+    }
+    else if(target == lineRecoveryPass || target==buttonRecoveryEye){
+        if(target == buttonRecoveryEye && event->type() == QEvent::HoverEnter){
+            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid black;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonRecoveryEye->setStyleSheet("background: rgba(123,55,65,50);"
+                                     "border: 1px solid black;"
+                                     "border-left: 0px;");
+        }
+        else if (event->type() == QEvent::HoverEnter){
+            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid black;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonRecoveryEye->setStyleSheet("border: 1px solid black;"
+                                     "border-left: 0px;");
+        }
+        else if((event->type() == QEvent::HoverLeave && lineRecoveryPass->hasFocus()) || (event->type() == QEvent::FocusIn)){
+            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid #0078d7;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonRecoveryEye->setStyleSheet("border: 1px solid #0078d7;"
+                                     "border-left: 0px;");
+        }
+        else if((event->type() == QEvent::HoverLeave && !lineRecoveryPass->hasFocus()) || event->type() == QEvent::FocusOut){
+            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid gray;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
+            buttonRecoveryEye->setStyleSheet("border: 1px solid gray;"
+                                     "border-left: 0px;");
+        }
+    }
 
     return QMainWindow::eventFilter(target, event);
 }
@@ -1826,6 +1981,7 @@ void LineEdit::setDefaultStyleSheet(){
                                 "font-family: Century Gothic;"
                                 "font-size: %1px;"
                                 "background: transparent;"
+                                "border: 1px solid gray;"
                                 "color: #B5EBEE;"
                                 "}"
                                 "LineEdit:hover{"
