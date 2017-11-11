@@ -137,24 +137,11 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                               "}";
 
     defaultFontSize = (width()/260)*11;
+    preloader->setStyleSheet("background:transparent;");
+
     buttonSignIn->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonSignUp->setStyleSheet(strButtonStyle.arg(defaultFontSize));
     buttonOk->setStyleSheet(strButtonStyle.arg(defaultFontSize));
-
-    labelForgotPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-
-    labelSignUp->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
-
-    labelSignIn->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
 
     buttonEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
@@ -165,36 +152,6 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
 
     buttonRecoveryEye->setIcon(QIcon(":images/eye.png"));
 
-    lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
-                                     "font-size: %1px;"
-                                     "background: transparent;"
-                                     "color: #B5EBEE;").arg(defaultFontSize));
-
-    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                   "font-size: %1px;"
-                                   "background: transparent;"
-                                   "color: #B5EBEE;").arg(defaultFontSize));
-
-    lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-    linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                    "font-size: %1px;"
-                                    "background: transparent;"
-                                    "color: #B5EBEE;").arg(defaultFontSize));
-    lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-    lineRecoveryPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                            "font-size: %1px;"
-                                            "background: transparent;"
-                                            "color: #B5EBEE;").arg(defaultFontSize));
-    lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                   "font-size: %1px;"
-                                                   "background: transparent;"
-                                                   "color: #B5EBEE;").arg(defaultFontSize));
 
     buttonClose->setStyleSheet("QPushButton {"
                                "qproperty-icon: url(:/images/close1.png);"
@@ -216,6 +173,20 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "border: 0px;"
                                   "}");
 
+    labelForgotPass->setStyleSheet(QString("font-family: Century Gothic;"
+                                           "font-size: %1px;"
+                                           "background: transparent;"
+                                           "color: #B5EBEE;").arg(defaultFontSize));
+
+    labelSignUp->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
+
+    labelSignIn->setStyleSheet(QString("font-family: Century Gothic;"
+                                       "font-size: %1px;"
+                                       "background: transparent;"
+                                       "color: #B5EBEE;").arg(defaultFontSize));
     labelConnectionFailed->setStyleSheet(QString("font-family: Century Gothic;"
                                                  "font-size: %1px;"
                                                  "background: transparent;"
@@ -225,7 +196,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                         "background: rgba(255,255,255,200);").arg(defaultFontSize/11*13));
     labelPass->setStyleSheet("background: transparent;");
     labelRecoveryPass->setStyleSheet("background: transparent;");
-    preloader->setStyleSheet("background:transparent;");
+
 
     labelConnectionFailedBackground->setStyleSheet("background:transparent;");
     labelConnectionFailedBackground->setPixmap(QPixmap(":images/gradient.png").scaled(width(),labelConnectionFailedBackground->height()));
@@ -284,17 +255,12 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     connect(labelSuccess, SIGNAL(released()), this, SLOT(labelSuccessHide()));
     connect(labelConnectionFailed, SIGNAL(released()),this,SLOT(errorHide()));
 
-    connect(lineEmail, SIGNAL(textChanged(QString)), this, SLOT(emailBorderChange()));
     connect(lineEmail, SIGNAL(editingFinished()), this, SLOT(checkingEmail()));
-    connect(lineLog, SIGNAL(textChanged(QString)), this, SLOT(logBorderChange()));
     connect(lineLog, SIGNAL(editingFinished()), this, SLOT(checkingNickname()));
-    connect(linePass, SIGNAL(textChanged(QString)), this, SLOT(passBorderChange()));
     connect(linePass, SIGNAL(textChanged(QString)), this, SLOT(checkingConfirming(QString)));
     connect(lineConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingConfirming(QString)));
-    connect(lineRecoveryPass, SIGNAL(textChanged(QString)), this, SLOT(passRecoveryBorderChange()));
     connect(lineRecoveryPass, SIGNAL(textChanged(QString)), this, SLOT(checkingRecoveryConfirming(QString)));
     connect(lineRecoveryConfirmPass, SIGNAL(textChanged(QString)),this, SLOT(checkingRecoveryConfirming(QString)));
-    connect(lineConfirmCode, SIGNAL(textChanged(QString)), this, SLOT(codeBorderChange()));
 
     connect(timerWaitingAnswer, SIGNAL(timeout()), this, SLOT(waitingAnswer()));
     connect(timerLabelSuccess, SIGNAL(timeout()), this, SLOT(labelSuccessHide()));
@@ -538,18 +504,11 @@ void AuthWindow::socketReading()
     else if(serverAnswer=="NICKNAME_EXIST"){
         //CHECK
         nicknameExists = true;
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "border: 1px solid red;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
+        lineLog->setErrorStyleSheet();
     }
     else if(serverAnswer=="NICKNAME_NOT_EXIST"){
         nicknameExists = false;
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
+        lineLog->setDefaultStyleSheet();
     }
     else if(serverAnswer=="EMAIL_EXIST"){
         labelConnectionFailed->setText("Email already exists");
@@ -766,19 +725,11 @@ void AuthWindow::signIn_released(){
     bool isLineEmpty=false;
 
     if(log==""){
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "border: 1px solid red;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
+        lineLog->setErrorStyleSheet();
         isLineEmpty=true;
     }
     if(pass==""){
-        linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                        "font-size: %1px;"
-                                        "background: transparent;"
-                                        "border: 1px solid red;"
-                                        "color: #B5EBEE;").arg(defaultFontSize));
+        linePass->setErrorStyleSheet();
         isLineEmpty=true;
     }
 
@@ -810,28 +761,23 @@ void AuthWindow::signUp_released(){
         QString log = this->lineLog->text();
         QString pass = this->linePass->text();
         QString confirmPass = this->lineConfirmPass->text();
-        QString style = "font-family: Century Gothic;"
-                        "font-size: %1px;"
-                        "background: transparent;"
-                        "border: 1px solid red;"
-                        "color: #B5EBEE;";
         bool isLineEmpty=false;
 
         if(email==""){
             isLineEmpty=true;
-            lineEmail->setStyleSheet(style.arg(defaultFontSize));
+            lineEmail->setErrorStyleSheet();
         }
         if(log==""){
             isLineEmpty=true;
-            lineLog->setStyleSheet(style.arg(defaultFontSize));
+            lineLog->setErrorStyleSheet();
         }
         if(pass==""){
             isLineEmpty=true;
-            linePass->setStyleSheet(style.arg(defaultFontSize));
+            linePass->setErrorStyleSheet();
         }
         if(confirmPass==""){
             isLineEmpty=true;
-            lineConfirmPass->setStyleSheet(style.arg(defaultFontSize));
+            lineConfirmPass->setErrorStyleSheet();
         }
         if(!isLineEmpty && pass==confirmPass){
 
@@ -851,11 +797,7 @@ void AuthWindow::signUp_released(){
     }
     else if(location==LOC_REGISTRATION_CODE){
         if(lineConfirmCode->text()==""){
-            lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                                   "font-size: %1px;"
-                                                   "background: transparent;"
-                                                   "border: 1px solid red;"
-                                                   "color: #B5EBEE;").arg(defaultFontSize));
+            lineConfirmCode->setErrorStyleSheet();
         }
         else{
             QNetworkConfigurationManager internetConnection;
@@ -901,11 +843,7 @@ void AuthWindow::labelSuccessHide(){
 void AuthWindow::buttonOk_released(){
     if(location == LOC_RECOVERY_EMAIL){
         if(lineLog->text()==""){
-            lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "border: 1px solid red;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
+            lineLog->setErrorStyleSheet();
         }
         else{
 
@@ -925,11 +863,7 @@ void AuthWindow::buttonOk_released(){
     }
     else if(location == LOC_RECOVERY_CODE){
         if(lineConfirmCode->text()==""){
-            lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                                   "font-size: %1px;"
-                                                   "background: transparent;"
-                                                   "border: 1px solid red;"
-                                                   "color: #B5EBEE;").arg(defaultFontSize));
+            lineConfirmCode->setErrorStyleSheet();
         }
         else{
             QNetworkConfigurationManager internetConnection;
@@ -948,19 +882,15 @@ void AuthWindow::buttonOk_released(){
         }
     }
     else if(location == LOC_RECOVERY_PASS){
+
+        if(lineRecoveryConfirmPass->text()==""){
+            lineRecoveryConfirmPass->setErrorStyleSheet();
+        }
         if(lineRecoveryPass->text()==""){
-            lineRecoveryPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                    "font-size: %1px;"
-                                                    "background: transparent;"
-                                                    "border: 1px solid red;"
-                                                    "color: #B5EBEE;").arg(defaultFontSize));
+            lineRecoveryPass->setErrorStyleSheet();
         }
         else if(lineRecoveryConfirmPass->text()!=lineRecoveryPass->text()){
-            lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                           "font-size: %1px;"
-                                                           "background: transparent;"
-                                                           "border: 1px solid red;"
-                                                           "color: #B5EBEE;").arg(defaultFontSize));
+            lineRecoveryConfirmPass->setErrorStyleSheet();
         }
         else{
             QNetworkConfigurationManager internetConnection;
@@ -1283,14 +1213,8 @@ void AuthWindow::gotoRecoveryLoc(){
     opacity->setOpacity(1.0);
     location=LOC_RECOVERY_EMAIL;
 
-    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                   "font-size: %1px;"
-                                   "background: transparent;"
-                                   "color: #B5EBEE;").arg(defaultFontSize));
-    linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                    "font-size: %1px;"
-                                    "background: transparent;"
-                                    "color: #B5EBEE;").arg(defaultFontSize));
+    lineLog->setDefaultStyleSheet();
+    linePass->setDefaultStyleSheet();
 
 
     QPropertyAnimation *animations[5];
@@ -1337,14 +1261,8 @@ void AuthWindow::gotoSignUpLoc(){
     if(location==LOC_RECOVERY_EMAIL){
         labelSignIn->close();
 
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
-        lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                               "font-size: %1px;"
-                                               "background: transparent;"
-                                               "color: #B5EBEE;").arg(defaultFontSize));
+        lineLog->setDefaultStyleSheet();
+        lineConfirmCode->setDefaultStyleSheet();
 
         QPropertyAnimation *localAnimations[5];
         localAnimations[0] = new QPropertyAnimation(labelPass, "pos");
@@ -1446,14 +1364,8 @@ void AuthWindow::gotoSignUpLoc(){
         buttonSignUp->show();
     }
     else if(location==LOC_SIGNIN){
-        lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                       "font-size: %1px;"
-                                       "background: transparent;"
-                                       "color: #B5EBEE;").arg(defaultFontSize));
-        linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                        "font-size: %1px;"
-                                        "background: transparent;"
-                                        "color: #B5EBEE;").arg(defaultFontSize));
+        lineLog->setDefaultStyleSheet();
+        linePass->setDefaultStyleSheet();
 
         QPropertyAnimation *localAnimations[6];
         localAnimations[0] = new QPropertyAnimation(buttonSignUp, "pos");
@@ -1500,26 +1412,13 @@ void AuthWindow::gotoSignInLoc(){
     labelPass->setEnabled(true);
     buttonEye->setStyleSheet("QPushButton{background: transparent; border: 1px solid gray; border-left: 0px solid gray;}"
                              "QPushButton:hover{background: rgba(123,55,65,50);}");
-    lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
-                                     "font-size: %1px;"
-                                     "background: transparent;"
-                                     "color: #B5EBEE;").arg(defaultFontSize));
-    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                   "font-size: %1px;"
-                                   "background: transparent;"
-                                   "color: #B5EBEE;").arg(defaultFontSize));
-    lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
-    linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                    "font-size: %1px;"
-                                    "background: transparent;"
-                                    "color: #B5EBEE;").arg(defaultFontSize));
-    lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
+
+    lineEmail->setDefaultStyleSheet();
+    lineLog->setDefaultStyleSheet();
+    lineConfirmPass->setDefaultStyleSheet();
+    linePass->setDefaultStyleSheet();
+    lineConfirmCode->setDefaultStyleSheet();
+
     lineLog->setValidator(new QRegExpValidator(QRegExp("([^@])+(@?)([^@])+")));
     buttonSignIn->show();
 
@@ -1699,77 +1598,20 @@ void AuthWindow::checkingEmail()
 
 void AuthWindow::checkingConfirming(QString){
     if(lineConfirmPass->text()=="")
-        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                               "font-size: %1px;"
-                                               "background: transparent;"
-                                               "color: #B5EBEE;").arg(defaultFontSize));
+        lineConfirmPass->setDefaultStyleSheet();
     else if(lineConfirmPass->text()!=linePass->text())
-        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                               "font-size: %1px;"
-                                               "background: transparent;"
-                                               "border: 1px solid red;"
-                                               "color: #B5EBEE;").arg(defaultFontSize));
+        lineConfirmPass->setErrorStyleSheet();
     else
-        lineConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                               "font-size: %1px;"
-                                               "background: transparent;"
-                                               "color: #B5EBEE;").arg(defaultFontSize));
+        lineConfirmPass->setDefaultStyleSheet();
 }
 
 void AuthWindow::checkingRecoveryConfirming(QString){
     if(lineRecoveryConfirmPass->text()=="")
-        lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                       "font-size: %1px;"
-                                                       "background: transparent;"
-                                                       "color: #B5EBEE;").arg(defaultFontSize));
+        lineRecoveryConfirmPass->setDefaultStyleSheet();
     else if(lineRecoveryConfirmPass->text()!=lineRecoveryPass->text())
-        lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                       "font-size: %1px;"
-                                                       "background: transparent;"
-                                                       "border: 1px solid red;"
-                                                       "color: #B5EBEE;").arg(defaultFontSize));
+        lineRecoveryConfirmPass->setErrorStyleSheet();
     else
-        lineRecoveryConfirmPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                                       "font-size: %1px;"
-                                                       "background: transparent;"
-                                                       "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-
-void AuthWindow::emailBorderChange()
-{
-    lineEmail->setStyleSheet(QString("font-family: Century Gothic;"
-                                     "font-size: %1px;"
-                                     "background: transparent;"
-                                     "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void AuthWindow::logBorderChange(){
-    lineLog->setStyleSheet(QString("font-family: Century Gothic;"
-                                   "font-size: %1px;"
-                                   "background: transparent;"
-                                   "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void AuthWindow::passBorderChange(){
-    linePass->setStyleSheet(QString("font-family: Century Gothic;"
-                                    "font-size: %1px;"
-                                    "background: transparent;"
-                                    "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void AuthWindow::passRecoveryBorderChange(){
-    lineRecoveryPass->setStyleSheet(QString("font-family: Century Gothic;"
-                                            "font-size: %1px;"
-                                            "background: transparent;"
-                                            "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void AuthWindow::codeBorderChange(){
-    lineConfirmCode->setStyleSheet(QString("font-family: Century Gothic;"
-                                           "font-size: %1px;"
-                                           "background: transparent;"
-                                           "color: #B5EBEE;").arg(defaultFontSize));
+        lineRecoveryConfirmPass->setDefaultStyleSheet();
 }
 
 
@@ -1966,14 +1808,40 @@ void ClickableLabel::leaveEvent(QEvent*)
     }
 }
 
-void LineEdit::init(){
+LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent){
+    defaultFontSize = ((QApplication::desktop()->width()/100)*25/260)*11;
     setAcceptDrops(false);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setDefaultStyleSheet();
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
+    connect(this, SIGNAL(textChanged(QString)), SLOT(setDefaultStyleSheet()));
 }
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
     emit released();
+}
+
+void LineEdit::setDefaultStyleSheet(){
+    this->setStyleSheet(QString("LineEdit{"
+                                "font-family: Century Gothic;"
+                                "font-size: %1px;"
+                                "background: transparent;"
+                                "color: #B5EBEE;"
+                                "}"
+                                "LineEdit:hover{"
+                                "border: 1px solid black;"
+                                "}"
+                                "LineEdit:focus{"
+                                "border: 1px solid #0078d7;"
+                                "}").arg(defaultFontSize));
+}
+
+void LineEdit::setErrorStyleSheet(){
+    this->setStyleSheet(QString("font-family: Century Gothic;"
+                               "font-size: %1px;"
+                               "background: transparent;"
+                               "border: 1px solid red;"
+                               "color: #B5EBEE;").arg(defaultFontSize));
 }
 
 void LineEdit::keyPressEvent(QKeyEvent *event){

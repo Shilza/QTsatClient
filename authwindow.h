@@ -37,20 +37,18 @@ class LineEdit : public QLineEdit{
     Q_OBJECT
 
 public:
-    LineEdit(QWidget *parent=0) : QLineEdit(parent){ init(); }
-    LineEdit(const QString &contents, QWidget *parent=0) : QLineEdit(contents,parent){ init(); }
+    LineEdit(QWidget *parent=0);
 
 private:
+    int defaultFontSize;
     void keyPressEvent(QKeyEvent *event);
-    void init();
-
-signals:
-    void hoverEnter();
-    void hoverLeave();
-
 
 private slots:
     void showMenu(QPoint){}
+
+public slots:
+    void setDefaultStyleSheet();
+    void setErrorStyleSheet();
 };
 
 class ClickableLabel : public QLabel
@@ -84,10 +82,10 @@ private:
     quint16 buttonW, buttonH;
     quint16 lineHWithSpace, buttonHWithSpace;
 
+    LineEdit *lineEmail;
     LineEdit *lineLog;
     LineEdit *linePass;
     LineEdit *lineConfirmPass;
-    LineEdit *lineEmail;
     LineEdit *lineConfirmCode;
     LineEdit *lineRecoveryPass;
     LineEdit *lineRecoveryConfirmPass;
@@ -161,12 +159,6 @@ private slots:
     void checkingEmail();
     void checkingConfirming(QString);
     void checkingRecoveryConfirming(QString);
-
-    void emailBorderChange();
-    void logBorderChange();
-    void passBorderChange();
-    void passRecoveryBorderChange();
-    void codeBorderChange();
 
     void changingPassEchoMode();
     void changingRecoveryPassEchoMode();
