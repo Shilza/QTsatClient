@@ -18,7 +18,8 @@
 #include <QTime>
 #include <QTimer>
 #include <QBrush>
-#include <QNetworkConfigurationManager>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include "def.h"
 
 #define DURATION 300
@@ -122,6 +123,7 @@ private:
     QTimer *timerLabelSuccess;
     QTimer *timerErrorLabel;
 
+    bool isOnline();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
