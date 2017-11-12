@@ -37,12 +37,12 @@ class LineEdit : public QLineEdit{
     Q_OBJECT
 
 public:
-    LineEdit(QWidget *parent=0);
-
+    LineEdit(QWidget *parent=0, bool isDefault = true);
+    void setDisabledOverride();
+    void setEnabledOverride();
 private:
     int defaultFontSize;
     void keyPressEvent(QKeyEvent *event);
-
 private slots:
     void showMenu(QPoint){}
 
@@ -73,7 +73,9 @@ class AuthWindow : public QMainWindow
 private:
     Ui::AuthWindow *ui;
     int defaultFontSize;
-    bool nicknameExists=false;
+    bool nicknameExists = false;
+    bool isPassEmpty = false;
+    bool isRecoveryPassEmpty = false;
 
     quint8 location=LOC_SIGNIN;
 
@@ -124,6 +126,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
     void changeEvent(QEvent *e);
+    void setPassEnabled();
     void resizeAll();
 
 public:
@@ -162,6 +165,8 @@ private slots:
 
     void changingPassEchoMode();
     void changingRecoveryPassEchoMode();
+    void changingPassBorder();
+    void changingRecoveryPassBorder();
 
     void buttonMinimize_released();
 
