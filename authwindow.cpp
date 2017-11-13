@@ -882,11 +882,11 @@ void AuthWindow::signUp_released(){
 }
 
 void AuthWindow::registrationSend(){
-    socket->writeDatagram(QByteArray().append(REGISTRATION+"|"+lineEmail->text()+"|"+lineLog->text()+"|"+linePass->text()), host, 49003);
+    socket->writeDatagram(QByteArray().append(REGISTRATION+"|"+lineEmail->text()+"|"+lineLog->text()), host, 49003);
 }
 
 void AuthWindow::registrationCodeSend(){
-    socket->writeDatagram(QByteArray().append(REGISTRATION_CODE+"|"+lineEmail->text()+'|'+lineConfirmCode->text()), host, 49003);
+    socket->writeDatagram(QByteArray().append(REGISTRATION_CODE+"|"+lineEmail->text()+"|"+lineConfirmCode->text()+"|"+lineLog->text()+"|"+linePass->text()), host, 49003);
 }
 
 void AuthWindow::labelSuccessHide(){
