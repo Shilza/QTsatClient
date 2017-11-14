@@ -1004,7 +1004,7 @@ void AuthWindow::recoveryCodeSend(){
 }
 
 void AuthWindow::recoveryNewPassSend(){
-    socket->writeDatagram(QByteArray().append(RECOVERY_NEW_PASS+"|"+lineRecoveryPass->text()), host, 49003);
+    socket->writeDatagram(QByteArray().append(RECOVERY_NEW_PASS+"|"+lineLog->text()+"|"+lineRecoveryPass->text()), host, 49003);
 }
 
 
