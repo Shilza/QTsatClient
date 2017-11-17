@@ -15,9 +15,7 @@
 #include <QFontMetrics>
 #include <QGraphicsOpacityEffect>
 #include <QDateTime>
-#include <QTime>
 #include <QTimer>
-#include <QBrush>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include "def.h"

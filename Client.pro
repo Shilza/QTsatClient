@@ -31,13 +31,11 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     udpclient.cpp \
-    textedit.cpp \
     authwindow.cpp
 
 HEADERS += \
         mainwindow.h \
     udpclient.h \
-    textedit.h \
     def.h \
     authwindow.h
 
