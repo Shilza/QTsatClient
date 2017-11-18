@@ -37,6 +37,7 @@ private:
     QGridLayout *mainLayout;
     QListWidget *listOfGlobalMessages;
     QPushButton *buttonSend;
+    QPushButton *buttonPrivateMessages;
     QTextEdit *textMessage;
 
 public:

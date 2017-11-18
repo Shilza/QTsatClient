@@ -1,19 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QItemDelegate>
-
-class MyItemDelegate: public QItemDelegate
-{
-public:
-    MyItemDelegate(QObject * parent) : QItemDelegate(parent) {}
-
-    QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex & index) const
-    {
-        QSize newSize = QItemDelegate::sizeHint(option, index);
-        newSize.setHeight(30); // Устанавливаем любую высоту строки, например 30
-        return newSize;
-    }
-};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,13 +15,14 @@ MainWindow::MainWindow(QWidget *parent) :
     mainWidget->setLayout(mainLayout);
     this->setCentralWidget(mainWidget);
     mainLayout->setMargin(0);
-    mainLayout->setSpacing(2);
+    mainLayout->setSpacing(0);
 
     listOfGlobalMessages = new QListWidget(mainWidget);
     //listOfGlobalMessages->setItemDelegate(new MyItemDelegate(listOfGlobalMessages));
 
     textMessage = new QTextEdit(mainWidget);
     buttonSend = new QPushButton(mainWidget);
+    buttonPrivateMessages = new QPushButton(mainWidget);
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
                                                              "border-top-right-radius: 4px;"
@@ -67,24 +54,35 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);*/
 //    (QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = Qt::Alignment());
 
-    textMessage->setMinimumSize(300,50);
-    textMessage->setMaximumSize(600,100);
+    //textMessage->setMinimumSize(300,50);
+    //textMessage->setMaximumSize(600,100);
+    textMessage->setFixedHeight(40);
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    textMessage->setStyleSheet("border: 1px solid gray;"
+                               "border-right: 0px;"
+                               "border-top: 0px;");
 
     listOfGlobalMessages->setMinimumSize(300,250);
-    listOfGlobalMessages->setMaximumSize(600,700);
+    //listOfGlobalMessages->setMaximumSize(600,700);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    buttonSend->setMinimumSize(50,50);
-    buttonSend->setMaximumSize(200,100);
+    //buttonSend->setMinimumSize(50,50);
+    //buttonSend->setMaximumSize(200,100);
+    buttonSend->setFixedSize(40,40);
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    buttonSend->setStyleSheet("border: 1px solid gray;"
+                              "border-left: 0px;"
+                              "border-top: 0px;"
+                              "background: black;");
 
-    mainLayout->addWidget(listOfGlobalMessages, 0, 0, 6, 9);
-    mainLayout->addWidget(textMessage, 6, 0, 1, 9);
-    mainLayout->addWidget(buttonSend, 6, 9, 1, 3);
+    buttonPrivateMessages->setMinimumSize(30,30);
+
+    mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
+    mainLayout->addWidget(textMessage, 8, 0, 1, 8);
+    mainLayout->addWidget(buttonSend, 8, 8, 1, 1);
+    mainLayout->addWidget(buttonPrivateMessages, 0,9,1,2);
+
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
-
- //   this->setFixedSize(360,250);
 }
 
 MainWindow::~MainWindow(){
@@ -123,12 +121,16 @@ void MainWindow::printMessages(){
     button->setFixedSize(30,30);
 
     textOfMessage->setWordWrap(true);
-    layout->addWidget(button, 0, 0, 3, 1, Qt::AlignHCenter | Qt::AlignTop);
+    //layout->addWidget(button, 0, 0, 3, 1, Qt::AlignHCenter | Qt::AlignTop);
     layout->addWidget(nickname, 0, 1, 1, 1, Qt::AlignLeft | Qt::AlignTop);
     layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight | Qt::AlignTop);
     layout->addWidget(textOfMessage, 1, 1, 2, 7, Qt::AlignLeft | Qt::AlignTop);
 
     //widget->resize(layout->sizeHint());
+    QWidgetItem *widgetItem = new QWidgetItem(button);
+    widgetItem->setGeometry(QRect(0,0,30,30));
+    layout->addItem(widgetItem, 0,0,3,1, Qt::AlignTop);
+
     QListWidgetItem* item = new QListWidgetItem(listOfGlobalMessages);
     item->setSizeHint(QSize(widget->width(), layout->sizeHint().height()));
     listOfGlobalMessages->setItemWidget(item, widget);
