@@ -1,5 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QItemDelegate>
+
+class MyItemDelegate: public QItemDelegate
+{
+public:
+    MyItemDelegate(QObject * parent) : QItemDelegate(parent) {}
+
+    QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex & index) const
+    {
+        QSize newSize = QItemDelegate::sizeHint(option, index);
+        newSize.setHeight(30); // Устанавливаем любую высоту строки, например 30
+        return newSize;
+    }
+};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     client = new UDPClient();
 
     ui->setupUi(this);
+    this->setMaximumSize(800,600);
 
     mainWidget = new QWidget(this);
     mainLayout = new QGridLayout(mainWidget);
@@ -17,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->setSpacing(2);
 
     listOfGlobalMessages = new QListWidget(mainWidget);
+    //listOfGlobalMessages->setItemDelegate(new MyItemDelegate(listOfGlobalMessages));
+
     textMessage = new QTextEdit(mainWidget);
     buttonSend = new QPushButton(mainWidget);
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
@@ -49,9 +66,22 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages->setMaximumSize(400,200);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);*/
 //    (QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = Qt::Alignment());
-    mainLayout->addWidget(listOfGlobalMessages, 0, 0, 1, 8);
-    mainLayout->addWidget(textMessage, 1, 0, 6, 7);
-    mainLayout->addWidget(buttonSend, 1, 7, 6, 1);
+
+    textMessage->setMinimumSize(300,50);
+    textMessage->setMaximumSize(600,100);
+    textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    listOfGlobalMessages->setMinimumSize(300,250);
+    listOfGlobalMessages->setMaximumSize(600,700);
+    listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    buttonSend->setMinimumSize(50,50);
+    buttonSend->setMaximumSize(200,100);
+    buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    mainLayout->addWidget(listOfGlobalMessages, 0, 0, 6, 9);
+    mainLayout->addWidget(textMessage, 6, 0, 1, 9);
+    mainLayout->addWidget(buttonSend, 6, 9, 1, 3);
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
 
  //   this->setFixedSize(360,250);
@@ -79,23 +109,28 @@ void MainWindow::on_sendButton_clicked(){
 void MainWindow::printMessages(){
     QWidget *widget = new QWidget(listOfGlobalMessages);
     QGridLayout *layout = new QGridLayout(widget);
-    layout->setContentsMargins(0,0,5,0);
+    layout->setContentsMargins(2,0,5,0);
     layout->setSpacing(0);
+    layout->setHorizontalSpacing(5);
+    widget->setLayout(layout);
 
-    QPushButton *buttonTemp = new QPushButton(widget);
-    buttonTemp->setMinimumSize(20,20);
-    buttonTemp->setMaximumSize(100,100);
-    buttonTemp->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//    buttonTemp->setStyleSheet("border-image: url(testIcon.png) stretch;");
+    QLabel *nickname = new QLabel("Sosik", widget);
+    QLabel *timeOfMessage = new QLabel("22:45:11", widget);
+    QLabel *textOfMessage = new QLabel("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.", widget);
+    QLabel *button = new QLabel("Sas", widget);
 
-    layout->addWidget(buttonTemp, 0, 0, 3, 1, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Sosik", this), 0, 1, 1, 1, Qt::AlignLeft | Qt::AlignBottom);
-    layout->addWidget(new QLabel("22:45:11"), 0, 7, 1, 1, Qt::AlignRight | Qt::AlignBottom);
-    layout->addWidget(new QLabel("TEXT"), 1, 1, 2, 7);
+    button->setStyleSheet("background: black;");
+    button->setFixedSize(30,30);
 
+    textOfMessage->setWordWrap(true);
+    layout->addWidget(button, 0, 0, 3, 1, Qt::AlignHCenter | Qt::AlignTop);
+    layout->addWidget(nickname, 0, 1, 1, 1, Qt::AlignLeft | Qt::AlignTop);
+    layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight | Qt::AlignTop);
+    layout->addWidget(textOfMessage, 1, 1, 2, 7, Qt::AlignLeft | Qt::AlignTop);
 
+    //widget->resize(layout->sizeHint());
     QListWidgetItem* item = new QListWidgetItem(listOfGlobalMessages);
-    item->setSizeHint(QSize(listOfGlobalMessages->width()-5-listOfGlobalMessages->verticalScrollBar()->width(), 50));
+    item->setSizeHint(QSize(widget->width(), layout->sizeHint().height()));
     listOfGlobalMessages->setItemWidget(item, widget);
 }
 
