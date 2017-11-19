@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     client = new UDPClient();
 
     ui->setupUi(this);
-    this->setMaximumSize(800,600);
+    //this->setMaximumSize(800,600);
 
     mainWidget = new QWidget(this);
     mainLayout = new QGridLayout(mainWidget);
@@ -110,6 +110,7 @@ void MainWindow::printMessages(){
     layout->setContentsMargins(2,0,5,0);
     layout->setSpacing(0);
     layout->setHorizontalSpacing(5);
+    layout->setVerticalSpacing(5);
     widget->setLayout(layout);
 
     QLabel *nickname = new QLabel("Sosik", widget);
@@ -120,10 +121,14 @@ void MainWindow::printMessages(){
     button->setStyleSheet("background: black;");
     button->setFixedSize(30,30);
 
+    nickname->setFixedHeight(10);
+    timeOfMessage->setFixedHeight(10);
+
     textOfMessage->setWordWrap(true);
-    //layout->addWidget(button, 0, 0, 3, 1, Qt::AlignHCenter | Qt::AlignTop);
-    layout->addWidget(nickname, 0, 1, 1, 1, Qt::AlignLeft | Qt::AlignTop);
-    layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight | Qt::AlignTop);
+    textOfMessage->setMaximumWidth(1000);
+
+    layout->addWidget(nickname, 0, 1, 1, 1);
+    layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight);
     layout->addWidget(textOfMessage, 1, 1, 2, 7, Qt::AlignLeft | Qt::AlignTop);
 
     //widget->resize(layout->sizeHint());
