@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     //this->setMaximumSize(800,600);
+    this->setFixedSize(650,400);
 
     mainWidget = new QWidget(this);
     mainLayout = new QGridLayout(mainWidget);
@@ -23,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     textMessage = new QTextEdit(mainWidget);
     buttonSend = new QPushButton(mainWidget);
     buttonPrivateMessages = new QPushButton(mainWidget);
+    buttonFriends = new QPushButton(mainWidget);
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
                                                              "border-top-right-radius: 4px;"
@@ -65,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages->setMinimumSize(300,250);
     //listOfGlobalMessages->setMaximumSize(600,700);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    listOfGlobalMessages->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    listOfGlobalMessages->setStyleSheet("border-color: #DBDBDB;");
 
     //buttonSend->setMinimumSize(50,50);
     //buttonSend->setMaximumSize(200,100);
@@ -75,12 +79,27 @@ MainWindow::MainWindow(QWidget *parent) :
                               "border-top: 0px;"
                               "background: black;");
 
+    QString buttonDefaultStyle = "QPushButton{"
+                                 "background: transparent;"
+                                 "border: 0px;"
+                                 "}"
+                                 "QPushButton:hover{"
+                                 "background: #D3E9E9;"
+                                 "}";
+
     buttonPrivateMessages->setMinimumSize(30,30);
+    buttonPrivateMessages->setStyleSheet(buttonDefaultStyle);
+    buttonPrivateMessages->setText("Messages");
+
+    buttonFriends->setMinimumSize(30,30);
+    buttonFriends->setStyleSheet(buttonDefaultStyle);
+    buttonFriends->setText("Friends");
 
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
     mainLayout->addWidget(textMessage, 8, 0, 1, 8);
     mainLayout->addWidget(buttonSend, 8, 8, 1, 1);
-    mainLayout->addWidget(buttonPrivateMessages, 0,9,1,2);
+    mainLayout->addWidget(buttonFriends, 0,9,1,2);
+    mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
 
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
 }
@@ -107,7 +126,7 @@ void MainWindow::on_sendButton_clicked(){
 void MainWindow::printMessages(){
     QWidget *widget = new QWidget(listOfGlobalMessages);
     QGridLayout *layout = new QGridLayout(widget);
-    layout->setContentsMargins(2,0,5,0);
+    layout->setContentsMargins(2,5,5,5);
     layout->setSpacing(0);
     layout->setHorizontalSpacing(5);
     layout->setVerticalSpacing(5);
@@ -115,7 +134,9 @@ void MainWindow::printMessages(){
 
     QLabel *nickname = new QLabel("Sosik", widget);
     QLabel *timeOfMessage = new QLabel("22:45:11", widget);
-    QLabel *textOfMessage = new QLabel("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.", widget);
+    //QLabel *textOfMessage = new QLabel("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.", widget);
+    //QPlainTextEdit *textOfMessage = new QPlainTextEdit("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.", widget);
+    QPlainTextEdit *textOfMessage = new QPlainTextEdit(widget);
     QLabel *button = new QLabel("Sas", widget);
 
     button->setStyleSheet("background: black;");
@@ -124,8 +145,17 @@ void MainWindow::printMessages(){
     nickname->setFixedHeight(10);
     timeOfMessage->setFixedHeight(10);
 
-    textOfMessage->setWordWrap(true);
-    textOfMessage->setMaximumWidth(1000);
+    textOfMessage->setFixedWidth(450);
+    textOfMessage->setReadOnly(true);
+    textOfMessage->setStyleSheet("margin:0px;"
+                                 "border:0px;"
+                                 "background:transparent;");
+
+    textOfMessage->setPlainText(textMessage->toPlainText());
+    QFontMetrics *tempFontSize = new QFontMetrics(textOfMessage->font());
+    float linesCount = ceil(float(tempFontSize->width(textOfMessage->toPlainText()))/float(textOfMessage->width()));
+    textOfMessage->setFixedHeight(linesCount+ceil(linesCount*float(tempFontSize->height())));
+    qDebug() << textOfMessage->height();
 
     layout->addWidget(nickname, 0, 1, 1, 1);
     layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight);

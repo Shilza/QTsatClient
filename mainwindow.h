@@ -10,6 +10,8 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QScrollBar>
+#include <QPlainTextEdit>
+#include <QFontMetrics>
 #include "udpclient.h"
 
 namespace Ui {
@@ -38,6 +40,7 @@ private:
     QListWidget *listOfGlobalMessages;
     QPushButton *buttonSend;
     QPushButton *buttonPrivateMessages;
+    QPushButton *buttonFriends;
     QTextEdit *textMessage;
 
 public:
