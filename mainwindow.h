@@ -12,6 +12,7 @@
 #include <QScrollBar>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
+#include <QTextBlock>
 #include "udpclient.h"
 
 namespace Ui {

@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     //this->setMaximumSize(800,600);
-    this->setFixedSize(650,400);
+    //this->setFixedSize(650,400);
+    this->resize(650,400);
 
     mainWidget = new QWidget(this);
     mainLayout = new QGridLayout(mainWidget);
@@ -109,6 +110,8 @@ MainWindow::~MainWindow(){
     delete client;
 }
 
+QString wrapText(QString text, QFont font);
+
 void MainWindow::start(QByteArray sessionKey){
     client->sessionKey = sessionKey;
     this->show();
@@ -134,9 +137,8 @@ void MainWindow::printMessages(){
 
     QLabel *nickname = new QLabel("Sosik", widget);
     QLabel *timeOfMessage = new QLabel("22:45:11", widget);
-    //QLabel *textOfMessage = new QLabel("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.", widget);
-    //QPlainTextEdit *textOfMessage = new QPlainTextEdit("The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket.", widget);
-    QPlainTextEdit *textOfMessage = new QPlainTextEdit(widget);
+    //The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.
+    QLabel *textOfMessage = new QLabel(widget);
     QLabel *button = new QLabel("Sas", widget);
 
     button->setStyleSheet("background: black;");
@@ -146,16 +148,12 @@ void MainWindow::printMessages(){
     timeOfMessage->setFixedHeight(10);
 
     textOfMessage->setFixedWidth(450);
-    textOfMessage->setReadOnly(true);
-    textOfMessage->setStyleSheet("margin:0px;"
-                                 "border:0px;"
+    textOfMessage->setWordWrap(true);
+    textOfMessage->setStyleSheet("border: 0px;"
                                  "background:transparent;");
+    textOfMessage->setTextInteractionFlags(textOfMessage->textInteractionFlags() | Qt::TextSelectableByMouse);
+    textOfMessage->setText(wrapText(textMessage->toPlainText(), textOfMessage->font()));
 
-    textOfMessage->setPlainText(textMessage->toPlainText());
-    QFontMetrics *tempFontSize = new QFontMetrics(textOfMessage->font());
-    float linesCount = ceil(float(tempFontSize->width(textOfMessage->toPlainText()))/float(textOfMessage->width()));
-    textOfMessage->setFixedHeight(linesCount+ceil(linesCount*float(tempFontSize->height())));
-    qDebug() << textOfMessage->height();
 
     layout->addWidget(nickname, 0, 1, 1, 1);
     layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight);
@@ -179,6 +177,44 @@ void MainWindow::printMessages(){
 */
 
 TextEdit::TextEdit(QWidget *parent) : QTextEdit(parent){
+}
+
+QString wrapText(QString text, QFont font){
+    QFontMetrics *tempFontSize = new QFontMetrics(font);
+    QString final = text;
+
+    int tempCountOfPixels = 0;
+    bool isSpace = false;
+
+
+    if(tempFontSize->width(text)>445){
+        final="";
+        for(int i=0;i<text.length();i++){
+            tempCountOfPixels+=tempFontSize->width(text[i]);
+            isSpace = false;
+            if(text[i]=="\n")
+                tempCountOfPixels=0;
+            if(tempCountOfPixels>=445){
+                for(int j=i;j>final.length();j--){
+                    if(text[j]==" "){
+                        i=j;
+                        isSpace=true;
+                        final = text.mid(0,j);
+                        break;
+                    }
+                }
+                if(!isSpace){
+                    final+=" ";
+                    final+=text[i];
+                }
+                tempCountOfPixels=0;
+            }
+            else if(!isSpace)
+                final+=text[i];
+        }
+    }
+
+    return final;
 }
 
 void TextEdit::keyPressEvent(QKeyEvent *e){
@@ -209,4 +245,3 @@ void TextEdit::keyPressEvent(QKeyEvent *e){
 
     QTextEdit::keyPressEvent(e);
 }
-
