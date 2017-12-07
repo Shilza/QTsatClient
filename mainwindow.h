@@ -12,29 +12,48 @@
 #include <QScrollBar>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
-#include <QTextBlock>
+#include <QClipboard>
+#include <QApplication>
+#include <QQueue>
+#include <clickablelabel.h>
+#include "distance_damerau_levenshtein.h"
 #include "udpclient.h"
 
-namespace Ui {
-class MainWindow;
-}
-
-class TextEdit : public QTextEdit{
+class GlobalTextEdit : public QTextEdit{
     Q_OBJECT
 public:
-    explicit TextEdit(QWidget *parent=0);
+    explicit GlobalTextEdit(QWidget *parent=0);
 private:
     void keyPressEvent(QKeyEvent *e);
 signals:
     void enter();
 };
 
+class PrivateTextEdit : public QTextEdit{
+    Q_OBJECT
+public:
+    explicit PrivateTextEdit(QWidget *parent=0);
+private:
+    void keyPressEvent(QKeyEvent *e);
+signals:
+    void enter();
+};
+
+class WrapLabel : public QLabel{
+    Q_OBJECT
+public:
+    explicit WrapLabel(QWidget* parent=0);
+    ~WrapLabel();
+private:
+    void keyPressEvent(QKeyEvent *event);
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
-    Ui::MainWindow *ui;
     UDPClient *client;
     QWidget *mainWidget;
     QGridLayout *mainLayout;
@@ -42,14 +61,16 @@ private:
     QPushButton *buttonSend;
     QPushButton *buttonPrivateMessages;
     QPushButton *buttonFriends;
-    QTextEdit *textMessage;
+    GlobalTextEdit *textMessage;
+    ClickableLabel *labelFloodError;
 
+    QQueue<QString> lastMessages;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 private slots:
-    void on_sendButton_clicked();
+    void sendMessage();
     void printMessages();
 public slots:
     void start(QByteArray sessionKey);

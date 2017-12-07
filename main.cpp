@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "authwindow.h"
 #include "udpclient.h"
+#include "distance_damerau_levenshtein.h"
 #include <QObject>
 #include <QApplication>
 
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
 
 //    QObject::connect(authWindow, SIGNAL(sessionKeyReceived(QByteArray)), mainWindow, SLOT(start(QByteArray)));
 //    QObject::connect(authWindow, SIGNAL(sessionKeyReceived(QByteArray)), authWindow, SLOT(close()));
+
     mainWindow->start("3jkfjsdksfjsidjgkjdfgj7fkg78tldp");
 
     return a.exec();

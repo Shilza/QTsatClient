@@ -31,13 +31,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     udpclient.cpp \
-    authwindow.cpp
+    authwindow.cpp \
+    distance_damerau_levenshtein.cpp
 
 HEADERS += \
         mainwindow.h \
     udpclient.h \
     def.h \
-    authwindow.h
+    authwindow.h \
+    distance_damerau_levenshtein.h \
+    clickablelabel.h
 
 FORMS += \
         mainwindow.ui \

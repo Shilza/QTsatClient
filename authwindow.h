@@ -18,6 +18,7 @@
 #include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include "clickablelabel.h"
 #include "def.h"
 
 #define DURATION 300
@@ -48,21 +49,6 @@ private slots:
 public slots:
     void setDefaultStyleSheet();
     void setErrorStyleSheet();
-};
-
-class ClickableLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    explicit ClickableLabel(QWidget* parent=0, bool isUnderlined=true);
-    ~ClickableLabel();
-signals:
-    void released();
-private:
-    bool isUnderlined;
-    void mouseReleaseEvent(QMouseEvent* event);
-    void enterEvent(QEvent*);
-    void leaveEvent(QEvent*);
 };
 
 class AuthWindow : public QMainWindow

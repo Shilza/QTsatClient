@@ -2,14 +2,10 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
 {
     client = new UDPClient();
 
-    ui->setupUi(this);
-    //this->setMaximumSize(800,600);
-    //this->setFixedSize(650,400);
     this->resize(650,400);
 
     mainWidget = new QWidget(this);
@@ -20,12 +16,12 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->setSpacing(0);
 
     listOfGlobalMessages = new QListWidget(mainWidget);
-    //listOfGlobalMessages->setItemDelegate(new MyItemDelegate(listOfGlobalMessages));
 
-    textMessage = new QTextEdit(mainWidget);
+    textMessage = new GlobalTextEdit(mainWidget);
     buttonSend = new QPushButton(mainWidget);
     buttonPrivateMessages = new QPushButton(mainWidget);
     buttonFriends = new QPushButton(mainWidget);
+    labelFloodError = new ClickableLabel(listOfGlobalMessages, false);
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
                                                              "border-top-right-radius: 4px;"
@@ -52,11 +48,6 @@ MainWindow::MainWindow(QWidget *parent) :
                                                              "subcontrol-origin: margin;"
                                                              "}");
 
-/*    listOfGlobalMessages->setMinimumSize(200,100);
-    listOfGlobalMessages->setMaximumSize(400,200);
-    listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);*/
-//    (QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = Qt::Alignment());
-
     //textMessage->setMinimumSize(300,50);
     //textMessage->setMaximumSize(600,100);
     textMessage->setFixedHeight(40);
@@ -66,13 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
                                "border-top: 0px;");
 
     listOfGlobalMessages->setMinimumSize(300,250);
-    //listOfGlobalMessages->setMaximumSize(600,700);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     listOfGlobalMessages->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     listOfGlobalMessages->setStyleSheet("border-color: #DBDBDB;");
 
-    //buttonSend->setMinimumSize(50,50);
-    //buttonSend->setMaximumSize(200,100);
     buttonSend->setFixedSize(40,40);
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     buttonSend->setStyleSheet("border: 1px solid gray;"
@@ -102,12 +90,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
     mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
 
-    connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
-}
+    labelFloodError->setStyleSheet("color: red;"
+                                   "border: 0px;");
+    labelFloodError->setText("Flood");
+    labelFloodError->close();
 
-MainWindow::~MainWindow(){
-    delete ui;
-    delete client;
+    connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
+    connect(textMessage, SIGNAL(enter()), this, SLOT(printMessages()));
+    connect(textMessage, SIGNAL(enter()), this, SLOT(sendMessage()));
+    connect(buttonSend, SIGNAL(released()), this, SLOT(sendMessage()));
 }
 
 QString wrapText(QString text, QFont font);
@@ -117,13 +108,34 @@ void MainWindow::start(QByteArray sessionKey){
     this->show();
 }
 
-void MainWindow::on_sendButton_clicked(){
-/*    QString a = ui->textEdit->toPlainText();
+void MainWindow::sendMessage(){
+    QString text = textMessage->toPlainText();
+    if(lastMessages.size()>=3){
+        QVector<quint8> levenshteinDistances;
+        for(QString comparisonString : lastMessages)
+            levenshteinDistances.push_back(levenshteinDistance(text.toStdString(), comparisonString.toStdString()));
+        quint8 count=0;
+        for(quint8 temp : levenshteinDistances){
+            if(temp<=(text.length()/2 < 1 ? 1 : text.length()/2))
+                count++;
+        }
+        if(count>=3){
+            labelFloodError->show();
+            return;
+        }
+    }
+    if(lastMessages.size()==5)
+        lastMessages.pop_front();
+    lastMessages.push_back(text);
+
+
+    /*    QString a = ui->textEdit->toPlainText();
 
     if(a!=NULL){
         ui->textEdit->clear();
         client->sendMessage(client->sessionKey+'|'+a);
-    }*/
+    }
+*/
 }
 
 void MainWindow::printMessages(){
@@ -138,7 +150,7 @@ void MainWindow::printMessages(){
     QLabel *nickname = new QLabel("Sosik", widget);
     QLabel *timeOfMessage = new QLabel("22:45:11", widget);
     //The purpose of this slot is to select a random line from our list of fortunes, encode it into a QByteArray using QDataStream, and then write it to the connecting socket. This is a common way to transfer binary data using QTcpSocket. First we create a QByteArray and a QDataStream object, passing the bytearray to QDataStream's constructor. We then explicitly set the protocol version of QDataStream to QDataStream::Qt_4_0 to ensure that we can communicate with clients from future versions of Qt (see QDataStream::setVersion()). We continue by streaming in a random fortune.
-    QLabel *textOfMessage = new QLabel(widget);
+    WrapLabel *textOfMessage = new WrapLabel(widget);
     QLabel *button = new QLabel("Sas", widget);
 
     button->setStyleSheet("background: black;");
@@ -154,12 +166,10 @@ void MainWindow::printMessages(){
     textOfMessage->setTextInteractionFlags(textOfMessage->textInteractionFlags() | Qt::TextSelectableByMouse);
     textOfMessage->setText(wrapText(textMessage->toPlainText(), textOfMessage->font()));
 
-
     layout->addWidget(nickname, 0, 1, 1, 1);
     layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight);
     layout->addWidget(textOfMessage, 1, 1, 2, 7, Qt::AlignLeft | Qt::AlignTop);
 
-    //widget->resize(layout->sizeHint());
     QWidgetItem *widgetItem = new QWidgetItem(button);
     widgetItem->setGeometry(QRect(0,0,30,30));
     layout->addItem(widgetItem, 0,0,3,1, Qt::AlignTop);
@@ -169,23 +179,18 @@ void MainWindow::printMessages(){
     listOfGlobalMessages->setItemWidget(item, widget);
 }
 
-/*
- *  QModelIndexList selectedList = ui->listWidget->selectionModel()->selectedIndexes();
-    std::sort(selectedList.begin(),selectedList.end(),[](const QModelIndex& a, const QModelIndex& b)->bool{return a.row()>b.row();});
-    for(const QModelIndex& singleIndex : selectedList)
-    ui->listWidget->model()->removeRow(singleIndex.row());
-*/
-
-TextEdit::TextEdit(QWidget *parent) : QTextEdit(parent){
+GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
 }
 
+//Crazy bicycle, please don't touch it, it's dangerous...
 QString wrapText(QString text, QFont font){
     QFontMetrics *tempFontSize = new QFontMetrics(font);
+    for(int i=text.indexOf("  ");i!=-1;i=text.indexOf("  "))
+        text.remove(i,1);
     QString final = text;
 
     int tempCountOfPixels = 0;
     bool isSpace = false;
-
 
     if(tempFontSize->width(text)>445){
         final="";
@@ -204,7 +209,7 @@ QString wrapText(QString text, QFont font){
                     }
                 }
                 if(!isSpace){
-                    final+=" ";
+                    final+="  ";
                     final+=text[i];
                 }
                 tempCountOfPixels=0;
@@ -217,7 +222,42 @@ QString wrapText(QString text, QFont font){
     return final;
 }
 
-void TextEdit::keyPressEvent(QKeyEvent *e){
+void GlobalTextEdit::keyPressEvent(QKeyEvent *e){
+    bool previousSpace = false;
+
+    if(this->toPlainText().length() > 0)
+        previousSpace = this->toPlainText().at(this->toPlainText().length()-1) == " ";
+
+    if((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)){
+        if(e->modifiers() != Qt::ControlModifier){
+            emit enter();
+            return;
+        }
+        else if(!previousSpace){
+            if(this->toPlainText().indexOf('\n')==-1)
+                QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier));
+            return;
+        }
+    }
+    else if(e->key() == Qt::Key_Space && previousSpace)
+        return;
+
+    QTextEdit::keyPressEvent(e);
+}
+
+void WrapLabel::keyPressEvent(QKeyEvent *event)
+{
+    QLabel::keyPressEvent(event);
+    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut)){
+        QString tempText = QApplication::clipboard()->text();
+        for(int i=tempText.indexOf("  ");i!=-1;i=tempText.indexOf("  "))
+            tempText.remove(i,2);
+        QApplication::clipboard()->setText(tempText);
+    }
+}
+
+void PrivateTextEdit::keyPressEvent(QKeyEvent *e)
+{
     bool previousSpace = false;
     bool previousEndl = false;
     bool prePreviousEndl = false;
@@ -236,8 +276,8 @@ void TextEdit::keyPressEvent(QKeyEvent *e){
             return;
         }
         else if((!previousSpace && !previousEndl) || !prePreviousEndl){
-          QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter,Qt::NoModifier));
-          return;
+            QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter,Qt::NoModifier));
+            return;
         }
     }
     else if(e->key() == Qt::Key_Space && (previousSpace || previousEndl))
@@ -245,3 +285,20 @@ void TextEdit::keyPressEvent(QKeyEvent *e){
 
     QTextEdit::keyPressEvent(e);
 }
+
+MainWindow::~MainWindow(){
+    delete client;
+}
+
+PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){}
+
+WrapLabel::WrapLabel(QWidget *parent): QLabel(parent){}
+
+WrapLabel::~WrapLabel(){}
+
+/*
+ *  QModelIndexList selectedList = ui->listWidget->selectionModel()->selectedIndexes();
+    std::sort(selectedList.begin(),selectedList.end(),[](const QModelIndex& a, const QModelIndex& b)->bool{return a.row()>b.row();});
+    for(const QModelIndex& singleIndex : selectedList)
+    ui->listWidget->model()->removeRow(singleIndex.row());
+*/
