@@ -16,8 +16,27 @@
 #include <QApplication>
 #include <QQueue>
 #include <clickablelabel.h>
+#include <QTimer>
 #include "distance_damerau_levenshtein.h"
 #include "udpclient.h"
+
+class FloodTimer : public QObject{
+    Q_OBJECT
+public:
+    FloodTimer(QWidget *parent=0);
+    int remainingTime();
+    void start();
+private:
+    QTimer *timerErrorHide;
+    QTimer *timerShow;
+    quint8 counter;
+signals:
+    void errorTimeout();
+    void showTimeout();
+private slots:
+    void emitErrorTimeout();
+    void emitShowTimeout();
+};
 
 class GlobalTextEdit : public QTextEdit{
     Q_OBJECT
@@ -63,6 +82,9 @@ private:
     QPushButton *buttonFriends;
     GlobalTextEdit *textMessage;
     ClickableLabel *labelFloodError;
+    QLabel *labelTimerShow;
+
+    FloodTimer *floodTimer;
 
     QQueue<QString> lastMessages;
 public:
@@ -72,6 +94,8 @@ public:
 private slots:
     void sendMessage();
     void printMessages();
+    void floodErrorHide();
+    void updateTime();
 public slots:
     void start(QByteArray sessionKey);
 };

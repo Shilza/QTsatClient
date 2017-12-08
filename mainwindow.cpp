@@ -21,7 +21,17 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonSend = new QPushButton(mainWidget);
     buttonPrivateMessages = new QPushButton(mainWidget);
     buttonFriends = new QPushButton(mainWidget);
-    labelFloodError = new ClickableLabel(listOfGlobalMessages, false);
+    labelFloodError = new ClickableLabel(mainWidget, false);
+
+    floodTimer = new FloodTimer(this);
+
+    labelTimerShow = new QLabel(mainWidget);
+    labelTimerShow->setAlignment(Qt::AlignCenter);
+    QFont fontTimerShow("Times New Roman");
+    fontTimerShow.setPointSize(11);
+    labelTimerShow->setFont(fontTimerShow);
+    labelTimerShow->close();
+
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
                                                              "border-top-right-radius: 4px;"
@@ -54,12 +64,13 @@ MainWindow::MainWindow(QWidget *parent) :
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     textMessage->setStyleSheet("border: 1px solid gray;"
                                "border-right: 0px;"
-                               "border-top: 0px;");
+                               "border-top: 1px gray;");
 
     listOfGlobalMessages->setMinimumSize(300,250);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     listOfGlobalMessages->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    listOfGlobalMessages->setStyleSheet("border-color: #DBDBDB;");
+    listOfGlobalMessages->setStyleSheet("border-color: #DBDBDB;"
+                                        "border-bottom: 0px;");
 
     buttonSend->setFixedSize(40,40);
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -86,12 +97,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
     mainLayout->addWidget(textMessage, 8, 0, 1, 8);
+    mainLayout->addWidget(labelFloodError, 8, 0, 1, 7);
+    mainLayout->addWidget(labelTimerShow, 8, 7, 1, 1);
     mainLayout->addWidget(buttonSend, 8, 8, 1, 1);
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
     mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
 
-    labelFloodError->setStyleSheet("color: red;"
-                                   "border: 0px;");
+    labelFloodError->setStyleSheet("color: red;");
+    QFont fontGothic("Century Gothic");
+    fontGothic.setBold(true);
+    fontGothic.setPointSize(16);
+    labelFloodError->setFont(fontGothic);
+    labelFloodError->setAlignment(Qt::AlignCenter);
     labelFloodError->setText("Flood");
     labelFloodError->close();
 
@@ -99,6 +116,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(textMessage, SIGNAL(enter()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(sendMessage()));
     connect(buttonSend, SIGNAL(released()), this, SLOT(sendMessage()));
+    connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
+    connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
 }
 
 QString wrapText(QString text, QFont font);
@@ -121,6 +140,9 @@ void MainWindow::sendMessage(){
         }
         if(count>=3){
             labelFloodError->show();
+            labelTimerShow->show();
+            textMessage->setDisabled(true);
+            floodTimer->start();
             return;
         }
     }
@@ -177,6 +199,21 @@ void MainWindow::printMessages(){
     QListWidgetItem* item = new QListWidgetItem(listOfGlobalMessages);
     item->setSizeHint(QSize(widget->width(), layout->sizeHint().height()));
     listOfGlobalMessages->setItemWidget(item, widget);
+}
+
+void MainWindow::floodErrorHide()
+{
+    labelFloodError->close();
+    labelTimerShow->close();
+    textMessage->setEnabled(true);
+    textMessage->setFocus();
+}
+
+void MainWindow::updateTime()
+{
+    int time = floodTimer->remainingTime();
+    labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    labelTimerShow->setText(QString::number(time/1000)+'.'+QString::number(time%1000));
 }
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
@@ -296,9 +333,36 @@ WrapLabel::WrapLabel(QWidget *parent): QLabel(parent){}
 
 WrapLabel::~WrapLabel(){}
 
-/*
- *  QModelIndexList selectedList = ui->listWidget->selectionModel()->selectedIndexes();
-    std::sort(selectedList.begin(),selectedList.end(),[](const QModelIndex& a, const QModelIndex& b)->bool{return a.row()>b.row();});
-    for(const QModelIndex& singleIndex : selectedList)
-    ui->listWidget->model()->removeRow(singleIndex.row());
-*/
+FloodTimer::FloodTimer(QWidget *parent) : QObject(parent)
+{
+    timerErrorHide = new QTimer(this);
+    timerErrorHide->setSingleShot(true);
+    timerShow = new QTimer(this);
+    timerShow->setInterval(10);
+    counter=0;
+    connect(timerErrorHide, SIGNAL(timeout()), this, SLOT(emitErrorTimeout()));
+    connect(timerShow, SIGNAL(timeout()), this, SLOT(emitShowTimeout()));
+}
+
+int FloodTimer::remainingTime()
+{
+    return timerErrorHide->remainingTime();
+}
+
+void FloodTimer::start()
+{
+    counter++;
+    timerErrorHide->start(pow(3,1.8*counter));
+    timerShow->start();
+}
+
+void FloodTimer::emitErrorTimeout()
+{
+    timerShow->stop();
+    emit errorTimeout();
+}
+
+void FloodTimer::emitShowTimeout()
+{
+    emit showTimeout();
+}
