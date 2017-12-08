@@ -4,6 +4,7 @@
 #include "distance_damerau_levenshtein.h"
 #include <QObject>
 #include <QApplication>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {   

@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QFont fontTimerShow("Times New Roman");
     fontTimerShow.setPointSize(11);
     labelTimerShow->setFont(fontTimerShow);
+    labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     labelTimerShow->close();
 
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
@@ -210,8 +211,31 @@ void MainWindow::floodErrorHide()
 void MainWindow::updateTime()
 {
     int time = floodTimer->remainingTime();
-    labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    labelTimerShow->setText(QString::number(time/1000)+'.'+QString::number(time%1000)+(time%0.01==0 ? '0' : ""));
+    //labelTimerShow->setText(QString::number(time/1000) + '.' + QString::number(time%1000) + (time%10==0 ? "0" : ""));
+/*    labelTimerShow->setText(QString::number(float(time)/1000.0) + [&time]()->QString{
+                                if(time%1000 == 0)
+                                    return ".000";
+                                if(time%100 == 0)
+                                    return "00";
+                                else if(time%10 == 0)
+                                    return "0";
+                                return "";
+                            }());*/
+    labelTimerShow->setText(QString::number(float(time)/1000.0) + [time]()mutable->QString{
+                                if(time%1000 == 0)
+                                    return ".000";
+
+                                QString result = 0;
+
+                                while(time!=0){
+                                    if(time%10 != 0)
+                                        break;
+
+                                    result += "0";
+                                    time = time/10;
+                                }
+                                return result;
+                                }());
 }
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
