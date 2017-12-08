@@ -19,8 +19,10 @@ int FloodTimer::remainingTime()
 void FloodTimer::start()
 {
     counter++;
-    timerErrorHide->start(pow(3,1.8*counter));
-    timerShow->start();
+    if(counter<4){
+        timerErrorHide->start(3000*counter);
+        timerShow->start();
+    }
 }
 
 void FloodTimer::emitErrorTimeout()

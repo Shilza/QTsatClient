@@ -211,7 +211,7 @@ void MainWindow::updateTime()
 {
     int time = floodTimer->remainingTime();
     labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    labelTimerShow->setText(QString::number(time/1000)+'.'+QString::number(time%1000));
+    labelTimerShow->setText(QString::number(time/1000)+'.'+QString::number(time%1000)+(time%0.01==0 ? '0' : ""));
 }
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
