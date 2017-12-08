@@ -120,8 +120,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
 }
 
-QString wrapText(QString text, QFont font);
-
 void MainWindow::start(QByteArray sessionKey){
     client->sessionKey = sessionKey;
     this->show();
@@ -186,7 +184,7 @@ void MainWindow::printMessages(){
     textOfMessage->setStyleSheet("border: 0px;"
                                  "background:transparent;");
     textOfMessage->setTextInteractionFlags(textOfMessage->textInteractionFlags() | Qt::TextSelectableByMouse);
-    textOfMessage->setText(wrapText(textMessage->toPlainText(), textOfMessage->font()));
+    textOfMessage->wrapText(textMessage->toPlainText());
 
     layout->addWidget(nickname, 0, 1, 1, 1);
     layout->addWidget(timeOfMessage, 0, 7, 1, 1, Qt::AlignRight);
@@ -220,8 +218,8 @@ GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
 }
 
 //Crazy bicycle, please don't touch it, it's dangerous...
-QString wrapText(QString text, QFont font){
-    QFontMetrics *tempFontSize = new QFontMetrics(font);
+void WrapLabel::wrapText(QString text){
+    QFontMetrics *tempFontSize = new QFontMetrics(font());
     for(int i=text.indexOf("  ");i!=-1;i=text.indexOf("  "))
         text.remove(i,1);
     QString final = text;
@@ -256,7 +254,7 @@ QString wrapText(QString text, QFont font){
         }
     }
 
-    return final;
+    setText(final);
 }
 
 void GlobalTextEdit::keyPressEvent(QKeyEvent *e){
@@ -332,37 +330,3 @@ PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){}
 WrapLabel::WrapLabel(QWidget *parent): QLabel(parent){}
 
 WrapLabel::~WrapLabel(){}
-
-FloodTimer::FloodTimer(QWidget *parent) : QObject(parent)
-{
-    timerErrorHide = new QTimer(this);
-    timerErrorHide->setSingleShot(true);
-    timerShow = new QTimer(this);
-    timerShow->setInterval(10);
-    counter=0;
-    connect(timerErrorHide, SIGNAL(timeout()), this, SLOT(emitErrorTimeout()));
-    connect(timerShow, SIGNAL(timeout()), this, SLOT(emitShowTimeout()));
-}
-
-int FloodTimer::remainingTime()
-{
-    return timerErrorHide->remainingTime();
-}
-
-void FloodTimer::start()
-{
-    counter++;
-    timerErrorHide->start(pow(3,1.8*counter));
-    timerShow->start();
-}
-
-void FloodTimer::emitErrorTimeout()
-{
-    timerShow->stop();
-    emit errorTimeout();
-}
-
-void FloodTimer::emitShowTimeout()
-{
-    emit showTimeout();
-}

@@ -32,7 +32,8 @@ SOURCES += \
         mainwindow.cpp \
     udpclient.cpp \
     authwindow.cpp \
-    distance_damerau_levenshtein.cpp
+    distance_damerau_levenshtein.cpp \
+    floodtimer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,7 +41,8 @@ HEADERS += \
     def.h \
     authwindow.h \
     distance_damerau_levenshtein.h \
-    clickablelabel.h
+    clickablelabel.h \
+    floodtimer.h
 
 FORMS += \
         mainwindow.ui \

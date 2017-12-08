@@ -16,27 +16,9 @@
 #include <QApplication>
 #include <QQueue>
 #include <clickablelabel.h>
-#include <QTimer>
+#include "floodtimer.h"
 #include "distance_damerau_levenshtein.h"
 #include "udpclient.h"
-
-class FloodTimer : public QObject{
-    Q_OBJECT
-public:
-    FloodTimer(QWidget *parent=0);
-    int remainingTime();
-    void start();
-private:
-    QTimer *timerErrorHide;
-    QTimer *timerShow;
-    quint8 counter;
-signals:
-    void errorTimeout();
-    void showTimeout();
-private slots:
-    void emitErrorTimeout();
-    void emitShowTimeout();
-};
 
 class GlobalTextEdit : public QTextEdit{
     Q_OBJECT
@@ -62,6 +44,7 @@ class WrapLabel : public QLabel{
     Q_OBJECT
 public:
     explicit WrapLabel(QWidget* parent=0);
+    void wrapText(QString text);
     ~WrapLabel();
 private:
     void keyPressEvent(QKeyEvent *event);
