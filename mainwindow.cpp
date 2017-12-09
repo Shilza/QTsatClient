@@ -141,6 +141,7 @@ void MainWindow::sendMessage(){
             labelFloodError->show();
             labelTimerShow->show();
             textMessage->setDisabled(true);
+            buttonSend->setDisabled(true);
             floodTimer->start();
             return;
         }
@@ -205,22 +206,27 @@ void MainWindow::floodErrorHide()
     labelFloodError->close();
     labelTimerShow->close();
     textMessage->setEnabled(true);
+    buttonSend->setEnabled(true);
     textMessage->setFocus();
 }
 
 void MainWindow::updateTime()
 {
-    int time = floodTimer->remainingTime();
-    //labelTimerShow->setText(QString::number(time/1000) + '.' + QString::number(time%1000) + (time%10==0 ? "0" : ""));
-/*    labelTimerShow->setText(QString::number(float(time)/1000.0) + [&time]()->QString{
-                                if(time%1000 == 0)
-                                    return ".000";
-                                if(time%100 == 0)
-                                    return "00";
-                                else if(time%10 == 0)
-                                    return "0";
-                                return "";
-                            }());*/
+    int time = floodTimer->remainingTime()/10;
+
+    QString result = QString::number(float(time)/100.0);
+    if(time%100 == 0)
+        result += ".00";
+    else while(time!=0)
+        if(time%10 != 0)
+            break;
+        else{
+            result += "0";
+            time = time/10;
+        }
+    labelTimerShow->setText(result);
+
+    /*
     labelTimerShow->setText(QString::number(float(time)/1000.0) + [time]()mutable->QString{
                                 if(time%1000 == 0)
                                     return ".000";
@@ -235,7 +241,7 @@ void MainWindow::updateTime()
                                     time = time/10;
                                 }
                                 return result;
-                                }());
+                                }());*/
 }
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){

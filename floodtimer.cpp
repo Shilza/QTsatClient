@@ -1,7 +1,6 @@
 #include "floodtimer.h"
 
-FloodTimer::FloodTimer(QWidget *parent) : QObject(parent)
-{
+FloodTimer::FloodTimer(QWidget *parent) : QObject(parent){
     timerErrorHide = new QTimer(this);
     timerErrorHide->setSingleShot(true);
     timerShow = new QTimer(this);
@@ -11,13 +10,11 @@ FloodTimer::FloodTimer(QWidget *parent) : QObject(parent)
     connect(timerShow, SIGNAL(timeout()), this, SLOT(emitShowTimeout()));
 }
 
-int FloodTimer::remainingTime()
-{
+int FloodTimer::remainingTime(){
     return timerErrorHide->remainingTime();
 }
 
-void FloodTimer::start()
-{
+void FloodTimer::start(){
     counter++;
     if(counter<4){
         timerErrorHide->start(3000*counter);
@@ -25,13 +22,11 @@ void FloodTimer::start()
     }
 }
 
-void FloodTimer::emitErrorTimeout()
-{
+void FloodTimer::emitErrorTimeout(){
     timerShow->stop();
     emit errorTimeout();
 }
 
-void FloodTimer::emitShowTimeout()
-{
+void FloodTimer::emitShowTimeout(){
     emit showTimeout();
 }
