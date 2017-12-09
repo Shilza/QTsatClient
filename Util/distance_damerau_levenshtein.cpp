@@ -10,10 +10,10 @@ int levenshteinDistance(const std::string &s1, const std::string &s2)
     auto column = new decltype(s1len)[s1len + 1];
     std::iota(column + column_start, column + s1len + 1, column_start);
 
-    for (auto x = column_start; x <= s2len; x++) {
+    for (auto x = column_start; x <= s2len; x++){
         column[0] = x;
         auto last_diagonal = x - column_start;
-        for (auto y = column_start; y <= s1len; y++) {
+        for (auto y = column_start; y <= s1len; y++){
             auto old_diagonal = column[y];
             auto possibilities = {
                 column[y] + 1,

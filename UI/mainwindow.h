@@ -5,57 +5,27 @@
 #include <QPushButton>
 #include <QGridLayout>
 #include <QVBoxLayout>
-#include <QTextEdit>
 #include <QListWidget>
-#include <QKeyEvent>
-#include <QLabel>
 #include <QScrollBar>
-#include <QPlainTextEdit>
-#include <QFontMetrics>
-#include <QClipboard>
-#include <QApplication>
 #include <QQueue>
-#include <clickablelabel.h>
-#include "floodtimer.h"
-#include "distance_damerau_levenshtein.h"
-#include "udpclient.h"
+#include "UI/Widgets/clickablelabel.h"
+#include "UI/Widgets/globaltextedit.h"
+#include "UI/Widgets/privatetextedit.h"
+#include "UI/Widgets/wraplabel.h"
+#include "Util/floodtimer.h"
+#include "Util/distance_damerau_levenshtein.h"
+#include "Util/udpclient.h"
 
-class GlobalTextEdit : public QTextEdit{
-    Q_OBJECT
-public:
-    explicit GlobalTextEdit(QWidget *parent=0);
-private:
-    void keyPressEvent(QKeyEvent *e);
-signals:
-    void enter();
-};
-
-class PrivateTextEdit : public QTextEdit{
-    Q_OBJECT
-public:
-    explicit PrivateTextEdit(QWidget *parent=0);
-private:
-    void keyPressEvent(QKeyEvent *e);
-signals:
-    void enter();
-};
-
-class WrapLabel : public QLabel{
-    Q_OBJECT
-public:
-    explicit WrapLabel(QWidget* parent=0);
-    void wrapText(QString text);
-    ~WrapLabel();
-private:
-    void keyPressEvent(QKeyEvent *event);
-};
-
+namespace Ui {
+class MainWindow;
+}
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
+    Ui::MainWindow *ui;
     UDPClient *client;
     QWidget *mainWidget;
     QGridLayout *mainLayout;
@@ -65,6 +35,7 @@ private:
     QPushButton *buttonFriends;
     GlobalTextEdit *textMessage;
     ClickableLabel *labelFloodError;
+    ClickableLabel *labelBan;
     QLabel *labelTimerShow;
 
     FloodTimer *floodTimer;
@@ -82,6 +53,5 @@ private slots:
 public slots:
     void start(QByteArray sessionKey);
 };
-
 
 #endif // MAINWINDOW_H

@@ -1,9 +1,8 @@
 #ifndef UDPCLIENT_H
 #define UDPCLIENT_H
-
 #include <QObject>
 #include <QUdpSocket>
-#include "def.h"
+#include "Config/def.h"
 
 class UDPClient : public QObject
 {

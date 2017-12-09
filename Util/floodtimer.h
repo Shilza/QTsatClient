@@ -6,7 +6,9 @@
 class FloodTimer : public QObject{
     Q_OBJECT
 public:
-    FloodTimer(QWidget *parent=0);
+    explicit FloodTimer(QWidget *parent=0);
+    ~FloodTimer();
+    quint8 getCounter();
     int remainingTime();
     void start();
 private:

@@ -2,8 +2,10 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
     client = new UDPClient();
 
     this->resize(650,400);
@@ -22,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonPrivateMessages = new QPushButton(mainWidget);
     buttonFriends = new QPushButton(mainWidget);
     labelFloodError = new ClickableLabel(mainWidget, false);
+    labelBan = new ClickableLabel(mainWidget, false);
 
     floodTimer = new FloodTimer(this);
 
@@ -100,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addWidget(textMessage, 8, 0, 1, 8);
     mainLayout->addWidget(labelFloodError, 8, 0, 1, 7);
     mainLayout->addWidget(labelTimerShow, 8, 7, 1, 1);
+    mainLayout->addWidget(labelBan, 8, 0, 1, 7);
     mainLayout->addWidget(buttonSend, 8, 8, 1, 1);
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
     mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
@@ -113,12 +117,21 @@ MainWindow::MainWindow(QWidget *parent) :
     labelFloodError->setText("Flood");
     labelFloodError->close();
 
+    labelBan->setStyleSheet("color: red;");
+    fontGothic.setBold(true);
+    fontGothic.setPointSize(16);
+    labelBan->setFont(fontGothic);
+    labelBan->setAlignment(Qt::AlignCenter);
+    labelBan->setText("Ban");
+    labelBan->close();
+
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(sendMessage()));
     connect(buttonSend, SIGNAL(released()), this, SLOT(sendMessage()));
     connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
+    connect(labelBan, SIGNAL(released()), SLOT(close()));
 }
 
 void MainWindow::start(QByteArray sessionKey){
@@ -137,13 +150,17 @@ void MainWindow::sendMessage(){
             if(temp<=(text.length()/2 < 1 ? 1 : text.length()/2))
                 count++;
         }
-        if(count>=3){
+        if(count>=3 && floodTimer->getCounter()<3){
             labelFloodError->show();
             labelTimerShow->show();
             textMessage->setDisabled(true);
             buttonSend->setDisabled(true);
             floodTimer->start();
             return;
+        }
+        else if(count>=3){
+            labelBan->show();
+            textMessage->setDisabled(true);
         }
     }
     if(lastMessages.size()==5)
@@ -225,138 +242,23 @@ void MainWindow::updateTime()
             time = time/10;
         }
     labelTimerShow->setText(result);
-
-    /*
-    labelTimerShow->setText(QString::number(float(time)/1000.0) + [time]()mutable->QString{
-                                if(time%1000 == 0)
-                                    return ".000";
-
-                                QString result = 0;
-
-                                while(time!=0){
-                                    if(time%10 != 0)
-                                        break;
-
-                                    result += "0";
-                                    time = time/10;
-                                }
-                                return result;
-                                }());*/
-}
-
-GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
-}
-
-//Crazy bicycle, please don't touch it, it's dangerous...
-void WrapLabel::wrapText(QString text){
-    QFontMetrics *tempFontSize = new QFontMetrics(font());
-    for(int i=text.indexOf("  ");i!=-1;i=text.indexOf("  "))
-        text.remove(i,1);
-    QString final = text;
-
-    int tempCountOfPixels = 0;
-    bool isSpace = false;
-
-    if(tempFontSize->width(text)>445){
-        final="";
-        for(int i=0;i<text.length();i++){
-            tempCountOfPixels+=tempFontSize->width(text[i]);
-            isSpace = false;
-            if(text[i]=="\n")
-                tempCountOfPixels=0;
-            if(tempCountOfPixels>=445){
-                for(int j=i;j>final.length();j--){
-                    if(text[j]==" "){
-                        i=j;
-                        isSpace=true;
-                        final = text.mid(0,j);
-                        break;
-                    }
-                }
-                if(!isSpace){
-                    final+="  ";
-                    final+=text[i];
-                }
-                tempCountOfPixels=0;
-            }
-            else if(!isSpace)
-                final+=text[i];
-        }
-    }
-
-    setText(final);
-}
-
-void GlobalTextEdit::keyPressEvent(QKeyEvent *e){
-    bool previousSpace = false;
-
-    if(this->toPlainText().length() > 0)
-        previousSpace = this->toPlainText().at(this->toPlainText().length()-1) == " ";
-
-    if((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)){
-        if(e->modifiers() != Qt::ControlModifier){
-            emit enter();
-            return;
-        }
-        else if(!previousSpace){
-            if(this->toPlainText().indexOf('\n')==-1)
-                QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier));
-            return;
-        }
-    }
-    else if(e->key() == Qt::Key_Space && previousSpace)
-        return;
-
-    QTextEdit::keyPressEvent(e);
-}
-
-void WrapLabel::keyPressEvent(QKeyEvent *event)
-{
-    QLabel::keyPressEvent(event);
-    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut)){
-        QString tempText = QApplication::clipboard()->text();
-        for(int i=tempText.indexOf("  ");i!=-1;i=tempText.indexOf("  "))
-            tempText.remove(i,2);
-        QApplication::clipboard()->setText(tempText);
-    }
-}
-
-void PrivateTextEdit::keyPressEvent(QKeyEvent *e)
-{
-    bool previousSpace = false;
-    bool previousEndl = false;
-    bool prePreviousEndl = false;
-
-    if(this->toPlainText().length() > 0){
-        previousSpace = this->toPlainText().at(this->toPlainText().length()-1) == " ";
-        previousEndl = this->toPlainText().at(this->toPlainText().length()-1) == "\n";
-    }
-
-    if(this->toPlainText().length() > 1)
-        prePreviousEndl = this->toPlainText().at(this->toPlainText().length()-2) == "\n";
-
-    if((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)){
-        if(e->modifiers() != Qt::ControlModifier){
-            emit enter();
-            return;
-        }
-        else if((!previousSpace && !previousEndl) || !prePreviousEndl){
-            QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter,Qt::NoModifier));
-            return;
-        }
-    }
-    else if(e->key() == Qt::Key_Space && (previousSpace || previousEndl))
-        return;
-
-    QTextEdit::keyPressEvent(e);
 }
 
 MainWindow::~MainWindow(){
+    delete ui;
     delete client;
+
+    delete mainWidget;
+    delete mainLayout;
+    delete listOfGlobalMessages;
+    delete buttonSend;
+    delete buttonPrivateMessages;
+    delete buttonFriends;
+    delete textMessage;
+    delete labelFloodError;
+    delete labelTimerShow;
+
+    delete floodTimer;
 }
 
-PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){}
 
-WrapLabel::WrapLabel(QWidget *parent): QLabel(parent){}
-
-WrapLabel::~WrapLabel(){}

@@ -29,24 +29,33 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
-    udpclient.cpp \
-    authwindow.cpp \
-    distance_damerau_levenshtein.cpp \
-    floodtimer.cpp
+        UI/mainwindow.cpp \
+    Util/udpclient.cpp \
+    UI/authwindow.cpp \
+    Util/distance_damerau_levenshtein.cpp \
+    Util/floodtimer.cpp \
+    UI/Widgets/authlineedit.cpp \
+    UI/Widgets/clickablelabel.cpp \
+    UI/Widgets/globaltextedit.cpp \
+    UI/Widgets/privatetextedit.cpp \
+    UI/Widgets/wraplabel.cpp
 
 HEADERS += \
-        mainwindow.h \
-    udpclient.h \
-    def.h \
-    authwindow.h \
-    distance_damerau_levenshtein.h \
-    clickablelabel.h \
-    floodtimer.h
+        UI/mainwindow.h \
+    Util/udpclient.h \
+    Config/def.h \
+    UI/authwindow.h \
+    Util/distance_damerau_levenshtein.h \
+    UI/Widgets/clickablelabel.h \
+    Util/floodtimer.h \
+    UI/Widgets/authlineedit.h \
+    UI/Widgets/globaltextedit.h \
+    UI/Widgets/privatetextedit.h \
+    UI/Widgets/wraplabel.h
 
 FORMS += \
-        mainwindow.ui \
-    authwindow.ui
+        UI/mainwindow.ui \
+    UI/authwindow.ui
 
 RESOURCES += \
-    resources.qrc
+    Resources/resources.qrc

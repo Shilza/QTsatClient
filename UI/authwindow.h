@@ -18,8 +18,9 @@
 #include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include "clickablelabel.h"
-#include "def.h"
+#include "UI/Widgets/authlineedit.h"
+#include "UI/Widgets/clickablelabel.h"
+#include "Config/def.h"
 
 #define DURATION 300
 #define LOC_SIGNIN 1
@@ -32,24 +33,6 @@
 namespace Ui {
 class AuthWindow;
 }
-
-class LineEdit : public QLineEdit{
-    Q_OBJECT
-
-public:
-    LineEdit(QWidget *parent=0, bool isDefault = true);
-    void setDisabledOverride();
-    void setEnabledOverride();
-private:
-    int defaultFontSize;
-    void keyPressEvent(QKeyEvent *event);
-private slots:
-    void showMenu(QPoint){}
-
-public slots:
-    void setDefaultStyleSheet();
-    void setErrorStyleSheet();
-};
 
 class AuthWindow : public QMainWindow
 {
@@ -69,13 +52,13 @@ private:
     quint16 buttonW, buttonH;
     quint16 lineHWithSpace, buttonHWithSpace;
 
-    LineEdit *lineEmail;
-    LineEdit *lineLog;
-    LineEdit *linePass;
-    LineEdit *lineConfirmPass;
-    LineEdit *lineConfirmCode;
-    LineEdit *lineRecoveryPass;
-    LineEdit *lineRecoveryConfirmPass;
+    AuthLineEdit *lineEmail;
+    AuthLineEdit *lineLog;
+    AuthLineEdit *linePass;
+    AuthLineEdit *lineConfirmPass;
+    AuthLineEdit *lineConfirmCode;
+    AuthLineEdit *lineRecoveryPass;
+    AuthLineEdit *lineRecoveryConfirmPass;
 
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;

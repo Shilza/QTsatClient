@@ -29,13 +29,13 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelPass = new QLabel(this);
     labelRecoveryPass = new QLabel(this);
 
-    lineLog = new LineEdit(this);
-    linePass = new LineEdit(labelPass, false);
-    lineConfirmPass = new LineEdit(this);
-    lineEmail = new LineEdit(this);
-    lineConfirmCode = new LineEdit(this);
-    lineRecoveryPass = new LineEdit(labelRecoveryPass, false);
-    lineRecoveryConfirmPass = new LineEdit(this);
+    lineLog = new AuthLineEdit(this);
+    linePass = new AuthLineEdit(labelPass, false);
+    lineConfirmPass = new AuthLineEdit(this);
+    lineEmail = new AuthLineEdit(this);
+    lineConfirmCode = new AuthLineEdit(this);
+    lineRecoveryPass = new AuthLineEdit(labelRecoveryPass, false);
+    lineRecoveryConfirmPass = new AuthLineEdit(this);
 
     buttonSignUp = new QPushButton(this);
     buttonSignIn = new QPushButton(this);
@@ -180,7 +180,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                   "border: 0px;"
                                   "}");
 
-    linePass->setStyleSheet(QString("LineEdit{"
+    linePass->setStyleSheet(QString("AuthLineEdit{"
                                     "font-family: Century Gothic;"
                                     "font-size: %1px;"
                                     "background: transparent;"
@@ -188,7 +188,7 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
                                     "border-right: 0px;"
                                     "color: #B5EBEE;"
                                     "}").arg(defaultFontSize));
-    lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+    lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                             "font-family: Century Gothic;"
                                             "font-size: %1px;"
                                             "background: transparent;"
@@ -345,7 +345,7 @@ void AuthWindow::test(){
         labelRecoveryPass->setEnabled(true);
         lineRecoveryPass->setEnabled(true);
         buttonRecoveryEye->setEnabled(true);
-        lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+        lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                                 "font-family: Century Gothic;"
                                                 "font-size: %1px;"
                                                 "background: transparent;"
@@ -640,7 +640,7 @@ void AuthWindow::socketReading()
         labelRecoveryPass->setEnabled(true);
         lineRecoveryPass->setEnabled(true);
         buttonRecoveryEye->setEnabled(true);
-        lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+        lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                                 "font-family: Century Gothic;"
                                                 "font-size: %1px;"
                                                 "background: transparent;"
@@ -977,7 +977,7 @@ void AuthWindow::buttonOk_released(){
                 labelRecoveryPass->setDisabled(true);
                 lineRecoveryPass->setDisabled(true);
                 buttonRecoveryEye->setDisabled(true);
-                lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+                lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                                         "font-family: Century Gothic;"
                                                         "font-size: %1px;"
                                                         "background: transparent;"
@@ -1037,7 +1037,7 @@ void AuthWindow::startPreloading()
         labelPass->setDisabled(true);
         linePass->setDisabled(true);
         buttonEye->setDisabled(true);
-        linePass->setStyleSheet(QString("LineEdit{"
+        linePass->setStyleSheet(QString("AuthLineEdit{"
                                         "font-family: Century Gothic;"
                                         "font-size: %1px;"
                                         "background: transparent;"
@@ -1071,7 +1071,7 @@ void AuthWindow::startPreloading()
         labelPass->setDisabled(true);
         linePass->setDisabled(true);
         buttonEye->setDisabled(true);
-        linePass->setStyleSheet(QString("LineEdit{"
+        linePass->setStyleSheet(QString("AuthLineEdit{"
                                         "font-family: Century Gothic;"
                                         "font-size: %1px;"
                                         "background: transparent;"
@@ -1254,7 +1254,7 @@ void AuthWindow::cancelPreloading(){
         labelRecoveryPass->setEnabled(true);
         lineRecoveryPass->setEnabled(true);
         buttonRecoveryEye->setEnabled(true);
-        lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+        lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                                 "font-family: Century Gothic;"
                                                 "font-size: %1px;"
                                                 "background: transparent;"
@@ -1324,7 +1324,7 @@ void AuthWindow::changingRecoveryPassEchoMode(){
 void AuthWindow::changingPassBorder(){
     isPassEmpty=false;
 
-    linePass->setStyleSheet(QString("LineEdit{"
+    linePass->setStyleSheet(QString("AuthLineEdit{"
                                     "font-family: Century Gothic;"
                                     "font-size: %1px;"
                                     "background: transparent;"
@@ -1341,7 +1341,7 @@ void AuthWindow::changingPassBorder(){
 
 void AuthWindow::changingRecoveryPassBorder(){
     isRecoveryPassEmpty = false;
-    lineRecoveryPass->setStyleSheet(QString("LineEdit{"
+    lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
                                             "font-family: Century Gothic;"
                                             "font-size: %1px;"
                                             "background: transparent;"
@@ -1364,7 +1364,7 @@ void AuthWindow::gotoRecoveryLoc(){
     isRecoveryPassEmpty=false;
 
     lineLog->setDefaultStyleSheet();
-    linePass->setStyleSheet(QString("LineEdit{"
+    linePass->setStyleSheet(QString("AuthLineEdit{"
                                     "font-family: Century Gothic;"
                                     "font-size: %1px;"
                                     "background: transparent;"
@@ -1527,7 +1527,7 @@ void AuthWindow::gotoSignUpLoc(){
     }
     else if(location==LOC_SIGNIN){
         lineLog->setDefaultStyleSheet();
-        linePass->setStyleSheet(QString("LineEdit{"
+        linePass->setStyleSheet(QString("AuthLineEdit{"
                                         "font-family: Century Gothic;"
                                         "font-size: %1px;"
                                         "background: transparent;"
@@ -1589,7 +1589,7 @@ void AuthWindow::gotoSignInLoc(){
     lineEmail->setDefaultStyleSheet();
     lineLog->setDefaultStyleSheet();
     lineConfirmPass->setDefaultStyleSheet();
-    linePass->setStyleSheet(QString("LineEdit{"
+    linePass->setStyleSheet(QString("AuthLineEdit{"
                                     "font-family: Century Gothic;"
                                     "font-size: %1px;"
                                     "background: transparent;"
@@ -1872,7 +1872,6 @@ void AuthWindow::resizeAll(){
 
     quint16 labelConnectionFailedBackgroundH = (windowSize/65)*6;
     quint16 labelConnectionFailedBackgroundW = windowSize;
-    qint16  labelConnectionFailedBackgroundX = labelConnectionFailedBackgroundW;
     quint16 labelConnectionFailedBackgroundY = windowSize - labelConnectionFailedBackgroundH;
 
     quint16 labelRegistrationSuccessfulH = windowSize/3;
@@ -1984,33 +1983,31 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
         }
     }
     else if((target == linePass || target==buttonEye) && labelPass->isEnabled() && !isPassEmpty){
-        if(target == buttonEye && event->type() == QEvent::HoverEnter){
-            linePass->setStyleSheet(QString("LineEdit{"
-                                            "font-family: Century Gothic;"
-                                            "font-size: %1px;"
-                                            "background: transparent;"
-                                            "border: 1px solid black;"
-                                            "border-right: 0px;"
-                                            "color: #B5EBEE;"
-                                            "}").arg(defaultFontSize));
-            buttonEye->setStyleSheet("background: rgba(123,55,65,50);"
-                                     "border: 1px solid black;"
-                                     "border-left: 0px;");
-        }
-        else if (event->type() == QEvent::HoverEnter){
-            linePass->setStyleSheet(QString("LineEdit{"
-                                            "font-family: Century Gothic;"
-                                            "font-size: %1px;"
-                                            "background: transparent;"
-                                            "border: 1px solid black;"
-                                            "border-right: 0px;"
-                                            "color: #B5EBEE;"
-                                            "}").arg(defaultFontSize));
-            buttonEye->setStyleSheet("border: 1px solid black;"
-                                     "border-left: 0px;");
+        if(event->type()==QEvent::HoverEnter){
+            if(!linePass->hasFocus()){
+                linePass->setStyleSheet(QString("AuthLineEdit{"
+                                                "font-family: Century Gothic;"
+                                                "font-size: %1px;"
+                                                "background: transparent;"
+                                                "border: 1px solid black;"
+                                                "border-right: 0px;"
+                                                "color: #B5EBEE;"
+                                                "}").arg(defaultFontSize));
+                if(target==buttonEye)
+                    buttonEye->setStyleSheet("background: rgba(123,55,65,50);"
+                                             "border: 1px solid black;"
+                                             "border-left: 0px;");
+                else
+                    buttonEye->setStyleSheet("border: 1px solid black;"
+                                             "border-left: 0px;");
+            }
+            else if(target==buttonEye)
+                buttonEye->setStyleSheet("background: rgba(123,55,65,50);"
+                                         "border: 1px solid #0078d7;"
+                                         "border-left: 0px;");
         }
         else if((event->type() == QEvent::HoverLeave && linePass->hasFocus()) || (event->type() == QEvent::FocusIn)){
-            linePass->setStyleSheet(QString("LineEdit{"
+            linePass->setStyleSheet(QString("AuthLineEdit{"
                                             "font-family: Century Gothic;"
                                             "font-size: %1px;"
                                             "background: transparent;"
@@ -2022,7 +2019,7 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
                                      "border-left: 0px;");
         }
         else if((event->type() == QEvent::HoverLeave && !linePass->hasFocus()) || event->type() == QEvent::FocusOut){
-            linePass->setStyleSheet(QString("LineEdit{"
+            linePass->setStyleSheet(QString("AuthLineEdit{"
                                             "font-family: Century Gothic;"
                                             "font-size: %1px;"
                                             "background: transparent;"
@@ -2034,139 +2031,58 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
                                      "border-left: 0px;");
         }
     }
-    else if((target == lineRecoveryPass || target==buttonRecoveryEye) && labelRecoveryPass->isEnabled() && !isRecoveryPassEmpty){
-        if(target == buttonRecoveryEye && event->type() == QEvent::HoverEnter){
-            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
-                                                    "font-family: Century Gothic;"
-                                                    "font-size: %1px;"
-                                                    "background: transparent;"
-                                                    "border: 1px solid black;"
-                                                    "border-right: 0px;"
-                                                    "color: #B5EBEE;"
-                                                    "}").arg(defaultFontSize));
-            buttonRecoveryEye->setStyleSheet("background: rgba(123,55,65,50);"
+    else if((target == lineRecoveryPass || target==buttonRecoveryEye) && labelPass->isEnabled() && !isPassEmpty){
+        if(event->type()==QEvent::HoverEnter){
+            if(!lineRecoveryPass->hasFocus()){
+                lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
+                                                "font-family: Century Gothic;"
+                                                "font-size: %1px;"
+                                                "background: transparent;"
+                                                "border: 1px solid black;"
+                                                "border-right: 0px;"
+                                                "color: #B5EBEE;"
+                                                "}").arg(defaultFontSize));
+                if(target==buttonRecoveryEye)
+                    buttonRecoveryEye->setStyleSheet("background: rgba(123,55,65,50);"
                                              "border: 1px solid black;"
                                              "border-left: 0px;");
-        }
-        else if (event->type() == QEvent::HoverEnter){
-            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
-                                                    "font-family: Century Gothic;"
-                                                    "font-size: %1px;"
-                                                    "background: transparent;"
-                                                    "border: 1px solid black;"
-                                                    "border-right: 0px;"
-                                                    "color: #B5EBEE;"
-                                                    "}").arg(defaultFontSize));
-            buttonRecoveryEye->setStyleSheet("border: 1px solid black;"
+                else
+                    buttonRecoveryEye->setStyleSheet("border: 1px solid black;"
                                              "border-left: 0px;");
+            }
+            else if(target==buttonRecoveryEye)
+                buttonRecoveryEye->setStyleSheet("background: rgba(123,55,65,50);"
+                                         "border: 1px solid #0078d7;"
+                                         "border-left: 0px;");
         }
         else if((event->type() == QEvent::HoverLeave && lineRecoveryPass->hasFocus()) || (event->type() == QEvent::FocusIn)){
-            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
-                                                    "font-family: Century Gothic;"
-                                                    "font-size: %1px;"
-                                                    "background: transparent;"
-                                                    "border: 1px solid #0078d7;"
-                                                    "border-right: 0px;"
-                                                    "color: #B5EBEE;"
-                                                    "}").arg(defaultFontSize));
+            lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid #0078d7;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
             buttonRecoveryEye->setStyleSheet("border: 1px solid #0078d7;"
-                                             "border-left: 0px;");
+                                     "border-left: 0px;");
         }
         else if((event->type() == QEvent::HoverLeave && !lineRecoveryPass->hasFocus()) || event->type() == QEvent::FocusOut){
-            lineRecoveryPass->setStyleSheet(QString("LineEdit{"
-                                                    "font-family: Century Gothic;"
-                                                    "font-size: %1px;"
-                                                    "background: transparent;"
-                                                    "border: 1px solid gray;"
-                                                    "border-right: 0px;"
-                                                    "color: #B5EBEE;"
-                                                    "}").arg(defaultFontSize));
+            lineRecoveryPass->setStyleSheet(QString("AuthLineEdit{"
+                                            "font-family: Century Gothic;"
+                                            "font-size: %1px;"
+                                            "background: transparent;"
+                                            "border: 1px solid gray;"
+                                            "border-right: 0px;"
+                                            "color: #B5EBEE;"
+                                            "}").arg(defaultFontSize));
             buttonRecoveryEye->setStyleSheet("border: 1px solid gray;"
-                                             "border-left: 0px;");
+                                     "border-left: 0px;");
         }
     }
 
     return QMainWindow::eventFilter(target, event);
 }
-
-void ClickableLabel::enterEvent(QEvent*)
-{
-    if(isUnderlined){
-        QFont f = font();
-        f.setUnderline(true);
-        setFont(f);
-    }
-}
-
-void ClickableLabel::leaveEvent(QEvent*)
-{
-    if(isUnderlined){
-        QFont f = font();
-        f.setUnderline(false);
-        setFont(f);
-    }
-}
-
-LineEdit::LineEdit(QWidget *parent, bool isDefault) : QLineEdit(parent){
-    defaultFontSize = ((QApplication::desktop()->width()/100)*25/260)*11;
-    setAcceptDrops(false);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    setDefaultStyleSheet();
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
-    if(isDefault)
-        connect(this, SIGNAL(textChanged(QString)), SLOT(setDefaultStyleSheet()));
-}
-
-void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
-    emit released();
-}
-
-void LineEdit::setDefaultStyleSheet(){
-    this->setStyleSheet(QString("LineEdit{"
-                                "font-family: Century Gothic;"
-                                "font-size: %1px;"
-                                "background: transparent;"
-                                "border: 1px solid gray;"
-                                "color: #B5EBEE;"
-                                "}"
-                                "LineEdit:hover{"
-                                "border: 1px solid black;"
-                                "}"
-                                "LineEdit:focus{"
-                                "border: 1px solid #0078d7;"
-                                "}").arg(defaultFontSize));
-}
-
-void LineEdit::setErrorStyleSheet(){
-    this->setStyleSheet(QString("font-family: Century Gothic;"
-                                "font-size: %1px;"
-                                "background: transparent;"
-                                "border: 1px solid red;"
-                                "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void LineEdit::keyPressEvent(QKeyEvent *event){
-    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
-        event->ignore();
-    else return QLineEdit::keyPressEvent(event);
-}
-
-void LineEdit::setDisabledOverride(){
-    setDisabled(true);
-    setStyleSheet(QString("LineEdit{"
-                          "font-family: Century Gothic;"
-                          "font-size: %1px;"
-                          "background: transparent;"
-                          "border: 1px solid #cccccc;"
-                          "color: #B5EBEE;"
-                          "}").arg(defaultFontSize));
-}
-
-void LineEdit::setEnabledOverride(){
-    setEnabled(true);
-    setDefaultStyleSheet();
-}
-
 
 void AuthWindow::buttonMinimize_released(){
     QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
@@ -2195,7 +2111,7 @@ void AuthWindow::setPassEnabled()
     labelPass->setEnabled(true);
     linePass->setEnabled(true);
     buttonEye->setEnabled(true);
-    linePass->setStyleSheet(QString("LineEdit{"
+    linePass->setStyleSheet(QString("AuthLineEdit{"
                                     "font-family: Century Gothic;"
                                     "font-size: %1px;"
                                     "background: transparent;"
@@ -2250,8 +2166,3 @@ AuthWindow::~AuthWindow(){
     delete timerErrorLabel;
 }
 
-ClickableLabel::ClickableLabel(QWidget* parent, bool isUnderlined) : QLabel(parent){
-    this->isUnderlined = isUnderlined;
-}
-
-ClickableLabel::~ClickableLabel(){}
