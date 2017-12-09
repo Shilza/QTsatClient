@@ -18,7 +18,6 @@
 #include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include "authlineedit.h"
 #include "clickablelabel.h"
 #include "def.h"
 
@@ -30,11 +29,34 @@
 #define LOC_RECOVERY_CODE 5
 #define LOC_RECOVERY_PASS 6
 
+namespace Ui {
+class AuthWindow;
+}
+
+class LineEdit : public QLineEdit{
+    Q_OBJECT
+
+public:
+    LineEdit(QWidget *parent=0, bool isDefault = true);
+    void setDisabledOverride();
+    void setEnabledOverride();
+private:
+    int defaultFontSize;
+    void keyPressEvent(QKeyEvent *event);
+private slots:
+    void showMenu(QPoint){}
+
+public slots:
+    void setDefaultStyleSheet();
+    void setErrorStyleSheet();
+};
+
 class AuthWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
+    Ui::AuthWindow *ui;
     int defaultFontSize;
     bool nicknameExists = false;
     bool isPassEmpty = false;
@@ -47,13 +69,13 @@ private:
     quint16 buttonW, buttonH;
     quint16 lineHWithSpace, buttonHWithSpace;
 
-    AuthLineEdit *lineEmail;
-    AuthLineEdit *lineLog;
-    AuthLineEdit *linePass;
-    AuthLineEdit *lineConfirmPass;
-    AuthLineEdit *lineConfirmCode;
-    AuthLineEdit *lineRecoveryPass;
-    AuthLineEdit *lineRecoveryConfirmPass;
+    LineEdit *lineEmail;
+    LineEdit *lineLog;
+    LineEdit *linePass;
+    LineEdit *lineConfirmPass;
+    LineEdit *lineConfirmCode;
+    LineEdit *lineRecoveryPass;
+    LineEdit *lineRecoveryConfirmPass;
 
     QPushButton *buttonSignIn;
     QPushButton *buttonSignUp;

@@ -33,12 +33,7 @@ SOURCES += \
     udpclient.cpp \
     authwindow.cpp \
     distance_damerau_levenshtein.cpp \
-    floodtimer.cpp \
-    globaltextedit.cpp \
-    privatetextedit.cpp \
-    wraplabel.cpp \
-    authlineedit.cpp \
-    clickablelabel.cpp
+    floodtimer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,11 +42,7 @@ HEADERS += \
     authwindow.h \
     distance_damerau_levenshtein.h \
     clickablelabel.h \
-    floodtimer.h \
-    globaltextedit.h \
-    privatetextedit.h \
-    wraplabel.h \
-    authlineedit.h
+    floodtimer.h
 
 FORMS += \
         mainwindow.ui \

@@ -244,8 +244,119 @@ void MainWindow::updateTime()
                                 }());*/
 }
 
+GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
+}
 
+//Crazy bicycle, please don't touch it, it's dangerous...
+void WrapLabel::wrapText(QString text){
+    QFontMetrics *tempFontSize = new QFontMetrics(font());
+    for(int i=text.indexOf("  ");i!=-1;i=text.indexOf("  "))
+        text.remove(i,1);
+    QString final = text;
+
+    int tempCountOfPixels = 0;
+    bool isSpace = false;
+
+    if(tempFontSize->width(text)>445){
+        final="";
+        for(int i=0;i<text.length();i++){
+            tempCountOfPixels+=tempFontSize->width(text[i]);
+            isSpace = false;
+            if(text[i]=="\n")
+                tempCountOfPixels=0;
+            if(tempCountOfPixels>=445){
+                for(int j=i;j>final.length();j--){
+                    if(text[j]==" "){
+                        i=j;
+                        isSpace=true;
+                        final = text.mid(0,j);
+                        break;
+                    }
+                }
+                if(!isSpace){
+                    final+="  ";
+                    final+=text[i];
+                }
+                tempCountOfPixels=0;
+            }
+            else if(!isSpace)
+                final+=text[i];
+        }
+    }
+
+    setText(final);
+}
+
+void GlobalTextEdit::keyPressEvent(QKeyEvent *e){
+    bool previousSpace = false;
+
+    if(this->toPlainText().length() > 0)
+        previousSpace = this->toPlainText().at(this->toPlainText().length()-1) == " ";
+
+    if((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)){
+        if(e->modifiers() != Qt::ControlModifier){
+            emit enter();
+            return;
+        }
+        else if(!previousSpace){
+            if(this->toPlainText().indexOf('\n')==-1)
+                QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier));
+            return;
+        }
+    }
+    else if(e->key() == Qt::Key_Space && previousSpace)
+        return;
+
+    QTextEdit::keyPressEvent(e);
+}
+
+void WrapLabel::keyPressEvent(QKeyEvent *event)
+{
+    QLabel::keyPressEvent(event);
+    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut)){
+        QString tempText = QApplication::clipboard()->text();
+        for(int i=tempText.indexOf("  ");i!=-1;i=tempText.indexOf("  "))
+            tempText.remove(i,2);
+        QApplication::clipboard()->setText(tempText);
+    }
+}
+
+void PrivateTextEdit::keyPressEvent(QKeyEvent *e)
+{
+    bool previousSpace = false;
+    bool previousEndl = false;
+    bool prePreviousEndl = false;
+
+    if(this->toPlainText().length() > 0){
+        previousSpace = this->toPlainText().at(this->toPlainText().length()-1) == " ";
+        previousEndl = this->toPlainText().at(this->toPlainText().length()-1) == "\n";
+    }
+
+    if(this->toPlainText().length() > 1)
+        prePreviousEndl = this->toPlainText().at(this->toPlainText().length()-2) == "\n";
+
+    if((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)){
+        if(e->modifiers() != Qt::ControlModifier){
+            emit enter();
+            return;
+        }
+        else if((!previousSpace && !previousEndl) || !prePreviousEndl){
+            QTextEdit::keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter,Qt::NoModifier));
+            return;
+        }
+    }
+    else if(e->key() == Qt::Key_Space && (previousSpace || previousEndl))
+        return;
+
+    QTextEdit::keyPressEvent(e);
+}
 
 MainWindow::~MainWindow(){
     delete client;
 }
+
+PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){}
+
+WrapLabel::WrapLabel(QWidget *parent): QLabel(parent){}
+
+WrapLabel::~WrapLabel(){}
