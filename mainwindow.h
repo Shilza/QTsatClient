@@ -19,37 +19,9 @@
 #include "floodtimer.h"
 #include "distance_damerau_levenshtein.h"
 #include "udpclient.h"
-
-class GlobalTextEdit : public QTextEdit{
-    Q_OBJECT
-public:
-    explicit GlobalTextEdit(QWidget *parent=0);
-private:
-    void keyPressEvent(QKeyEvent *e);
-signals:
-    void enter();
-};
-
-class PrivateTextEdit : public QTextEdit{
-    Q_OBJECT
-public:
-    explicit PrivateTextEdit(QWidget *parent=0);
-private:
-    void keyPressEvent(QKeyEvent *e);
-signals:
-    void enter();
-};
-
-class WrapLabel : public QLabel{
-    Q_OBJECT
-public:
-    explicit WrapLabel(QWidget* parent=0);
-    void wrapText(QString text);
-    ~WrapLabel();
-private:
-    void keyPressEvent(QKeyEvent *event);
-};
-
+#include "globaltextedit.h"
+#include "privatetextedit.h"
+#include "wraplabel.h"
 
 class MainWindow : public QMainWindow
 {

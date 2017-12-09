@@ -2,10 +2,8 @@
 #include "ui_authwindow.h"
 
 AuthWindow::AuthWindow(QMainWindow *parent) :
-    QMainWindow(parent),
-    ui(new Ui::AuthWindow)
+    QMainWindow(parent)
 {
-    ui->setupUi(this);
     socket = new QUdpSocket(this);
 
     socket->bind(49002);
@@ -29,13 +27,13 @@ AuthWindow::AuthWindow(QMainWindow *parent) :
     labelPass = new QLabel(this);
     labelRecoveryPass = new QLabel(this);
 
-    lineLog = new LineEdit(this);
-    linePass = new LineEdit(labelPass, false);
-    lineConfirmPass = new LineEdit(this);
-    lineEmail = new LineEdit(this);
-    lineConfirmCode = new LineEdit(this);
-    lineRecoveryPass = new LineEdit(labelRecoveryPass, false);
-    lineRecoveryConfirmPass = new LineEdit(this);
+    lineLog = new AuthLineEdit(this);
+    linePass = new AuthLineEdit(labelPass, false);
+    lineConfirmPass = new AuthLineEdit(this);
+    lineEmail = new AuthLineEdit(this);
+    lineConfirmCode = new AuthLineEdit(this);
+    lineRecoveryPass = new AuthLineEdit(labelRecoveryPass, false);
+    lineRecoveryConfirmPass = new AuthLineEdit(this);
 
     buttonSignUp = new QPushButton(this);
     buttonSignIn = new QPushButton(this);
@@ -2089,85 +2087,6 @@ bool AuthWindow::eventFilter(QObject *target, QEvent *event){
     return QMainWindow::eventFilter(target, event);
 }
 
-void ClickableLabel::enterEvent(QEvent*)
-{
-    if(isUnderlined){
-        QFont f = font();
-        f.setUnderline(true);
-        setFont(f);
-    }
-}
-
-void ClickableLabel::leaveEvent(QEvent*)
-{
-    if(isUnderlined){
-        QFont f = font();
-        f.setUnderline(false);
-        setFont(f);
-    }
-}
-
-LineEdit::LineEdit(QWidget *parent, bool isDefault) : QLineEdit(parent){
-    defaultFontSize = ((QApplication::desktop()->width()/100)*25/260)*11;
-    setAcceptDrops(false);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    setDefaultStyleSheet();
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
-    if(isDefault)
-        connect(this, SIGNAL(textChanged(QString)), SLOT(setDefaultStyleSheet()));
-}
-
-void ClickableLabel::mouseReleaseEvent(QMouseEvent *){
-    emit released();
-}
-
-void LineEdit::setDefaultStyleSheet(){
-    this->setStyleSheet(QString("LineEdit{"
-                                "font-family: Century Gothic;"
-                                "font-size: %1px;"
-                                "background: transparent;"
-                                "border: 1px solid gray;"
-                                "color: #B5EBEE;"
-                                "}"
-                                "LineEdit:hover{"
-                                "border: 1px solid black;"
-                                "}"
-                                "LineEdit:focus{"
-                                "border: 1px solid #0078d7;"
-                                "}").arg(defaultFontSize));
-}
-
-void LineEdit::setErrorStyleSheet(){
-    this->setStyleSheet(QString("font-family: Century Gothic;"
-                                "font-size: %1px;"
-                                "background: transparent;"
-                                "border: 1px solid red;"
-                                "color: #B5EBEE;").arg(defaultFontSize));
-}
-
-void LineEdit::keyPressEvent(QKeyEvent *event){
-    if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut) || event->matches(QKeySequence::Paste))
-        event->ignore();
-    else return QLineEdit::keyPressEvent(event);
-}
-
-void LineEdit::setDisabledOverride(){
-    setDisabled(true);
-    setStyleSheet(QString("LineEdit{"
-                          "font-family: Century Gothic;"
-                          "font-size: %1px;"
-                          "background: transparent;"
-                          "border: 1px solid #cccccc;"
-                          "color: #B5EBEE;"
-                          "}").arg(defaultFontSize));
-}
-
-void LineEdit::setEnabledOverride(){
-    setEnabled(true);
-    setDefaultStyleSheet();
-}
-
-
 void AuthWindow::buttonMinimize_released(){
     QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
     animation->setEndValue(0.0);
@@ -2210,8 +2129,6 @@ void AuthWindow::setPassEnabled()
 
 
 AuthWindow::~AuthWindow(){
-    delete ui;
-
     socket->close();
 
     delete lineLog;
@@ -2249,9 +2166,3 @@ AuthWindow::~AuthWindow(){
     delete timerLabelSuccess;
     delete timerErrorLabel;
 }
-
-ClickableLabel::ClickableLabel(QWidget* parent, bool isUnderlined) : QLabel(parent){
-    this->isUnderlined = isUnderlined;
-}
-
-ClickableLabel::~ClickableLabel(){}
