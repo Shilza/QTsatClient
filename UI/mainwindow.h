@@ -37,6 +37,7 @@ private:
     ClickableLabel *labelFloodError;
     ClickableLabel *labelBan;
     QLabel *labelTimerShow;
+    QLabel *labelSymbolsCount;
 
     FloodTimer *floodTimer;
 
@@ -52,6 +53,7 @@ private slots:
     void updateTime();
 public slots:
     void start(QByteArray sessionKey);
+    void showSymbolsCount();
 };
 
 #endif // MAINWINDOW_H

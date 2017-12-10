@@ -2,6 +2,10 @@
 #define GLOBALTEXTEDIT_H
 #include <QTextEdit>
 #include <QKeyEvent>
+#include <QApplication>
+#include <QClipboard>
+#include <QAbstractTextDocumentLayout>
+#include "Config/def.h"
 
 class GlobalTextEdit : public QTextEdit{
     Q_OBJECT
@@ -11,6 +15,9 @@ private:
     void keyPressEvent(QKeyEvent *e);
 signals:
     void enter();
+private slots:
+    void textEditSizeChange(QSizeF changedSize);
+    void validator();
 };
 
 #endif // GLOBALTEXTEDIT_H

@@ -42,8 +42,7 @@ void WrapLabel::wrapText(QString text){
     setText(final);
 }
 
-void WrapLabel::keyPressEvent(QKeyEvent *event)
-{
+void WrapLabel::keyPressEvent(QKeyEvent *event){
     QLabel::keyPressEvent(event);
     if(event->matches(QKeySequence::Copy) || event->matches(QKeySequence::Cut)){
         QString tempText = QApplication::clipboard()->text();

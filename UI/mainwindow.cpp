@@ -30,11 +30,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     labelTimerShow = new QLabel(mainWidget);
     labelTimerShow->setAlignment(Qt::AlignCenter);
-    QFont fontTimerShow("Times New Roman");
-    fontTimerShow.setPointSize(11);
+    QFont fontTimerShow("Times New Roman", 11);
     labelTimerShow->setFont(fontTimerShow);
     labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     labelTimerShow->close();
+
+    labelSymbolsCount = new QLabel(mainWidget);
+    labelSymbolsCount->setContentsMargins(0,0,5,2);
+    labelSymbolsCount->setFont(QFont("Times New Roman", 11));
+    labelSymbolsCount->close();
 
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
@@ -64,11 +68,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //textMessage->setMinimumSize(300,50);
     //textMessage->setMaximumSize(600,100);
-    textMessage->setFixedHeight(40);
+    textMessage->setFixedHeight(48);
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     textMessage->setStyleSheet("border: 1px solid gray;"
                                "border-right: 0px;"
                                "border-top: 1px gray;");
+    textMessage->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
+                                    "background: white;"
+                                    "border-top-right-radius: 1px;"
+                                    "border-bottom-right-radius: 1px;"
+                                    "width: 8px;"
+                                    "margin: 0px;"
+                                    "}"
+                                    "QScrollBar:handle:vertical{"
+                                    "background: gray;"
+                                    "border-radius: 1px;"
+                                    "min-height: 20px;"
+                                    "margin: 0px 2px 0px 2px;"
+                                    "}"
+                                    "QScrollBar:add-line:vertical{"
+                                    "background: transparent;"
+                                    "height: 0px;"
+                                    "subcontrol-position: right;"
+                                    "subcontrol-origin: margin;"
+                                    "}"
+                                    "QScrollBar:sub-line:vertical{"
+                                    "background: transparent;"
+                                    "height: 0px;"
+                                    "subcontrol-position: left;"
+                                    "subcontrol-origin: margin;"
+                                    "}");
 
     listOfGlobalMessages->setMinimumSize(300,250);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -103,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addWidget(textMessage, 8, 0, 1, 8);
     mainLayout->addWidget(labelFloodError, 8, 0, 1, 7);
     mainLayout->addWidget(labelTimerShow, 8, 7, 1, 1);
+    mainLayout->addWidget(labelSymbolsCount, 8,0,1,8, Qt::AlignRight | Qt::AlignBottom);
     mainLayout->addWidget(labelBan, 8, 0, 1, 7);
     mainLayout->addWidget(buttonSend, 8, 8, 1, 1);
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
@@ -132,11 +162,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
     connect(labelBan, SIGNAL(released()), SLOT(close()));
+    connect(textMessage, SIGNAL(textChanged()), this, SLOT(showSymbolsCount()));
 }
 
 void MainWindow::start(QByteArray sessionKey){
     client->sessionKey = sessionKey;
     this->show();
+}
+
+void MainWindow::showSymbolsCount()
+{
+    labelSymbolsCount->setText(QString::number(textMessage->toPlainText().length())+"/"+QString::number(MAX_GLOBAL_MESSAGE_SIZE));
+    labelSymbolsCount->show();
 }
 
 void MainWindow::sendMessage(){
