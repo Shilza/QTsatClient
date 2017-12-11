@@ -8,5 +8,7 @@
         <file>min2.png</file>
         <file>pre.svg</file>
         <file>gradient.png</file>
+        <file>affix.png</file>
+        <file>affix30.png</file>
     </qresource>
 </RCC>

@@ -33,6 +33,7 @@ private:
     QPushButton *buttonSend;
     QPushButton *buttonPrivateMessages;
     QPushButton *buttonFriends;
+    QPushButton *affix;
     GlobalTextEdit *textMessage;
     ClickableLabel *labelFloodError;
     ClickableLabel *labelBan;
