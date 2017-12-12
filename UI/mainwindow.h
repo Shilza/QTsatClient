@@ -32,6 +32,10 @@ private:
     QStackedWidget *stackOfWidgets;
     QWidget *mainWidget;
     QWidget *sendWidget;
+    QWidget *affixWidget;
+    QWidget *subAffixWidget;
+    QHBoxLayout *affixLayout;
+    QLabel *labelBicycle;
     QGridLayout *mainLayout;
     QListWidget *listOfGlobalMessages;
     QPushButton *buttonSend;

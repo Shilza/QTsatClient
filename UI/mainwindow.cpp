@@ -31,12 +31,47 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages = new QListWidget(mainWidget);
 
     textMessage = new GlobalTextEdit(sendWidget);
+
+
+    subAffixWidget = new QWidget(sendWidget);
+    affixWidget = new QWidget(subAffixWidget);
+    affixLayout = new QHBoxLayout(affixWidget);
+
+
+    affixWidget->setFixedWidth(75);
+    affixWidget->move(96, 6);
+
+    affixWidget->setContentsMargins(0,0,0,0);
+    affixLayout->setMargin(0);
+    affixLayout->setSpacing(5);
+
+    QPushButton *tempButtons[4];
+    tempButtons[0] = new QPushButton(affixWidget);
+    tempButtons[1] = new QPushButton(affixWidget);
+    tempButtons[2] = new QPushButton(affixWidget);
+    tempButtons[3] = new QPushButton(affixWidget);
+    for(int i=0; i<4; i++){
+        tempButtons[i]->setFixedSize(15, 15);
+        affixLayout->addWidget(tempButtons[i], 1, Qt::AlignVCenter);
+        tempButtons[i]->setStyleSheet("background: black;"
+                                      "border: 1px solid white;");
+    }
+
+
+    affixWidget->setStyleSheet("background: black;");
+
+
+
+    labelBicycle = new QLabel(sendWidget);
     buttonSend = new QPushButton(sendWidget);
     buttonPrivateMessages = new QPushButton(mainWidget);
     buttonFriends = new QPushButton(mainWidget);
     buttonAffix = new QPushButton(sendWidget);
     labelFloodError = new ClickableLabel(textMessage, false);
     labelBan = new ClickableLabel(textMessage, false);
+
+    subAffixWidget->setStyleSheet("background: transparent;"
+                                  "border: 0px;");
 
     floodTimer = new FloodTimer(textMessage);
 
@@ -56,6 +91,11 @@ MainWindow::MainWindow(QWidget *parent) :
     labelSymbolsCount->setStyleSheet("background: transparent;"
                                      "border: 0px;");
     labelSymbolsCount->close();
+
+
+    affixWidget->setLayout(affixLayout);
+    labelBicycle->setStyleSheet("background: #E5F0F0;"
+                                "border: 0px;");
 
     buttonAffix->setStyleSheet("background: transparent;"
                          "border: 0px;");
@@ -161,14 +201,18 @@ MainWindow::MainWindow(QWidget *parent) :
     sendLayout->addWidget(labelTimerShow, 0, 8, 1, 1);
     sendLayout->addWidget(labelSymbolsCount, 0,0,1,9, Qt::AlignRight | Qt::AlignBottom);
     sendLayout->addWidget(labelBan, 0, 0, 1, 8);
+    sendLayout->addWidget(labelBicycle, 1, 7, -1, -1);
     sendLayout->addWidget(buttonSend, 1, 8, 1, 1);
     sendLayout->addWidget(buttonAffix, 1, 7, 1, 1);
+    sendLayout->addWidget(subAffixWidget, 1, 5, -1, -1);
 
     mainLayout->setContentsMargins(8,2,0,6);
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
     mainLayout->addWidget(sendWidget, 8,0,2,9);
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
     mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
+
+
 
     stackOfWidgets->addWidget(mainWidget);
     stackOfWidgets->setCurrentWidget(mainWidget);
@@ -324,8 +368,13 @@ void MainWindow::updateTime()
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
 {
     if(target == buttonAffix){
-        if (event->type() == QEvent::HoverEnter)
+        if (event->type() == QEvent::HoverEnter){
             buttonAffix->setIcon(QIcon(":/images/affix30gray.png"));
+            QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
+            animation->setEndValue(QPoint(9, 6));
+            animation->setDuration(300);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
         else if(event->type() == QEvent::HoverLeave)
             buttonAffix->setIcon(QIcon(":/images/affix30.png"));
     }
