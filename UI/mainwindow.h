@@ -8,6 +8,8 @@
 #include <QListWidget>
 #include <QScrollBar>
 #include <QQueue>
+#include <QPropertyAnimation>
+#include <QStackedWidget>
 #include "UI/Widgets/clickablelabel.h"
 #include "UI/Widgets/globaltextedit.h"
 #include "UI/Widgets/privatetextedit.h"
@@ -27,26 +29,29 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     UDPClient *client;
+    QStackedWidget *stackOfWidgets;
     QWidget *mainWidget;
+    QWidget *sendWidget;
     QGridLayout *mainLayout;
     QListWidget *listOfGlobalMessages;
     QPushButton *buttonSend;
     QPushButton *buttonPrivateMessages;
     QPushButton *buttonFriends;
-    QPushButton *affix;
+    QPushButton *buttonAffix;
     GlobalTextEdit *textMessage;
     ClickableLabel *labelFloodError;
     ClickableLabel *labelBan;
     QLabel *labelTimerShow;
     QLabel *labelSymbolsCount;
+    QGridLayout *sendLayout;
 
     FloodTimer *floodTimer;
 
     QQueue<QString> lastMessages;
 public:
     explicit MainWindow(QWidget *parent = 0);
+     bool eventFilter(QObject *target, QEvent *event);
     ~MainWindow();
-
 private slots:
     void sendMessage();
     void printMessages();

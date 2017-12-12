@@ -6,49 +6,63 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    client = new UDPClient();
-
+    client = new UDPClient;
     this->resize(650,440);
 
-    mainWidget = new QWidget(this);
+    stackOfWidgets = new QStackedWidget(this);
+    this->setCentralWidget(stackOfWidgets);
+
+    mainWidget = new QWidget(stackOfWidgets);
     mainLayout = new QGridLayout(mainWidget);
     mainWidget->setLayout(mainLayout);
-    this->setCentralWidget(mainWidget);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
 
-    QLabel *temp = new QLabel(mainWidget);
-    temp->setStyleSheet("background: purple;");
+    sendWidget = new QWidget(mainWidget);
+    sendLayout = new QGridLayout(sendWidget);
+    sendWidget->setLayout(sendLayout);
+    sendWidget->setStyleSheet("background: #E5F0F0;"
+                              "border: 1px solid gray;"
+                              "border-top: 0px;");
+    sendLayout->setContentsMargins(7,5,7,5);
+    sendLayout->setVerticalSpacing(5);
+    sendLayout->setHorizontalSpacing(16);
 
     listOfGlobalMessages = new QListWidget(mainWidget);
 
-    textMessage = new GlobalTextEdit(mainWidget);
-    buttonSend = new QPushButton(mainWidget);
+    textMessage = new GlobalTextEdit(sendWidget);
+    buttonSend = new QPushButton(sendWidget);
     buttonPrivateMessages = new QPushButton(mainWidget);
     buttonFriends = new QPushButton(mainWidget);
-    affix = new QPushButton(mainWidget);
-    labelFloodError = new ClickableLabel(mainWidget, false);
-    labelBan = new ClickableLabel(mainWidget, false);
+    buttonAffix = new QPushButton(sendWidget);
+    labelFloodError = new ClickableLabel(textMessage, false);
+    labelBan = new ClickableLabel(textMessage, false);
 
-    floodTimer = new FloodTimer(this);
+    floodTimer = new FloodTimer(textMessage);
 
-    labelTimerShow = new QLabel(mainWidget);
+    labelTimerShow = new QLabel(textMessage);
     labelTimerShow->setAlignment(Qt::AlignCenter);
     QFont fontTimerShow("Times New Roman", 11);
     labelTimerShow->setFont(fontTimerShow);
     labelTimerShow->setContentsMargins(0,0,5,2);
     labelTimerShow->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    labelTimerShow->setStyleSheet("background: transparent;"
+                                  "border: 0px;");
     labelTimerShow->close();
 
-    labelSymbolsCount = new QLabel(mainWidget);
+    labelSymbolsCount = new QLabel(textMessage);
     labelSymbolsCount->setContentsMargins(0,0,5,2);
     labelSymbolsCount->setFont(QFont("Times New Roman", 11));
+    labelSymbolsCount->setStyleSheet("background: transparent;"
+                                     "border: 0px;");
     labelSymbolsCount->close();
 
-    affix->setStyleSheet("background: transparent;");
-    affix->setFixedSize(19,26);
-    affix->setIcon(QIcon(":images/affix30.png"));
-    affix->setIconSize(QSize(19,26));
+    buttonAffix->setStyleSheet("background: transparent;"
+                         "border: 0px;");
+    //affix->setFixedSize(19,26);
+    buttonAffix->setFixedSize(15,20);
+    buttonAffix->setIcon(QIcon(":images/affix30.png"));
+    buttonAffix->setIconSize(QSize(15,20));
 
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
@@ -76,8 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
                                                              "subcontrol-origin: margin;"
                                                              "}");
 
-    //textMessage->setMinimumSize(300,50);
-    //textMessage->setMaximumSize(600,100);
     textMessage->setFixedHeight(48);
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     textMessage->setStyleSheet("border-radius: 8px;"
@@ -114,15 +126,20 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages->setMinimumSize(300,250);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     listOfGlobalMessages->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    listOfGlobalMessages->setStyleSheet("border-color: #DBDBDB;");
+    listOfGlobalMessages->setStyleSheet("border-color: gray;");
 
     buttonSend->setFixedSize(70,26);
     buttonSend->setText("Send");
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    /*
     buttonSend->setStyleSheet("background: black;"
                               "border-radius: 10px;"
                               "color: white;");
-
+                              */
+    buttonSend->setStyleSheet("background: transparent;"
+                              "border: 2px solid black;"
+                              "border-radius: 10px;"
+                              "color: black;");
     QString buttonDefaultStyle = "QPushButton{"
                                  "background: transparent;"
                                  "border: 0px;"
@@ -139,21 +156,26 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonFriends->setStyleSheet(buttonDefaultStyle);
     buttonFriends->setText("Friends");
 
-    mainLayout->setVerticalSpacing(6);
+    sendLayout->addWidget(textMessage, 0, 0, 1, 9);
+    sendLayout->addWidget(labelFloodError, 0, 0, 1, 8);
+    sendLayout->addWidget(labelTimerShow, 0, 8, 1, 1);
+    sendLayout->addWidget(labelSymbolsCount, 0,0,1,9, Qt::AlignRight | Qt::AlignBottom);
+    sendLayout->addWidget(labelBan, 0, 0, 1, 8);
+    sendLayout->addWidget(buttonSend, 1, 8, 1, 1);
+    sendLayout->addWidget(buttonAffix, 1, 7, 1, 1);
+
     mainLayout->setContentsMargins(8,2,0,6);
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
-    mainLayout->addWidget(textMessage, 8, 0, 1, 9);
-    mainLayout->addWidget(labelFloodError, 8, 0, 1, 8);
-    mainLayout->addWidget(labelTimerShow, 8, 8, 1, 1);
-    mainLayout->addWidget(labelSymbolsCount, 8,0,1,9, Qt::AlignRight | Qt::AlignBottom);
-    mainLayout->addWidget(labelBan, 8, 0, 1, 8);
-    mainLayout->addWidget(buttonSend, 9, 8, 1, 1);
-    mainLayout->addWidget(affix, 9, 7, 1, 1);
-    mainLayout->addWidget(temp, 8,0,2,9);
+    mainLayout->addWidget(sendWidget, 8,0,2,9);
     mainLayout->addWidget(buttonFriends, 0,9,1,2);
     mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
 
-    labelFloodError->setStyleSheet("color: red;");
+    stackOfWidgets->addWidget(mainWidget);
+    stackOfWidgets->setCurrentWidget(mainWidget);
+
+    labelFloodError->setStyleSheet("color: red;"
+                                   "background: transparent;"
+                                   "border: 0px;");
     QFont fontGothic("Century Gothic");
     fontGothic.setBold(true);
     fontGothic.setPointSize(16);
@@ -162,7 +184,9 @@ MainWindow::MainWindow(QWidget *parent) :
     labelFloodError->setText("Flood");
     labelFloodError->close();
 
-    labelBan->setStyleSheet("color: red;");
+    labelBan->setStyleSheet("color: red;"
+                            "background: transparent;"
+                            "border: 0px;");
     fontGothic.setBold(true);
     fontGothic.setPointSize(16);
     labelBan->setFont(fontGothic);
@@ -170,6 +194,7 @@ MainWindow::MainWindow(QWidget *parent) :
     labelBan->setText("Ban");
     labelBan->close();
 
+    buttonAffix->installEventFilter(this);
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(sendMessage()));
@@ -294,6 +319,17 @@ void MainWindow::updateTime()
             time = time/10;
         }
     labelTimerShow->setText(result);
+}
+
+bool MainWindow::eventFilter(QObject *target, QEvent *event)
+{
+    if(target == buttonAffix){
+        if (event->type() == QEvent::HoverEnter)
+            buttonAffix->setIcon(QIcon(":/images/affix30gray.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonAffix->setIcon(QIcon(":/images/affix30.png"));
+    }
+    return QMainWindow::eventFilter(target, event);
 }
 
 MainWindow::~MainWindow(){

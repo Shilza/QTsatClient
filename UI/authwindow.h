@@ -100,7 +100,7 @@ private:
 
 public:
     explicit AuthWindow(QMainWindow *parent = 0);
-    bool eventFilter(QObject *watched, QEvent *event);
+    bool eventFilter(QObject *target, QEvent *event);
     ~AuthWindow();
 
 signals:

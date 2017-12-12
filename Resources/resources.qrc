@@ -10,5 +10,6 @@
         <file>gradient.png</file>
         <file>affix.png</file>
         <file>affix30.png</file>
+        <file>affix30gray.png</file>
     </qresource>
 </RCC>
