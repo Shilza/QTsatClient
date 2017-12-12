@@ -11,5 +11,9 @@
         <file>affix.png</file>
         <file>affix30.png</file>
         <file>affix30gray.png</file>
+        <file>photos.png</file>
+        <file>videos.png</file>
+        <file>audios.png</file>
+        <file>documents.png</file>
     </qresource>
 </RCC>
