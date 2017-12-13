@@ -32,7 +32,7 @@ private:
     QStackedWidget *stackOfWidgets;
     QWidget *mainWidget;
     QWidget *sendWidget;
-    QWidget *affixWidget;
+    QPushButton *affixWidget;
     QWidget *subAffixWidget;
     QHBoxLayout *affixLayout;
     QLabel *labelBicycle;

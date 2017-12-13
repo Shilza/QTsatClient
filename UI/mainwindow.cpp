@@ -34,17 +34,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     subAffixWidget = new QWidget(sendWidget);
-    affixWidget = new QWidget(subAffixWidget);
+    affixWidget = new QPushButton(subAffixWidget);
+    affixWidget->setMaximumHeight(100);
     affixLayout = new QHBoxLayout(affixWidget);
 
 
-    affixWidget->setFixedWidth(113);
+    affixWidget->setFixedWidth(118);
+    affixWidget->setMinimumHeight(19);
     affixWidget->move(150, 6);
 
     affixWidget->setContentsMargins(0,0,0,4);
     affixLayout->setMargin(0);
     affixLayout->setSpacing(8);
-    affixWidget->setStyleSheet("background: #E5F0F0;"
+    affixWidget->setStyleSheet("background: transparent;"
                                "border-bottom: 1px solid black;");
 
     buttonPhotos = new QPushButton(affixWidget);
@@ -52,25 +54,25 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonAudios = new QPushButton(affixWidget);
     buttonDocuments = new QPushButton(affixWidget);
 
-    buttonDocuments->setIcon(QIcon(":/images/documents"));
-    buttonAudios->setIcon(QIcon(":/images/audios.png"));
-    buttonVideos->setIcon(QIcon(":/images/videos.png"));
-    buttonPhotos->setIcon(QIcon(":/images/photos.png"));
+    buttonDocuments->setIcon(QIcon(":/images/documentsGray"));
+    buttonAudios->setIcon(QIcon(":/images/audiosGray.png"));
+    buttonVideos->setIcon(QIcon(":/images/videosGray.png"));
+    buttonPhotos->setIcon(QIcon(":/images/photosGray.png"));
 
     buttonPhotos->setFixedSize(15, 15);
     buttonVideos->setFixedSize(15, 15);
     buttonAudios->setFixedSize(15, 15);
     buttonDocuments->setFixedSize(15, 15);
 
-    affixLayout->addWidget(buttonPhotos, 1, Qt::AlignVCenter);
+    affixLayout->addWidget(buttonDocuments, 1, Qt::AlignVCenter);
     affixLayout->addWidget(buttonVideos, 1, Qt::AlignVCenter);
     affixLayout->addWidget(buttonAudios, 1, Qt::AlignVCenter);
-    affixLayout->addWidget(buttonDocuments, 1, Qt::AlignVCenter);
+    affixLayout->addWidget(buttonPhotos, 1, Qt::AlignVCenter);
 
-    buttonPhotos->setStyleSheet("border-bottom: 0px;");
-    buttonVideos->setStyleSheet("border-bottom: 0px;");
-    buttonAudios->setStyleSheet("border-bottom: 0px;");
-    buttonDocuments->setStyleSheet("border-bottom: 0px;");
+    buttonPhotos->setStyleSheet("border: 0px;");
+    buttonVideos->setStyleSheet("border: 0px;");
+    buttonAudios->setStyleSheet("border: 0px;");
+    buttonDocuments->setStyleSheet("border: 0px;");
 
     buttonPhotos->setIconSize(QSize(15,15));
     buttonVideos->setIconSize(QSize(15,15));
@@ -102,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     labelSymbolsCount = new QLabel(textMessage);
     labelSymbolsCount->setContentsMargins(0,0,5,2);
-    labelSymbolsCount->setFont(QFont("Times New Roman", 11));
+    labelSymbolsCount->setFont(QFont("Times New Roman", 10));
     labelSymbolsCount->setStyleSheet("background: transparent;"
                                      "border: 0px;");
     labelSymbolsCount->close();
@@ -113,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
                                 "border: 0px;");
 
     buttonAffix->setStyleSheet("background: transparent;"
-                         "border: 0px;");
+                               "border: 0px;");
     buttonAffix->setFixedSize(15,20);
     buttonAffix->setIcon(QIcon(":images/affix30.png"));
     buttonAffix->setIconSize(QSize(15,20));
@@ -145,12 +147,11 @@ MainWindow::MainWindow(QWidget *parent) :
                                                              "subcontrol-origin: margin;"
                                                              "}");
 
-    textMessage->setFixedHeight(48);
+    textMessage->setFixedHeight(50);
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     textMessage->setStyleSheet("border-radius: 8px;"
                                "border: 1px solid gray;"
-                               "background-color: white;"
-                               );
+                               "background-color: white;");
     textMessage->setContentsMargins(2,1,2,1);
     textMessage->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                     "background: white;"
@@ -178,12 +179,12 @@ MainWindow::MainWindow(QWidget *parent) :
                                     "subcontrol-origin: margin;"
                                     "}");
 
-    listOfGlobalMessages->setMinimumSize(300,250);
+    listOfGlobalMessages->setMinimumSize(300, 250);
     listOfGlobalMessages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     listOfGlobalMessages->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     listOfGlobalMessages->setStyleSheet("border-color: gray;");
 
-    buttonSend->setFixedSize(70,26);
+    buttonSend->setFixedSize(70, 26);
     buttonSend->setCursor(Qt::PointingHandCursor);
     buttonSend->setText("Send");
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -208,21 +209,21 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonFriends->setStyleSheet(buttonDefaultStyle);
     buttonFriends->setText("Friends");
 
-    sendLayout->addWidget(textMessage, 0, 0, 1, 9);
-    sendLayout->addWidget(labelFloodError, 0, 0, 1, 8);
-    sendLayout->addWidget(labelTimerShow, 0, 8, 1, 1);
-    sendLayout->addWidget(labelSymbolsCount, 0,0,1,9, Qt::AlignRight | Qt::AlignBottom);
-    sendLayout->addWidget(labelBan, 0, 0, 1, 8);
-    sendLayout->addWidget(labelBicycle, 1, 7, -1, -1);
-    sendLayout->addWidget(buttonSend, 1, 8, 1, 1);
-    sendLayout->addWidget(buttonAffix, 1, 7, 1, 1);
-    sendLayout->addWidget(subAffixWidget, 1, 4, -1, -1);
+    sendLayout->addWidget(textMessage,       0, 0, 1, 9);
+    sendLayout->addWidget(labelFloodError,   0, 0, 1, 8);
+    sendLayout->addWidget(labelTimerShow,    0, 8, 1, 1);
+    sendLayout->addWidget(labelSymbolsCount, 0, 0, 1, 9, Qt::AlignRight | Qt::AlignBottom);
+    sendLayout->addWidget(labelBan,          0, 0, 1, 8);
+    sendLayout->addWidget(labelBicycle,      1, 7, -1, -1);
+    sendLayout->addWidget(buttonSend,        1, 8, 1, 1);
+    sendLayout->addWidget(buttonAffix,       1, 7, 1, 1);
+    sendLayout->addWidget(subAffixWidget,    1, 4, -1, -1);
 
-    mainLayout->setContentsMargins(8,2,0,6);
+    mainLayout->setContentsMargins(8, 2, 0, 6);
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
-    mainLayout->addWidget(sendWidget, 8,0,2,9);
-    mainLayout->addWidget(buttonFriends, 0,9,1,2);
-    mainLayout->addWidget(buttonPrivateMessages, 1,9,1,2);
+    mainLayout->addWidget(sendWidget, 8, 0, 2, 9);
+    mainLayout->addWidget(buttonFriends, 0, 9, 1, 2);
+    mainLayout->addWidget(buttonPrivateMessages, 1, 9, 1, 2);
 
 
 
@@ -252,6 +253,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     buttonAffix->installEventFilter(this);
     affixWidget->installEventFilter(this);
+    buttonPhotos->installEventFilter(this);
+    buttonVideos->installEventFilter(this);
+    buttonAudios->installEventFilter(this);
+    buttonDocuments->installEventFilter(this);
     connect(buttonSend, SIGNAL(released()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(printMessages()));
     connect(textMessage, SIGNAL(enter()), this, SLOT(sendMessage()));
@@ -378,30 +383,48 @@ void MainWindow::updateTime()
     labelTimerShow->setText(result);
 }
 
-bool MainWindow::eventFilter(QObject *target, QEvent *event)
-{
-    static bool affixIsHoverLeave = true;
-    if(target == affixWidget){
-        if (event->type() == QEvent::HoverEnter)
-        qDebug() << "Sas";
-    }
-    if(target == buttonAffix){
+bool MainWindow::eventFilter(QObject *target, QEvent *event){
+    if(target == buttonAffix || target == affixWidget){
         if (event->type() == QEvent::HoverEnter){
-            affixIsHoverLeave = false;
             buttonAffix->setIcon(QIcon(":/images/affix30gray.png"));
             QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
-            animation->setEndValue(QPoint(35, 6));
-            animation->setDuration(300);
+            animation->setEndValue(QPoint(30, 6));
+            animation->setDuration(200);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        else if (event->type() == QEvent::HoverLeave){
+            buttonAffix->setIcon(QIcon(":/images/affix30.png"));
+            QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
+            animation->setEndValue(QPoint(150, 6));
+            animation->setDuration(200);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
     }
-    if(affixIsHoverLeave){
-        buttonAffix->setIcon(QIcon(":/images/affix30.png"));
-        QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
-        animation->setEndValue(QPoint(150, 6));
-        animation->setDuration(300);
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
+    else if(target == buttonPhotos){
+        if(event->type() == QEvent::HoverEnter)
+            buttonPhotos->setIcon(QIcon(":/images/photos.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonPhotos->setIcon(QIcon(":/images/photosGray.png"));
     }
+    else if(target == buttonAudios){
+        if(event->type() == QEvent::HoverEnter)
+            buttonAudios->setIcon(QIcon(":/images/audios.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonAudios->setIcon(QIcon(":/images/audiosGray.png"));
+    }
+    else if(target == buttonVideos){
+        if(event->type() == QEvent::HoverEnter)
+            buttonVideos->setIcon(QIcon(":/images/videos.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonVideos->setIcon(QIcon(":/images/videosGray.png"));
+    }
+    else if(target == buttonDocuments){
+        if(event->type() == QEvent::HoverEnter)
+            buttonDocuments->setIcon(QIcon(":/images/documents.png"));
+        else if(event->type() == QEvent::HoverLeave)
+            buttonDocuments->setIcon(QIcon(":/images/documentsGray.png"));
+    }
+
     return QMainWindow::eventFilter(target, event);
 }
 

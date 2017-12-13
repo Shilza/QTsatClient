@@ -15,5 +15,9 @@
         <file>videos.png</file>
         <file>audios.png</file>
         <file>documents.png</file>
+        <file>documentsGray.png</file>
+        <file>photosGray.png</file>
+        <file>videosGray.png</file>
+        <file>audiosGray.png</file>
     </qresource>
 </RCC>

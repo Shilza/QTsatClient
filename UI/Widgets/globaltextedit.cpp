@@ -1,6 +1,8 @@
 #include "globaltextedit.h"
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     connect(document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), this, SLOT(textEditSizeChange(QSizeF)));
     connect(this, SIGNAL(textChanged()), SLOT(validator()));
 }
@@ -27,8 +29,12 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
     else if(event->matches(QKeySequence::Paste)){
         QString tempText = QApplication::clipboard()->text();
         quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-this->toPlainText().length();
+        if(this->toPlainText().indexOf('\n')!=-1)
+            tempText = tempText.simplified();
+
         if(tempText.length()>maxSize)
             tempText = tempText.left(maxSize);
+
         QTextCursor cursor = this->textCursor();
         quint8 tempPos = cursor.position();
         this->setText(this->toPlainText().insert(cursor.position(), tempText));
@@ -51,7 +57,7 @@ void GlobalTextEdit::textEditSizeChange(QSizeF changedSize)
 
 void GlobalTextEdit::validator()
 {
-    static QString lastTextState=this->toPlainText();
+    static QString lastTextState = this->toPlainText();
     if(this->toPlainText().length()>MAX_GLOBAL_MESSAGE_SIZE)
         this->setText(lastTextState);
     else
