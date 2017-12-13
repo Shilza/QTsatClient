@@ -49,6 +49,11 @@ private:
     QLabel *labelSymbolsCount;
     QGridLayout *sendLayout;
 
+    QPushButton *buttonPhotos;
+    QPushButton *buttonVideos;
+    QPushButton *buttonAudios;
+    QPushButton *buttonDocuments;
+
     FloodTimer *floodTimer;
 
     QQueue<QString> lastMessages;

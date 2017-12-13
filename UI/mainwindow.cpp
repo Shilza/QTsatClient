@@ -38,32 +38,44 @@ MainWindow::MainWindow(QWidget *parent) :
     affixLayout = new QHBoxLayout(affixWidget);
 
 
-    affixWidget->setFixedWidth(105);
+    affixWidget->setFixedWidth(113);
     affixWidget->move(150, 6);
 
     affixWidget->setContentsMargins(0,0,0,4);
     affixLayout->setMargin(0);
     affixLayout->setSpacing(8);
-    affixWidget->setStyleSheet("background: transparent;"
+    affixWidget->setStyleSheet("background: #E5F0F0;"
                                "border-bottom: 1px solid black;");
 
-    QPushButton *tempButtons[4];
-    tempButtons[0] = new QPushButton(affixWidget);
-    tempButtons[1] = new QPushButton(affixWidget);
-    tempButtons[2] = new QPushButton(affixWidget);
-    tempButtons[3] = new QPushButton(affixWidget);
+    buttonPhotos = new QPushButton(affixWidget);
+    buttonVideos = new QPushButton(affixWidget);
+    buttonAudios = new QPushButton(affixWidget);
+    buttonDocuments = new QPushButton(affixWidget);
 
-    tempButtons[0]->setIcon(QIcon(":/images/documents"));
-    tempButtons[1]->setIcon(QIcon(":/images/audios.png"));
-    tempButtons[2]->setIcon(QIcon(":/images/videos.png"));
-    tempButtons[3]->setIcon(QIcon(":/images/photos.png"));
-    for(int i=0; i<4; i++){
-        tempButtons[i]->setFixedSize(15, 15);
-        affixLayout->addWidget(tempButtons[i], 1, Qt::AlignVCenter);
-        tempButtons[i]->setStyleSheet("background: #E5F0F0; border-bottom: 0px;");
-        tempButtons[i]->setIconSize(QSize(15,15));
-    }
+    buttonDocuments->setIcon(QIcon(":/images/documents"));
+    buttonAudios->setIcon(QIcon(":/images/audios.png"));
+    buttonVideos->setIcon(QIcon(":/images/videos.png"));
+    buttonPhotos->setIcon(QIcon(":/images/photos.png"));
 
+    buttonPhotos->setFixedSize(15, 15);
+    buttonVideos->setFixedSize(15, 15);
+    buttonAudios->setFixedSize(15, 15);
+    buttonDocuments->setFixedSize(15, 15);
+
+    affixLayout->addWidget(buttonPhotos, 1, Qt::AlignVCenter);
+    affixLayout->addWidget(buttonVideos, 1, Qt::AlignVCenter);
+    affixLayout->addWidget(buttonAudios, 1, Qt::AlignVCenter);
+    affixLayout->addWidget(buttonDocuments, 1, Qt::AlignVCenter);
+
+    buttonPhotos->setStyleSheet("border-bottom: 0px;");
+    buttonVideos->setStyleSheet("border-bottom: 0px;");
+    buttonAudios->setStyleSheet("border-bottom: 0px;");
+    buttonDocuments->setStyleSheet("border-bottom: 0px;");
+
+    buttonPhotos->setIconSize(QSize(15,15));
+    buttonVideos->setIconSize(QSize(15,15));
+    buttonAudios->setIconSize(QSize(15,15));
+    buttonDocuments->setIconSize(QSize(15,15));
 
     labelBicycle = new QLabel(sendWidget);
     buttonSend = new QPushButton(sendWidget);
@@ -102,10 +114,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     buttonAffix->setStyleSheet("background: transparent;"
                          "border: 0px;");
-    //affix->setFixedSize(19,26);
     buttonAffix->setFixedSize(15,20);
     buttonAffix->setIcon(QIcon(":images/affix30.png"));
     buttonAffix->setIconSize(QSize(15,20));
+
 
     listOfGlobalMessages->verticalScrollBar()->setStyleSheet("QScrollBar:vertical{"
                                                              "background: white;"
@@ -172,13 +184,10 @@ MainWindow::MainWindow(QWidget *parent) :
     listOfGlobalMessages->setStyleSheet("border-color: gray;");
 
     buttonSend->setFixedSize(70,26);
+    buttonSend->setCursor(Qt::PointingHandCursor);
     buttonSend->setText("Send");
     buttonSend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    /*
-    buttonSend->setStyleSheet("background: black;"
-                              "border-radius: 10px;"
-                              "color: white;");
-                              */
+
     buttonSend->setStyleSheet("background: transparent;"
                               "border: 2px solid black;"
                               "border-radius: 10px;"
@@ -371,21 +380,27 @@ void MainWindow::updateTime()
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
 {
+    static bool affixIsHoverLeave = true;
+    if(target == affixWidget){
+        if (event->type() == QEvent::HoverEnter)
+        qDebug() << "Sas";
+    }
     if(target == buttonAffix){
         if (event->type() == QEvent::HoverEnter){
+            affixIsHoverLeave = false;
             buttonAffix->setIcon(QIcon(":/images/affix30gray.png"));
             QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
             animation->setEndValue(QPoint(35, 6));
             animation->setDuration(300);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
-        else if(event->type() == QEvent::HoverLeave){
-            buttonAffix->setIcon(QIcon(":/images/affix30.png"));
-            QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
-            animation->setEndValue(QPoint(150, 6));
-            animation->setDuration(300);
-            animation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
+    }
+    if(affixIsHoverLeave){
+        buttonAffix->setIcon(QIcon(":/images/affix30.png"));
+        QPropertyAnimation *animation = new QPropertyAnimation(affixWidget, "pos");
+        animation->setEndValue(QPoint(150, 6));
+        animation->setDuration(300);
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
     }
     return QMainWindow::eventFilter(target, event);
 }
