@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QAbstractTextDocumentLayout>
+#include <QMimeData>
+#include <QImage>
 #include "Config/def.h"
 
 class GlobalTextEdit : public QTextEdit{
@@ -15,9 +17,10 @@ private:
     void keyPressEvent(QKeyEvent *e);
 signals:
     void enter();
+    void imageReceived(QImage);
 private slots:
-    void textEditSizeChange(QSizeF changedSize);
     void validator();
+    void showMenu(QPoint){}
 };
 
 #endif // GLOBALTEXTEDIT_H

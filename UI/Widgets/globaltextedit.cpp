@@ -3,8 +3,9 @@
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    connect(document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), this, SLOT(textEditSizeChange(QSizeF)));
+    setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(textChanged()), SLOT(validator()));
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
 }
 
 void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
@@ -28,8 +29,21 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
         return;
     else if(event->matches(QKeySequence::Paste)){
         QString tempText = QApplication::clipboard()->text();
-        quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-this->toPlainText().length();
-        if(this->toPlainText().indexOf('\n')!=-1)
+
+        const QMimeData* mime = QApplication::clipboard()->mimeData();
+        if(mime->hasImage()){
+            emit imageReceived(mime->imageData().value<QImage>());
+        }
+
+        quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-toPlainText().length();
+
+        if(toPlainText().indexOf('\n') == -1){
+            if(tempText.indexOf('\n')!=-1)
+                tempText = tempText.simplified().insert(tempText.indexOf('\n'), '\n');
+            else
+                tempText = tempText.simplified();
+        }
+        else if(toPlainText().indexOf('\n')!=-1)
             tempText = tempText.simplified();
 
         if(tempText.length()>maxSize)
@@ -37,29 +51,25 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
 
         QTextCursor cursor = this->textCursor();
         quint8 tempPos = cursor.position();
-        this->setText(this->toPlainText().insert(cursor.position(), tempText));
+        setText(this->toPlainText().insert(cursor.position(), tempText));
         cursor.setPosition(tempPos+tempText.length());
-        this->setTextCursor(cursor);
+        setTextCursor(cursor);
         return;
     }
 
     QTextEdit::keyPressEvent(event);
 }
 
-void GlobalTextEdit::textEditSizeChange(QSizeF changedSize)
-{
-    static QSizeF lastState=QSizeF(0.0,0.0);
-    if(lastState.height()!=changedSize.height()){
-        this->setFixedHeight(changedSize.height()>47 ? (changedSize.height()<138 ? changedSize.height()+1 : 139) : 48);
-    }
-    lastState=changedSize;
-}
-
 void GlobalTextEdit::validator()
 {
     static QString lastTextState = this->toPlainText();
-    if(this->toPlainText().length()>MAX_GLOBAL_MESSAGE_SIZE)
-        this->setText(lastTextState);
+    if(toPlainText().length()>MAX_GLOBAL_MESSAGE_SIZE){
+        QTextCursor cursor = this->textCursor();
+        quint8 tempPos = cursor.position();
+        setText(lastTextState);
+        cursor.setPosition(tempPos-1);
+        setTextCursor(cursor);
+    }
     else
         lastTextState = this->toPlainText();
 }

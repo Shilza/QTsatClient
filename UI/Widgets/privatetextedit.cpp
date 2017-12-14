@@ -1,6 +1,8 @@
 #include "privatetextedit.h"
 
-PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){}
+PrivateTextEdit::PrivateTextEdit(QWidget *parent) : QTextEdit(parent){
+    connect(document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), this, SLOT(textEditSizeChange(QSizeF)));
+}
 
 void PrivateTextEdit::keyPressEvent(QKeyEvent *e)
 {
@@ -30,4 +32,12 @@ void PrivateTextEdit::keyPressEvent(QKeyEvent *e)
         return;
 
     QTextEdit::keyPressEvent(e);
+}
+
+void PrivateTextEdit::textEditSizeChange(QSizeF changedSize){
+    static QSizeF lastState=QSizeF(0.0,0.0);
+    if(lastState.height()!=changedSize.height()){
+        this->setFixedHeight(changedSize.height()>47 ? (changedSize.height()<138 ? changedSize.height()+1 : 139) : 48);
+    }
+    lastState=changedSize;
 }

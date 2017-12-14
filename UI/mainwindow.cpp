@@ -38,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
     affixWidget->setMaximumHeight(100);
     affixLayout = new QHBoxLayout(affixWidget);
 
-
     affixWidget->setFixedWidth(118);
     affixWidget->setMinimumHeight(19);
     affixWidget->move(150, 6);
@@ -85,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonFriends = new QPushButton(mainWidget);
     buttonAffix = new QPushButton(sendWidget);
     labelFloodError = new ClickableLabel(textMessage, false);
-    labelBan = new ClickableLabel(textMessage, false);
+    labelBan = new QLabel(textMessage);
 
     subAffixWidget->setStyleSheet("background: transparent;"
                                   "border: 0px;");
@@ -146,7 +145,6 @@ MainWindow::MainWindow(QWidget *parent) :
                                                              "subcontrol-position: left;"
                                                              "subcontrol-origin: margin;"
                                                              "}");
-
     textMessage->setFixedHeight(50);
     textMessage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     textMessage->setStyleSheet("border-radius: 8px;"
@@ -209,6 +207,10 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonFriends->setStyleSheet(buttonDefaultStyle);
     buttonFriends->setText("Friends");
 
+    sendedImage = new QPushButton(mainWidget);
+    sendedImage->setFixedSize(80,80);
+    sendedImage->close();
+
     sendLayout->addWidget(textMessage,       0, 0, 1, 9);
     sendLayout->addWidget(labelFloodError,   0, 0, 1, 8);
     sendLayout->addWidget(labelTimerShow,    0, 8, 1, 1);
@@ -221,6 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mainLayout->setContentsMargins(8, 2, 0, 6);
     mainLayout->addWidget(listOfGlobalMessages, 0, 0, 8, 9);
+    mainLayout->addWidget(sendedImage, 6,0,2,9, Qt::AlignLeft);
     mainLayout->addWidget(sendWidget, 8, 0, 2, 9);
     mainLayout->addWidget(buttonFriends, 0, 9, 1, 2);
     mainLayout->addWidget(buttonPrivateMessages, 1, 9, 1, 2);
@@ -263,8 +266,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(buttonSend, SIGNAL(released()), this, SLOT(sendMessage()));
     connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
-    connect(labelBan, SIGNAL(released()), SLOT(close()));
     connect(textMessage, SIGNAL(textChanged()), this, SLOT(showSymbolsCount()));
+    connect(textMessage, SIGNAL(imageReceived(QImage)), this, SLOT(receivedImageTreatment(QImage)));
 }
 
 void MainWindow::start(QByteArray sessionKey){
@@ -276,6 +279,13 @@ void MainWindow::showSymbolsCount()
 {
     labelSymbolsCount->setText(QString::number(textMessage->toPlainText().length())+"/"+QString::number(MAX_GLOBAL_MESSAGE_SIZE));
     labelSymbolsCount->show();
+}
+
+void MainWindow::receivedImageTreatment(QImage image)
+{
+    sendedImage->setIcon(QIcon(QPixmap::fromImage(image)));
+    sendedImage->setIconSize(QSize(100,100));
+    sendedImage->show();
 }
 
 void MainWindow::sendMessage(){

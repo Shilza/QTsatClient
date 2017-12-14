@@ -10,6 +10,7 @@
 #include <QQueue>
 #include <QPropertyAnimation>
 #include <QStackedWidget>
+#include <QPixmap>
 #include "UI/Widgets/clickablelabel.h"
 #include "UI/Widgets/globaltextedit.h"
 #include "UI/Widgets/privatetextedit.h"
@@ -44,7 +45,7 @@ private:
     QPushButton *buttonAffix;
     GlobalTextEdit *textMessage;
     ClickableLabel *labelFloodError;
-    ClickableLabel *labelBan;
+    QLabel *labelBan;
     QLabel *labelTimerShow;
     QLabel *labelSymbolsCount;
     QGridLayout *sendLayout;
@@ -53,6 +54,7 @@ private:
     QPushButton *buttonVideos;
     QPushButton *buttonAudios;
     QPushButton *buttonDocuments;
+    QPushButton *sendedImage;
 
     FloodTimer *floodTimer;
 
@@ -69,6 +71,7 @@ private slots:
 public slots:
     void start(QByteArray sessionKey);
     void showSymbolsCount();
+    void receivedImageTreatment(QImage);
 };
 
 #endif // MAINWINDOW_H
