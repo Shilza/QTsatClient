@@ -17,7 +17,7 @@ private:
     void keyPressEvent(QKeyEvent *e);
 signals:
     void enter();
-    void imageReceived(QImage);
+    void imageReceived(QPixmap);
 private slots:
     void validator();
     void showMenu(QPoint){}

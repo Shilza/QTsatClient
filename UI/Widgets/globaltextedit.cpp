@@ -32,7 +32,7 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
 
         const QMimeData* mime = QApplication::clipboard()->mimeData();
         if(mime->hasImage()){
-            emit imageReceived(mime->imageData().value<QImage>());
+            emit imageReceived(mime->imageData().value<QPixmap>());
         }
 
         quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-toPlainText().length();

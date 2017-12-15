@@ -30,20 +30,23 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     UDPClient *client;
+
     QStackedWidget *stackOfWidgets;
     QWidget *mainWidget;
+    QHBoxLayout *mainLayout;
+    QWidget *globalChatWidget;
+    QGridLayout *globalChatLayout;
+    QWidget *menuListWidget;
+    QVBoxLayout *menuListLayout;
+
     QWidget *sendWidget;
     QPushButton *affixWidget;
     QWidget *subAffixWidget;
     QHBoxLayout *affixLayout;
     QLabel *labelBicycle;
-    QGridLayout *mainLayout;
-    QListWidget *listOfGlobalMessages;
-    QPushButton *buttonSend;
-    QPushButton *buttonPrivateMessages;
-    QPushButton *buttonFriends;
     QPushButton *buttonAffix;
     GlobalTextEdit *textMessage;
+    QPushButton *buttonSend;
     ClickableLabel *labelFloodError;
     QLabel *labelBan;
     QLabel *labelTimerShow;
@@ -54,11 +57,24 @@ private:
     QPushButton *buttonVideos;
     QPushButton *buttonAudios;
     QPushButton *buttonDocuments;
+
     QPushButton *sendedImage;
+    QPushButton *buttonCloseAffixedPicture;
+    QLabel *toolTipAffixClose;
+    QLabel *originalSize;
+    QLabel *picture;
+    QPixmap affixImage;
 
     FloodTimer *floodTimer;
 
+    QListWidget *listOfGlobalMessages;
+
+    QPushButton *buttonUserPage;
+    QPushButton *buttonPrivateMessages;
+    QPushButton *buttonFriends;
+
     QQueue<QString> lastMessages;
+    void initSendWidget();
 public:
     explicit MainWindow(QWidget *parent = 0);
      bool eventFilter(QObject *target, QEvent *event);
@@ -68,10 +84,12 @@ private slots:
     void printMessages();
     void floodErrorHide();
     void updateTime();
+    void showSymbolsCount();
+    void receivedImageTreatment(QPixmap);
+    void buttonCloseAffixedPicture_released();
+    void showAffixedPicture();
 public slots:
     void start(QByteArray sessionKey);
-    void showSymbolsCount();
-    void receivedImageTreatment(QImage);
 };
 
 #endif // MAINWINDOW_H
