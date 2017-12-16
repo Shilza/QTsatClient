@@ -22,6 +22,5 @@
         <file>affixClose.png</file>
         <file>toolTipAffixClose.png</file>
         <file>originalSize.png</file>
-        <file>skillet.png</file>
     </qresource>
 </RCC>

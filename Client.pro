@@ -38,7 +38,9 @@ SOURCES += \
     UI/Widgets/clickablelabel.cpp \
     UI/Widgets/globaltextedit.cpp \
     UI/Widgets/privatetextedit.cpp \
-    UI/Widgets/wraplabel.cpp
+    UI/Widgets/wraplabel.cpp \
+    UI/Widgets/affiximagewidget.cpp \
+    UI/Widgets/sendwidget.cpp
 
 HEADERS += \
         UI/mainwindow.h \
@@ -51,7 +53,9 @@ HEADERS += \
     UI/Widgets/authlineedit.h \
     UI/Widgets/globaltextedit.h \
     UI/Widgets/privatetextedit.h \
-    UI/Widgets/wraplabel.h
+    UI/Widgets/wraplabel.h \
+    UI/Widgets/affiximagewidget.h \
+    UI/Widgets/sendwidget.h
 
 FORMS += \
         UI/mainwindow.ui \
