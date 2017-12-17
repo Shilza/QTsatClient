@@ -186,6 +186,7 @@ SendWidget::SendWidget(QWidget *parent): QWidget(parent){
     connect(textMessage, SIGNAL(textChanged()), this, SLOT(showSymbolsCount()));
     connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
+    connect(textMessage, SIGNAL(imageReceived(QPixmap)), this, SLOT(imageReceivedRedirect(QPixmap)));
 }
 
 void SendWidget::floodErrorHide(){
@@ -249,6 +250,17 @@ void SendWidget::send()
     lastMessages.push_back(text);
 
     emit messageSended();
+}
+
+void SendWidget::imageReceivedRedirect(QPixmap image){
+    if(countOfAttachment<1){
+        countOfAttachment++;
+        emit imageReceived(image);
+    }
+}
+
+void SendWidget::decrementing(){
+    countOfAttachment--;
 }
 
 SendWidget::~SendWidget(){

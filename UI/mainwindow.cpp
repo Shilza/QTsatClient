@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     client = new UDPClient;
-    resize(650,440);
+    resize(660,444);
 
     mainWidget = new QWidget(this);
     mainLayout = new QHBoxLayout(mainWidget);
@@ -26,11 +26,11 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonPrivateMessages = new QPushButton(menuListWidget);
     buttonFriends = new QPushButton(menuListWidget);
 
-    picture = new QLabel(this);
-
     affixImageWidget = new AffixImageWidget(globalChatWidget);
 
     sendWidget = new SendWidget(globalChatWidget);
+
+    imageView = new ImageView(this);
 
     setCentralWidget(mainWidget);
 
@@ -112,18 +112,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(sendWidget, SIGNAL(messageSended()), this, SLOT(printMessages()));
     connect(sendWidget, SIGNAL(messageSended()), this, SLOT(sendMessage()));
-    connect(sendWidget->getTextMessage(), SIGNAL(imageReceived(QPixmap)), affixImageWidget, SLOT(receivedImageTreatment(QPixmap)));
-    connect(affixImageWidget, SIGNAL(originalSizeReleased(QPixmap)), this, SLOT(showAffixedPicture(QPixmap)));
+    connect(sendWidget, SIGNAL(imageReceived(QPixmap)), affixImageWidget, SLOT(receivedImageTreatment(QPixmap)));
+    connect(affixImageWidget, SIGNAL(originalSizeReleased(QPixmap)), imageView, SLOT(setPicture(QPixmap)));
+    connect(affixImageWidget, SIGNAL(detachmentImage()), sendWidget, SLOT(decrementing()));
 }
 
 void MainWindow::start(QByteArray sessionKey){
     client->sessionKey = sessionKey;
     this->show();
-}
-
-void MainWindow::showAffixedPicture(QPixmap affixImage){
-    picture->setGeometry(50,50, affixImage.width(), affixImage.height());
-    picture->setPixmap(affixImage);
 }
 
 void MainWindow::sendMessage(){

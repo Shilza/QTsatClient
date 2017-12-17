@@ -15,12 +15,12 @@ public:
     explicit GlobalTextEdit(QWidget *parent=0);
 private:
     void keyPressEvent(QKeyEvent *e);
+    void dropEvent(QDropEvent *e);
 signals:
     void enter();
     void imageReceived(QPixmap);
 private slots:
     void validator();
-    void showMenu(QPoint){}
 };
 
 #endif // GLOBALTEXTEDIT_H

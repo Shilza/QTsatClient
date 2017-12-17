@@ -2,6 +2,7 @@
 #define AFFIXIMAGEWIDGET_H
 #include <QPushButton>
 #include <QEvent>
+#include <QHBoxLayout>
 
 class AffixImageWidget : public QWidget
 {
@@ -11,6 +12,8 @@ public:
     QWidget *getSendedImage();
     ~AffixImageWidget();
 private:
+    QWidget *mainWidget;
+    QHBoxLayout *mainAffixLayout;
     QPushButton *sendedImage;
     QPushButton *buttonCloseAffixedPicture;
     QPushButton *toolTipAffixClose;
@@ -23,6 +26,7 @@ private:
     bool eventFilter(QObject *target, QEvent *event);
 signals:
     void originalSizeReleased(QPixmap);
+    void detachmentImage();
 public slots:
     void receivedImageTreatment(QPixmap);
 private slots:

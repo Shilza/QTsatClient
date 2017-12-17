@@ -9,6 +9,7 @@
 #include <QScrollBar>
 #include <QStackedWidget>
 #include <QPixmap>
+#include "UI/Widgets/imageview.h"
 #include "UI/Widgets/sendwidget.h"
 #include "UI/Widgets/affiximagewidget.h"
 #include "UI/Widgets/clickablelabel.h"
@@ -39,7 +40,6 @@ private:
 
     SendWidget *sendWidget;
     AffixImageWidget *affixImageWidget;
-    QLabel *picture;
 
     QListWidget *listOfGlobalMessages;
 
@@ -47,13 +47,14 @@ private:
     QPushButton *buttonPrivateMessages;
     QPushButton *buttonFriends;
 
+    ImageView *imageView;
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 private slots:
     void sendMessage();
     void printMessages();
-    void showAffixedPicture(QPixmap);
 public slots:
     void start(QByteArray sessionKey);
 };

@@ -1,7 +1,12 @@
 #include "affiximagewidget.h"
 
 AffixImageWidget::AffixImageWidget(QWidget *parent) : QWidget(parent){
-    sendedImage = new QPushButton(parent);
+    mainWidget = new QWidget(parent);
+    mainAffixLayout = new QHBoxLayout(mainWidget);
+    mainAffixLayout->setMargin(5);
+    mainWidget->setLayout(mainAffixLayout);
+
+    sendedImage = new QPushButton(mainWidget);
     sendedImage->installEventFilter(this);
 
     toolTipAffixClose = new QPushButton(parent);
@@ -42,7 +47,7 @@ AffixImageWidget::AffixImageWidget(QWidget *parent) : QWidget(parent){
 }
 
 QWidget *AffixImageWidget::getSendedImage(){
-    return sendedImage;
+    return mainWidget;
 }
 
 void AffixImageWidget::receivedImageTreatment(QPixmap image){
@@ -65,10 +70,12 @@ void AffixImageWidget::receivedImageTreatment(QPixmap image){
 
     sendedImage->setIcon(QIcon(image));
     sendedImage->setIconSize(QSize(sendedImageSize-2,sendedImageSize-2));
+    mainAffixLayout->addWidget(sendedImage, 1, Qt::AlignLeft | Qt::AlignBottom);
     sendedImage->show();
 }
 
 void AffixImageWidget::buttonCloseAffixedPicture_released(){
+    emit detachmentImage();
     sendedImage->close();
 }
 

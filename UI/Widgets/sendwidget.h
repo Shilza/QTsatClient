@@ -33,7 +33,7 @@ private:
     QLabel *labelSymbolsCount;
     QGridLayout *sendLayout;
 
-    GlobalTextEdit *textMessage; //temporary, but it's must be private
+    GlobalTextEdit *textMessage;
 
     QPushButton *buttonPhotos;
     QPushButton *buttonVideos;
@@ -44,14 +44,20 @@ private:
 
     QQueue<QString> lastMessages;
 
+    quint8 countOfAttachment=0;
+
     bool eventFilter(QObject *target, QEvent *event);
 signals:
     void messageSended();
+    void imageReceived(QPixmap);
 private slots:
     void floodErrorHide();
     void updateTime();
     void showSymbolsCount();
     void send();
+    void imageReceivedRedirect(QPixmap);
+public slots:
+    void decrementing();
 };
 
 #endif // SENDWIDGET_H

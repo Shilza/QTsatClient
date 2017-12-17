@@ -1,11 +1,12 @@
 #include "globaltextedit.h"
+#include <QDebug>
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setAcceptDrops(true);
     connect(this, SIGNAL(textChanged()), SLOT(validator()));
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showMenu(QPoint)));
 }
 
 void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
@@ -33,31 +34,52 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
         const QMimeData* mime = QApplication::clipboard()->mimeData();
         if(mime->hasImage()){
             emit imageReceived(mime->imageData().value<QPixmap>());
+            return;
         }
+        else if(mime->hasText()){
+            quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-toPlainText().length();
 
-        quint8 maxSize = MAX_GLOBAL_MESSAGE_SIZE-toPlainText().length();
-
-        if(toPlainText().indexOf('\n') == -1){
-            if(tempText.indexOf('\n')!=-1)
-                tempText = tempText.simplified().insert(tempText.indexOf('\n'), '\n');
-            else
+            if(toPlainText().indexOf('\n') == -1){
+                if(tempText.indexOf('\n')!=-1)
+                    tempText = tempText.simplified().insert(tempText.indexOf('\n'), '\n');
+                else
+                    tempText = tempText.simplified();
+            }
+            else if(toPlainText().indexOf('\n')!=-1)
                 tempText = tempText.simplified();
+
+            if(tempText.length()>maxSize)
+                tempText = tempText.left(maxSize);
+
+            QTextCursor cursor = this->textCursor();
+            quint8 tempPos = cursor.position();
+            setText(this->toPlainText().insert(cursor.position(), tempText));
+            cursor.setPosition(tempPos+tempText.length());
+            setTextCursor(cursor);
+            return;
         }
-        else if(toPlainText().indexOf('\n')!=-1)
-            tempText = tempText.simplified();
-
-        if(tempText.length()>maxSize)
-            tempText = tempText.left(maxSize);
-
-        QTextCursor cursor = this->textCursor();
-        quint8 tempPos = cursor.position();
-        setText(this->toPlainText().insert(cursor.position(), tempText));
-        cursor.setPosition(tempPos+tempText.length());
-        setTextCursor(cursor);
-        return;
     }
 
     QTextEdit::keyPressEvent(event);
+}
+
+void GlobalTextEdit::dropEvent(QDropEvent *e){
+    const QMimeData* mime = e->mimeData();
+    if(mime->hasImage()){
+        emit imageReceived(mime->imageData().value<QPixmap>());
+        return;
+    }
+    else if(mime->hasUrls()){
+        for(QUrl a : mime->urls()){
+            QString ext = a.fileName().split('.').back();
+            if(ext == "jpg" || ext=="png" || ext=="bmp" || ext=="jpeg" || ext=="jpe"){
+                QPixmap image;
+                image.load(a.path().right(a.path().length()-1));
+                emit imageReceived(image);
+                return;
+            }
+        }
+    }
 }
 
 void GlobalTextEdit::validator()

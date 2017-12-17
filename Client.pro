@@ -40,7 +40,8 @@ SOURCES += \
     UI/Widgets/privatetextedit.cpp \
     UI/Widgets/wraplabel.cpp \
     UI/Widgets/affiximagewidget.cpp \
-    UI/Widgets/sendwidget.cpp
+    UI/Widgets/sendwidget.cpp \
+    UI/Widgets/imageview.cpp
 
 HEADERS += \
         UI/mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     UI/Widgets/privatetextedit.h \
     UI/Widgets/wraplabel.h \
     UI/Widgets/affiximagewidget.h \
-    UI/Widgets/sendwidget.h
+    UI/Widgets/sendwidget.h \
+    UI/Widgets/imageview.h
 
 FORMS += \
         UI/mainwindow.ui \
