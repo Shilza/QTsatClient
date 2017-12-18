@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QQueue>
 #include <QScrollBar>
+#include <QFileDialog>
 #include <QPropertyAnimation>
 #include "Util/floodtimer.h"
 #include "Util/distance_damerau_levenshtein.h"
@@ -56,6 +57,7 @@ private slots:
     void showSymbolsCount();
     void send();
     void imageReceivedRedirect(QPixmap);
+    void selectImage();
 public slots:
     void decrementing();
 };

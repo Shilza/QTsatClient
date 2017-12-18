@@ -1,5 +1,4 @@
 #include "globaltextedit.h"
-#include <QDebug>
 
 GlobalTextEdit::GlobalTextEdit(QWidget *parent) : QTextEdit(parent){
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -64,17 +63,17 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
 }
 
 void GlobalTextEdit::dropEvent(QDropEvent *e){
-    static const QMimeData* mime = e->mimeData();
+    //const QMimeData* mime = e->mimeData();
 
     QMimeData data;
     data.setText("");
 
-    if(mime->hasImage()){
-        emit imageReceived(mime->imageData().value<QPixmap>());
+    if(e->mimeData()->hasImage()){
+        emit imageReceived(e->mimeData()->imageData().value<QPixmap>());
         QTextEdit::dropEvent(new QDropEvent(QPointF(0,0), Qt::IgnoreAction, &data, Qt::LeftButton, Qt::NoModifier));
     }
-    else if(mime->hasUrls()){
-        for(QUrl a : mime->urls()){
+    else if(e->mimeData()->hasUrls()){
+        for(QUrl a : e->mimeData()->urls()){
             QString ext = a.fileName().split('.').back();
             if(ext == "jpg" || ext=="png" || ext=="bmp" || ext=="jpeg" || ext=="jpe"){
                 QPixmap image;
@@ -85,7 +84,7 @@ void GlobalTextEdit::dropEvent(QDropEvent *e){
         }
     }
     else {
-        if(mime->hasText())
+        if(e->mimeData()->hasText())
             e->setAccepted(false);
         QTextEdit::dropEvent(e);
     }

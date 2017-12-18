@@ -187,6 +187,7 @@ SendWidget::SendWidget(QWidget *parent): QWidget(parent){
     connect(floodTimer, SIGNAL(errorTimeout()), this, SLOT(floodErrorHide()));
     connect(floodTimer, SIGNAL(showTimeout()), this, SLOT(updateTime()));
     connect(textMessage, SIGNAL(imageReceived(QPixmap)), this, SLOT(imageReceivedRedirect(QPixmap)));
+    connect(buttonPhotos, SIGNAL(released()), this, SLOT(selectImage()));
 }
 
 void SendWidget::floodErrorHide(){
@@ -257,6 +258,16 @@ void SendWidget::imageReceivedRedirect(QPixmap image){
         countOfAttachment++;
         emit imageReceived(image);
     }
+}
+
+void SendWidget::selectImage(){
+    static QString lastPath = QDir::homePath();
+    QString temp = QFileDialog::getOpenFileName(this, QObject::tr("Choose an image"), lastPath, QObject::tr("Image file (*.png *.jpg *.jpeg *.jpe *.bmp);;Все файлы (*.*)"));
+    if(temp != ""){
+        imageReceivedRedirect(QPixmap(temp));
+        lastPath = temp;
+    }
+
 }
 
 void SendWidget::decrementing(){

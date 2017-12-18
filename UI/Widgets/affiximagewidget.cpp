@@ -1,4 +1,6 @@
 #include "affiximagewidget.h"
+#include <QDebug>
+#include <QBuffer>
 
 AffixImageWidget::AffixImageWidget(QWidget *parent) : QWidget(parent){
     mainWidget = new QWidget(parent);
@@ -52,6 +54,16 @@ QWidget *AffixImageWidget::getSendedImage(){
 
 void AffixImageWidget::receivedImageTreatment(QPixmap image){
     affixImage = image;
+/*
+    QByteArray b;
+    QBuffer buf(&b);
+    buf.open(QIODevice::WriteOnly);
+    image.save(&buf, "JPG");
+
+    buf.close();
+
+    affixImage.loadFromData(b);
+*/
     if(image.height() > image.width()){
         int leftTop = image.height()/2-image.width()/2;
 
