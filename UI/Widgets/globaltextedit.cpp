@@ -64,10 +64,14 @@ void GlobalTextEdit::keyPressEvent(QKeyEvent *event){
 }
 
 void GlobalTextEdit::dropEvent(QDropEvent *e){
-    const QMimeData* mime = e->mimeData();
+    static const QMimeData* mime = e->mimeData();
+
+    QMimeData data;
+    data.setText("");
+
     if(mime->hasImage()){
         emit imageReceived(mime->imageData().value<QPixmap>());
-        return;
+        QTextEdit::dropEvent(new QDropEvent(QPointF(0,0), Qt::IgnoreAction, &data, Qt::LeftButton, Qt::NoModifier));
     }
     else if(mime->hasUrls()){
         for(QUrl a : mime->urls()){
@@ -76,10 +80,21 @@ void GlobalTextEdit::dropEvent(QDropEvent *e){
                 QPixmap image;
                 image.load(a.path().right(a.path().length()-1));
                 emit imageReceived(image);
-                return;
+                QTextEdit::dropEvent(new QDropEvent(QPointF(0,0), Qt::IgnoreAction, &data, Qt::LeftButton, Qt::NoModifier));
             }
         }
     }
+    else {
+        if(mime->hasText())
+            e->setAccepted(false);
+        QTextEdit::dropEvent(e);
+    }
+}
+
+void GlobalTextEdit::dragEnterEvent(QDragEnterEvent *e){
+    if(e->mimeData()->hasText() && !e->mimeData()->hasUrls())
+        e->setAccepted(false);
+    QTextEdit::dragEnterEvent(e);
 }
 
 void GlobalTextEdit::validator()

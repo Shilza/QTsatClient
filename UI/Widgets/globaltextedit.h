@@ -16,6 +16,7 @@ public:
 private:
     void keyPressEvent(QKeyEvent *e);
     void dropEvent(QDropEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
 signals:
     void enter();
     void imageReceived(QPixmap);
